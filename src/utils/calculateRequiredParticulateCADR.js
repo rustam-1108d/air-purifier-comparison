@@ -1,6 +1,6 @@
 const calculateRequiredParticulateCADR = (
-  outdoorParticulateConcentration,
   indoorParticulateConcentrationLimit,
+  outdoorParticulateConcentration,
   ventilationRate,
   indoorParticulateGenerationRate,
   penetrationFactor = 1,
@@ -18,14 +18,14 @@ const calculateRequiredParticulateCADR = (
 export default calculateRequiredParticulateCADR;
 
 // Example usage:
-const outdoorPm2_5Concentration = 100; // µg/m³
 const indoorPm2_5ConcentrationLimit = 10; // µg/m³
+const outdoorPm2_5Concentration = 100; // µg/m³
 const ventilationRate = 70; // m³/h
 const indoorParticulateGenerationRate = 1000; // µg per hour
 
 const requiredCADR = calculateRequiredParticulateCADR(
-  outdoorPm2_5Concentration,
   indoorPm2_5ConcentrationLimit,
+  outdoorPm2_5Concentration,
   ventilationRate,
   indoorParticulateGenerationRate
 );
