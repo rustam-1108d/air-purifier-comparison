@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react'
+
+import calculateRequiredParticulateCADR from './utils/calculateRequiredParticulateCADR';
+
 import './App.css'
 
 function App() {
@@ -8,6 +11,22 @@ function App() {
     indoorPm2_5ConcentrationLimit: 5,
     indoorPm10ConcentrationLimit: 15,
     ventilationRate: 0,
+    indoorPm2_5GenerationRate: 0,
+    indoorPm10GenerationRate: 0,
+  });
+
+  const requiredPm2_5CADR = calculateRequiredParticulateCADR({
+    indoorParticulateConcentrationLimit: form.indoorPm2_5ConcentrationLimit,
+    outdoorParticulateConcentration: form.outdoorPm2_5Concentration,
+    ventilationRate: form.ventilationRate,
+    indoorParticulateGenerationRate: form.indoorPm2_5GenerationRate,
+  });
+
+  const requiredPm10CADR = calculateRequiredParticulateCADR({
+    indoorParticulateConcentrationLimit: form.indoorPm10ConcentrationLimit,
+    outdoorParticulateConcentration: form.outdoorPm10Concentration,
+    ventilationRate: form.ventilationRate,
+    indoorParticulateGenerationRate: form.indoorPm10GenerationRate,
   });
 
   console.log(form);
@@ -55,6 +74,19 @@ function App() {
       <div>
         <label htmlFor="ventilationRate">Ventilation Rate</label>
         <input type="text" id="ventilationRate" name="ventilationRate" maxLength={4} inputMode="numeric" pattern="\d*" value={form.ventilationRate} onChange={handleChange} onBlur={handleBlur} />
+      </div>
+      <div>
+        <label htmlFor="indoorPm2_5GenerationRate">Indoor PM2.5 Generation Rate</label>
+        <input type="text" id="indoorPm2_5GenerationRate" name="indoorPm2_5GenerationRate" maxLength={4} inputMode="numeric" pattern="\d*" value={form.indoorPm2_5GenerationRate} onChange={handleChange} onBlur={handleBlur} />
+      </div>
+      <div>
+        <label htmlFor="indoorPm10GenerationRate">Indoor PM10 Generation Rate</label>
+        <input type="text" id="indoorPm10GenerationRate" name="indoorPm10GenerationRate" maxLength={4} inputMode="numeric" pattern="\d*" value={form.indoorPm10GenerationRate} onChange={handleChange} onBlur={handleBlur} />
+      </div>
+
+      <div>
+        <p>Required CADR for PM2.5: {requiredPm2_5CADR.toFixed(2)} m³/h</p>
+        <p>Required CADR for PM10: {requiredPm10CADR.toFixed(2)} m³/h</p>
       </div>
     </>
   )
