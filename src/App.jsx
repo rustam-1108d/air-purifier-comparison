@@ -1,33 +1,61 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [form, setForm] = useState({
+    outdoorPm2_5Concentration: 0,
+    outdoorPm10Concentration: 0,
+    indoorPm2_5ConcentrationLimit: 5,
+    indoorPm10ConcentrationLimit: 15,
+    ventilationRate: 0,
+  });
+
+  console.log(form);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    const numericValue = value.replace(/\D/g, ''); // Remove non-numeric characters
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: numericValue === "" ? "" : Number(numericValue),
+    }));
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+
+    // If the input is empty, set it to 0 on blur
+    if (value === "") {
+      setForm((prev) => ({
+        ...prev,
+        [name]: 0,
+      }));
+    }
+  };
 
   return (
     <>
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <label htmlFor="outdoorPm2_5Concentration">Outdoor PM2.5 Concentration</label>
+        <input type="text" id="outdoorPm2_5Concentration" name="outdoorPm2_5Concentration" maxLength={4} inputMode="numeric" pattern="\d*" value={form.outdoorPm2_5Concentration} onChange={handleChange} onBlur={handleBlur} />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+      <div>
+        <label htmlFor="outdoorPm10Concentration">Outdoor PM10 Concentration</label>
+        <input type="text" id="outdoorPm10Concentration" name="outdoorPm10Concentration" maxLength={4} inputMode="numeric" pattern="\d*" value={form.outdoorPm10Concentration} onChange={handleChange} onBlur={handleBlur} />
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <div>
+        <label htmlFor="indoorPm2_5ConcentrationLimit">Indoor PM2.5 Concentration Limit</label>
+        <input type="text" id="indoorPm2_5ConcentrationLimit" name="indoorPm2_5ConcentrationLimit" maxLength={4} inputMode="numeric" pattern="\d*" value={form.indoorPm2_5ConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
+      </div>
+      <div>
+        <label htmlFor="indoorPm10ConcentrationLimit">Indoor PM10 Concentration Limit</label>
+        <input type="text" id="indoorPm10ConcentrationLimit" name="indoorPm10ConcentrationLimit" maxLength={4} inputMode="numeric" pattern="\d*" value={form.indoorPm10ConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
+      </div>
+      <div>
+        <label htmlFor="ventilationRate">Ventilation Rate</label>
+        <input type="text" id="ventilationRate" name="ventilationRate" maxLength={4} inputMode="numeric" pattern="\d*" value={form.ventilationRate} onChange={handleChange} onBlur={handleBlur} />
+      </div>
     </>
   )
 }
