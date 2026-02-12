@@ -6,7 +6,7 @@ const calculateRequiredParticulateCADR = ({
   penetrationFactor = 1,
 }) => {
   if (indoorParticulateConcentrationLimit <= 0) {
-    throw new Error("Indoor particulate concentration limit must be greater than zero.");
+    return null; // Indoor particulate concentration limit must be greater than zero
   }
 
   // CADR = (Ventilation Rate * (Outdoor Particulate * Penetration Factor - Indoor Particulate Limit) + indoorParticulateGeneration) / indoorParticulateLimit

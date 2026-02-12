@@ -85,8 +85,8 @@ function App() {
       </div>
 
       <div>
-        <p>Required CADR for PM2.5: {requiredPm2_5CADR.toFixed(2)} m³/h</p>
-        <p>Required CADR for PM10: {requiredPm10CADR.toFixed(2)} m³/h</p>
+        {requiredPm2_5CADR === null ? <p>Indoor PM2.5 Concentration Limit must be greater than zero</p> : <p>Required CADR for PM2.5: {requiredPm2_5CADR.toFixed(2)} m³/h</p>}
+        {requiredPm10CADR === null ? <p>Indoor PM10 Concentration Limit must be greater than zero</p> : <p>Required CADR for PM10: {requiredPm10CADR.toFixed(2)} m³/h</p>}
       </div>
     </>
   )
