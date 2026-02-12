@@ -24,6 +24,19 @@ export const airPurifiers = [
     ],
     ccmMg: 4468,
   },
+  {
+    id: 3,
+    brand: 'Xiaomi',
+    model: 'Smart Air Purifier 4 Pro',
+    speedSettings: [
+      { id: 1, modeName: 'Night Mode (Manual mode 10~17 m2)', cadrM3PerHour: 142, powerWatts: 3.9, soundPressureLevelDbA: 33.7 },
+      { id: 2, modeName: 'Level 1 (Manual mode 18~31 m2)', cadrM3PerHour: 258, powerWatts: 8.6, soundPressureLevelDbA: 38.6 },
+      { id: 3, modeName: 'Level 2 (Manual mode 23~39 m2)', cadrM3PerHour: 327, powerWatts: 13.3, soundPressureLevelDbA: 43.1 },
+      { id: 4, modeName: 'Level 3 (Manual mode 28~47 m2)', cadrM3PerHour: 396, powerWatts: 25.6, soundPressureLevelDbA: 51.3 },
+      { id: 5, modeName: 'Manual mode 35~60 m2', cadrM3PerHour: 500, powerWatts: 50, soundPressureLevelDbA: 65 },
+    ],
+    ccmMg: 45569,
+  },
 ];
 
-console.log(airPurifiers);
+// console.log(airPurifiers);
