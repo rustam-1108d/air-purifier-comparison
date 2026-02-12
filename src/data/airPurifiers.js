@@ -15,13 +15,14 @@ export const airPurifiers = [
   },
   {
     id: 2,
-    brand: 'Brand B',
-    model: 'Purifier B',
-  },
-  {
-    id: 3,
-    brand: 'Brand C',
-    model: 'Purifier C',
+    brand: 'Smart Air',
+    model: 'Sqair with E12 filter (without carbon filter)',
+    speedSettings: [
+      { id: 1, modeName: 'Speed 1', cadrM3PerHour: 65, powerWatts: 6, soundPressureLevelDbA: 23 },
+      { id: 2, modeName: 'Speed 2', cadrM3PerHour: 180, powerWatts: 18, soundPressureLevelDbA: 43 },
+      { id: 3, modeName: 'Speed 3', cadrM3PerHour: 315, powerWatts: 38, soundPressureLevelDbA: 52 },
+    ],
+    ccmMg: 4468,
   },
 ];
 
