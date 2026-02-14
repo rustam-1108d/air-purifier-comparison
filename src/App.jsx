@@ -20,6 +20,7 @@ function App() {
     outdoorParticulateConcentration: form.outdoorPm2_5Concentration,
     ventilationRate: form.ventilationRate,
     indoorParticulateGenerationRate: form.indoorPm2_5GenerationRate,
+    roomVolume: 50, // temporary hardcoded value, make dynamic later
   });
 
   const requiredPm10CADR = calculateRequiredParticulateCADR({
@@ -27,6 +28,7 @@ function App() {
     outdoorParticulateConcentration: form.outdoorPm10Concentration,
     ventilationRate: form.ventilationRate,
     indoorParticulateGenerationRate: form.indoorPm10GenerationRate,
+    roomVolume: 50, // temporary hardcoded value, make dynamic later
   });
 
   console.log(form);
