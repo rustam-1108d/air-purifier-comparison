@@ -8,12 +8,12 @@ const estimateFilterLifeHours = ({
   roomVolume_m3,
   ventilation_m3ph,
   outdoorPm10_ugm3,
-  penetrationFactor,
+  penetrationFactor = 1,
 
   indoorPm10Gen_ugph,
-  deposition_per_h,
+  deposition_per_h = 0,
 
-  maxHours,
+  maxHours = 10 * 365 * 24,
   stopAtCcm = true
 }) => {
   const vals = [
