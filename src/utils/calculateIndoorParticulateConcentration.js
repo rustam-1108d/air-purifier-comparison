@@ -40,6 +40,7 @@ const calculateIndoorParticulateConcentration = ({
   return numerator / denominator;
 };
 
+export default calculateIndoorParticulateConcentration;
 
 // Example usage:
 const cadr = 730; // m³/h
