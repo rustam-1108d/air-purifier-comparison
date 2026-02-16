@@ -7,12 +7,18 @@ const buildAirPurifierGroups = (purifiers, maxCount, maxNoiseDbA, minCadr) => {
   for (const purifier of purifiers) {
     for (const speed of purifier.speedSettings) {
       for (let quantity = 1; quantity <= maxCount; quantity += 1) {
+        const totalCadrM3PerHour = speed.cadrM3PerHour * quantity;
+
+        const totalPowerWatts = speed.powerWatts * quantity;
+
         const combinedNoiseDbA = calculateCombinedNoiseDbA(
           speed.soundPressureLevelDbA,
           quantity
         );
 
-        if (combinedNoiseDbA <= maxNoiseDbA && speed.cadrM3PerHour * quantity >= minCadr) {
+        const totalCcmMg = purifier.ccmMg * quantity;
+
+        if (totalCadrM3PerHour >= minCadr && combinedNoiseDbA <= maxNoiseDbA) {
           groups.push({
             purifierId: purifier.id,
             brand: purifier.brand,
@@ -20,9 +26,10 @@ const buildAirPurifierGroups = (purifiers, maxCount, maxNoiseDbA, minCadr) => {
             speedId: speed.id,
             speedName: speed.modeName,
             quantity,
+            totalCadrM3PerHour,
+            totalPowerWatts,
             combinedNoiseDbA: Number(combinedNoiseDbA.toFixed(1)),
-            totalCadrM3PerHour: speed.cadrM3PerHour * quantity,
-            totalPowerWatts: speed.powerWatts * quantity,
+            totalCcmMg,
           });
         }
       }
