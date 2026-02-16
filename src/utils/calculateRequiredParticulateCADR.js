@@ -23,23 +23,23 @@ const calculateRequiredParticulateCADR = ({
 
 export default calculateRequiredParticulateCADR;
 
-// Example usage:
-const indoorPm2_5ConcentrationLimit = 10; // µg/m³
-const outdoorPm2_5Concentration = 100; // µg/m³
-const ventilationRate = 70; // m³/h
-const indoorParticulateGenerationRate = 1000; // µg per hour
-const roomVolume = 50; // m³
-const depositionRate = 0; // 1/h
-const penetrationFactor = 1; // dimensionless
+// // Example usage:
+// const indoorPm2_5ConcentrationLimit = 10; // µg/m³
+// const outdoorPm2_5Concentration = 100; // µg/m³
+// const ventilationRate = 70; // m³/h
+// const indoorParticulateGenerationRate = 1000; // µg per hour
+// const roomVolume = 50; // m³
+// const depositionRate = 0; // 1/h
+// const penetrationFactor = 1; // dimensionless
 
-const requiredCADR = calculateRequiredParticulateCADR({
-  indoorParticulateConcentrationLimit: indoorPm2_5ConcentrationLimit,
-  outdoorParticulateConcentration: outdoorPm2_5Concentration,
-  ventilationRate,
-  indoorParticulateGenerationRate,
-  roomVolume,
-  depositionRate,
-  penetrationFactor,
-});
+// const requiredCADR = calculateRequiredParticulateCADR({
+//   indoorParticulateConcentrationLimit: indoorPm2_5ConcentrationLimit,
+//   outdoorParticulateConcentration: outdoorPm2_5Concentration,
+//   ventilationRate,
+//   indoorParticulateGenerationRate,
+//   roomVolume,
+//   depositionRate,
+//   penetrationFactor,
+// });
 
-console.log(`Required CADR for PM2.5: ${requiredCADR.toFixed(2)} m³/h`);
+// console.log(`Required CADR for PM2.5: ${requiredCADR.toFixed(2)} m³/h`);

@@ -58,3 +58,20 @@ const estimateFilterLifeHours = ({
 };
 
 export default estimateFilterLifeHours;
+
+// console.log(estimateFilterLifeHours({
+//   cadrStart_m3ph: 180,
+//   ccm_mg: 6000,
+//   minCadr_m3ph: 70,
+
+//   roomVolume_m3: 50,
+//   ventilation_m3ph: 30,
+//   outdoorPm10_ugm3: 50,
+//   penetrationFactor: 1,
+
+//   indoorPm10Gen_ugph: 0,
+//   deposition_per_h: 0,
+
+//   maxHours: 10000,
+//   stopAtCcm: true
+// }));
