@@ -5,13 +5,14 @@ const estimateFilterLifeHours = ({
   ccm_mg,
   minCadr_m3ph,
 
-  roomVolume_m3,
   ventilation_m3ph,
-  outdoorPm10_ugm3,
   penetrationFactor = 1,
+  outdoorPm10_ugm3,
 
   indoorPm10Gen_ugph,
+
   deposition_per_h = 0,
+  roomVolume_m3,
 
   maxHours = 10 * 365 * 24,
   stopAtCcm = true
@@ -64,13 +65,14 @@ export default estimateFilterLifeHours;
 //   ccm_mg: 6000,
 //   minCadr_m3ph: 70,
 
-//   roomVolume_m3: 50,
 //   ventilation_m3ph: 30,
-//   outdoorPm10_ugm3: 50,
 //   penetrationFactor: 1,
+//   outdoorPm10_ugm3: 50,
 
 //   indoorPm10Gen_ugph: 0,
+
 //   deposition_per_h: 0,
+//   roomVolume_m3: 50,
 
 //   maxHours: 10000,
 //   stopAtCcm: true
