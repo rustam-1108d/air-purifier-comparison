@@ -12,6 +12,13 @@ export const airPurifiers = [
       { id: 6, modeName: 'Speed 6', cadrM3PerHour: 470, powerWatts: 135, soundPressureLevelDbA: 57 },
     ],
     ccmMg: 1_013_788,
+    purifierPrices: {
+      CN: { amount: 10_880, currency: 'CNY' },
+      KZ: { amount: 781_780, currency: 'KZT' },
+      RU: { amount: 142_990, currency: 'RUB' },
+      UK: { amount: 899, currency: 'GBP' },
+      US: { amount: 1_099.99, currency: 'USD' },
+    }
   },
   {
     id: 'smart-air-sqair-e12',
