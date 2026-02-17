@@ -1,6 +1,6 @@
 export const airPurifiers = [
   {
-    id: 1,
+    id: 'iqair-healthpro-100',
     brand: 'IQAir',
     model: 'HealthPro 100',
     speedSettings: [
@@ -14,7 +14,7 @@ export const airPurifiers = [
     ccmMg: 1_013_788,
   },
   {
-    id: 2,
+    id: 'smart-air-sqair-e12',
     brand: 'Smart Air',
     model: 'Sqair with E12 filter (without carbon filter)',
     speedSettings: [
@@ -25,7 +25,7 @@ export const airPurifiers = [
     ccmMg: 4468,
   },
   {
-    id: 3,
+    id: 'xiaomi-smart-air-purifier-4-pro',
     brand: 'Xiaomi',
     model: 'Smart Air Purifier 4 Pro',
     speedSettings: [
