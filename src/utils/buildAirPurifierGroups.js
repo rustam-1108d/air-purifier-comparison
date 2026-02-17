@@ -9,13 +9,14 @@ const buildAirPurifierGroups = (purifiers, {
 
   minCadr,
 
-  roomVolume_m3,
   ventilation_m3ph,
-  outdoorPm10_ugm3,
   penetrationFactor,
+  outdoorPm10_ugm3,
 
   indoorPm10Gen_ugph,
+
   deposition_per_h,
+  roomVolume_m3,
 }) => {
   const groups = [];
 
@@ -38,13 +39,14 @@ const buildAirPurifierGroups = (purifiers, {
           ccm_mg: totalCcmMg,
           minCadr_m3ph: minCadr,
 
-          roomVolume_m3,
           ventilation_m3ph,
-          outdoorPm10_ugm3,
           penetrationFactor,
+          outdoorPm10_ugm3,
 
           indoorPm10Gen_ugph,
-          deposition_per_h
+
+          deposition_per_h,
+          roomVolume_m3,
         });
 
         if (totalCadrM3PerHour >= minCadr && combinedNoiseDbA <= maxNoiseDbA) {
@@ -91,13 +93,14 @@ const airPurifierGroups = buildAirPurifierGroups(
     maxNoiseDbA: maxCombinedNoiseDbA,
     minCadr: minimumCadrM3PerHour,
 
-    roomVolume_m3: testFormData.roomVolume,
     ventilation_m3ph: testFormData.ventilationRate,
-    outdoorPm10_ugm3: testFormData.outdoorPm10Concentration,
     penetrationFactor: testFormData.penetrationFactor,
+    outdoorPm10_ugm3: testFormData.outdoorPm10Concentration,
 
     indoorPm10Gen_ugph: testFormData.indoorPm10GenerationRate,
+
     deposition_per_h: testFormData.deposition_per_h,
+    roomVolume_m3: testFormData.roomVolume,
   }
 );
 
