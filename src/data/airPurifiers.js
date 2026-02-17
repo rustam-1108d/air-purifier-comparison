@@ -18,7 +18,14 @@ export const airPurifiers = [
       RU: { amount: 142_990, currency: 'RUB' },
       UK: { amount: 899, currency: 'GBP' },
       US: { amount: 1_099.99, currency: 'USD' },
-    }
+    },
+    filterPrices: {
+      CN: { amount: (818 + 1_860), currency: 'CNY' },
+      KZ: { amount: (60_560 + 128_600), currency: 'KZT' },
+      RU: { amount: (14_490 + 31_990), currency: 'RUB' },
+      UK: { amount: (89 + 167), currency: 'GBP' },
+      US: { amount: (79.99 + 199.99), currency: 'USD' },
+    },
   },
   {
     id: 'smart-air-sqair-e12',
