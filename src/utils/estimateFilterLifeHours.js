@@ -54,7 +54,7 @@ const estimateFilterLifeHours = ({
     Mt_mg += capturedThisHour_mg;
   }
 
-  return Infinity;
+  return maxHours;
 };
 
 export default estimateFilterLifeHours;
