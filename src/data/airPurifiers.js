@@ -64,6 +64,20 @@ export const airPurifiers = [
       { id: 5, modeName: 'Manual mode 35~60 m2', cadrM3PerHour: 500, powerWatts: 50, soundPressureLevelDbA: 65 },
     ],
     ccmMg: 45569,
+    purifierPrices: {
+      CN: { amount: 1099, currency: 'CNY' },
+      KZ: { amount: 134_990, currency: 'KZT' },
+      RU: { amount: 29_990, currency: 'RUB' },
+      UK: { amount: 199.99, currency: 'GBP' },
+      US: { amount: null, currency: 'USD' },
+    },
+    filterPrices: {
+      CN: { amount: 299, currency: 'CNY' },
+      KZ: { amount: 33_990, currency: 'KZT' },
+      RU: { amount: 5_590, currency: 'RUB' },
+      UK: { amount: 39.99, currency: 'GBP' },
+      US: { amount: null, currency: 'USD' },
+    },
   },
 ];
 
