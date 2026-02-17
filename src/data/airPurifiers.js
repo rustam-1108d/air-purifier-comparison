@@ -37,6 +37,20 @@ export const airPurifiers = [
       { id: 3, modeName: 'Speed 3', cadrM3PerHour: 315, powerWatts: 38, soundPressureLevelDbA: 52 },
     ],
     ccmMg: 4468,
+    purifierPrices: {
+      CN: { amount: 649, currency: 'CNY' },
+      KZ: { amount: 67_000, currency: 'KZT' },
+      RU: { amount: null, currency: 'RUB' },
+      UK: { amount: 132, currency: 'GBP' },
+      US: { amount: 169.95, currency: 'USD' },
+    },
+    filterPrices: {
+      CN: { amount: 109, currency: 'CNY' },
+      KZ: { amount: 9_590, currency: 'KZT' },
+      RU: { amount: null, currency: 'RUB' },
+      UK: { amount: 26, currency: 'GBP' },
+      US: { amount: 36.99, currency: 'USD' },
+    },
   },
   {
     id: 'xiaomi-smart-air-purifier-4-pro',
