@@ -76,6 +76,8 @@ const buildAirPurifierGroups = (purifiers, {
   return groups;
 };
 
+export default buildAirPurifierGroups;
+
 import { airPurifiers } from "../data/airPurifiers.js";
 
 const testFormData = {
