@@ -2,9 +2,13 @@ import { useState, useEffect } from 'react'
 
 import calculateRequiredParticulateCADR from './utils/calculateRequiredParticulateCADR';
 
+import countries from './data/countries.js';
+
 import './App.css'
 
 function App() {
+  const [selectedCountry, setSelectedCountry] = useState(countries[0].code);
+
   const [form, setForm] = useState({
     outdoorPm2_5Concentration: 0,
     outdoorPm10Concentration: 0,
@@ -58,6 +62,17 @@ function App() {
 
   return (
     <>
+      <div>
+        <label htmlFor="country">Country</label>
+        <select id="country" name="country" value={selectedCountry} onChange={(e) => setSelectedCountry(e.target.value)}>
+          {countries.map((country) => (
+            <option key={country.code} value={country.code}>
+              {country.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div>
         <label htmlFor="outdoorPm2_5Concentration">Outdoor PM2.5 Concentration</label>
         <input type="text" id="outdoorPm2_5Concentration" name="outdoorPm2_5Concentration" maxLength={4} inputMode="numeric" pattern="\d*" value={form.outdoorPm2_5Concentration} onChange={handleChange} onBlur={handleBlur} />
