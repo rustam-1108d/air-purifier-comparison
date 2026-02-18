@@ -13,6 +13,7 @@ function App() {
     ventilationRate: 0,
     indoorPm2_5GenerationRate: 0,
     indoorPm10GenerationRate: 0,
+    roomVolume: 50,
   });
 
   const requiredPm2_5CADR = calculateRequiredParticulateCADR({
@@ -20,7 +21,7 @@ function App() {
     outdoorParticulateConcentration: form.outdoorPm2_5Concentration,
     ventilationRate: form.ventilationRate,
     indoorParticulateGenerationRate: form.indoorPm2_5GenerationRate,
-    roomVolume: 50, // temporary hardcoded value, make dynamic later
+    roomVolume: form.roomVolume,
   });
 
   const requiredPm10CADR = calculateRequiredParticulateCADR({
@@ -28,7 +29,7 @@ function App() {
     outdoorParticulateConcentration: form.outdoorPm10Concentration,
     ventilationRate: form.ventilationRate,
     indoorParticulateGenerationRate: form.indoorPm10GenerationRate,
-    roomVolume: 50, // temporary hardcoded value, make dynamic later
+    roomVolume: form.roomVolume,
   });
 
   console.log(form);
@@ -84,6 +85,10 @@ function App() {
       <div>
         <label htmlFor="indoorPm10GenerationRate">Indoor PM10 Generation Rate</label>
         <input type="text" id="indoorPm10GenerationRate" name="indoorPm10GenerationRate" maxLength={4} inputMode="numeric" pattern="\d*" value={form.indoorPm10GenerationRate} onChange={handleChange} onBlur={handleBlur} />
+      </div>
+      <div>
+        <label htmlFor="roomVolume">Room Volume</label>
+        <input type="text" id="roomVolume" name="roomVolume" maxLength={4} inputMode="numeric" pattern="\d*" value={form.roomVolume} onChange={handleChange} onBlur={handleBlur} />
       </div>
 
       <div>
