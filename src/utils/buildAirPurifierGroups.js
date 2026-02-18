@@ -17,7 +17,7 @@ const buildAirPurifierGroups = (purifiers, {
 
   deposition_per_h = 0,
   roomVolume_m3,
-}, { selectedCountry, airPurifiersPrices }) => {
+}) => {
   const groups = [];
 
   for (const purifier of purifiers) {
@@ -49,8 +49,6 @@ const buildAirPurifierGroups = (purifiers, {
           roomVolume_m3,
         });
 
-        const currency = airPurifiersPrices[purifier.id][selectedCountry].currency;
-        const totalPurifiersPurchaseCost = airPurifiersPrices[purifier.id][selectedCountry].amount * quantity;
 
         if (totalCadrM3PerHour >= minCadr && combinedNoiseDbA <= maxNoiseDbA) {
           groups.push({
@@ -65,8 +63,6 @@ const buildAirPurifierGroups = (purifiers, {
             combinedNoiseDbA: Number(combinedNoiseDbA.toFixed(1)),
             totalCcmMg,
             filterLifeHours,
-            currency,
-            totalPurifiersPurchaseCost,
           });
         }
       }
