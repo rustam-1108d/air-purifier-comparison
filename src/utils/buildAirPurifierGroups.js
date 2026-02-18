@@ -10,12 +10,12 @@ const buildAirPurifierGroups = (purifiers, {
   minCadr,
 
   ventilation_m3ph,
-  penetrationFactor,
+  penetrationFactor = 1,
   outdoorPm10_ugm3,
 
   indoorPm10Gen_ugph,
 
-  deposition_per_h,
+  deposition_per_h = 0,
   roomVolume_m3,
 }, { selectedCountry, airPurifiersPrices }) => {
   const groups = [];
@@ -82,10 +82,10 @@ const testFormData = {
   roomVolume: 50,
   ventilationRate: 30,
   outdoorPm10Concentration: 50,
-  penetrationFactor: 1,
+  // penetrationFactor: 1,
 
   indoorPm10GenerationRate: 1000,
-  deposition_per_h: 0,
+  // deposition_per_h: 0,
 }
 const maxAirPurifierCount = 2;
 const maxCombinedNoiseDbA = 37;
@@ -106,12 +106,12 @@ const airPurifierGroups = buildAirPurifierGroups(
     minCadr: minimumCadrM3PerHour,
 
     ventilation_m3ph: testFormData.ventilationRate,
-    penetrationFactor: testFormData.penetrationFactor,
+    // penetrationFactor: testFormData.penetrationFactor,
     outdoorPm10_ugm3: testFormData.outdoorPm10Concentration,
 
     indoorPm10Gen_ugph: testFormData.indoorPm10GenerationRate,
 
-    deposition_per_h: testFormData.deposition_per_h,
+    // deposition_per_h: testFormData.deposition_per_h,
     roomVolume_m3: testFormData.roomVolume,
   },
   { selectedCountry,
