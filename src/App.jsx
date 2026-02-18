@@ -10,11 +10,11 @@ function App() {
   const [selectedCountry, setSelectedCountry] = useState(countries[0].code);
 
   const [form, setForm] = useState({
-    outdoorPm2_5Concentration: 0,
-    outdoorPm10Concentration: 0,
+    outdoorPm2_5Concentration: 15,
+    outdoorPm10Concentration: 40,
     indoorPm2_5ConcentrationLimit: 5,
     indoorPm10ConcentrationLimit: 15,
-    ventilationRate: 0,
+    ventilationRate: 30,
     indoorPm2_5GenerationRate: 0,
     indoorPm10GenerationRate: 0,
     roomVolume: 50,
