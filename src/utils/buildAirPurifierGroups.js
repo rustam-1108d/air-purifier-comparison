@@ -17,7 +17,7 @@ const buildAirPurifierGroups = (purifiers, {
 
   deposition_per_h,
   roomVolume_m3,
-}) => {
+}, { selectedCountry, airPurifiersPrices }) => {
   const groups = [];
 
   for (const purifier of purifiers) {
@@ -49,6 +49,9 @@ const buildAirPurifierGroups = (purifiers, {
           roomVolume_m3,
         });
 
+        const currency = airPurifiersPrices[purifier.id][selectedCountry].currency;
+        const totalPurifiersPurchaseCost = airPurifiersPrices[purifier.id][selectedCountry].amount * quantity;
+
         if (totalCadrM3PerHour >= minCadr && combinedNoiseDbA <= maxNoiseDbA) {
           groups.push({
             purifierId: purifier.id,
@@ -62,6 +65,8 @@ const buildAirPurifierGroups = (purifiers, {
             combinedNoiseDbA: Number(combinedNoiseDbA.toFixed(1)),
             totalCcmMg,
             filterLifeHours,
+            currency,
+            totalPurifiersPurchaseCost,
           });
         }
       }
@@ -82,9 +87,16 @@ const testFormData = {
   indoorPm10GenerationRate: 1000,
   deposition_per_h: 0,
 }
-const maxAirPurifierCount = 1;
-const maxCombinedNoiseDbA = 50;
-const minimumCadrM3PerHour = 120;
+const maxAirPurifierCount = 2;
+const maxCombinedNoiseDbA = 37;
+const minimumCadrM3PerHour = 30;
+
+const selectedCountry = 'KZ';
+
+const getAirPurifierPrices = () => Object.fromEntries(airPurifiers.map(purifier => [purifier.id, purifier.purifierPrices]));
+const testAirPurifierPricesState = getAirPurifierPrices();
+console.log(testAirPurifierPricesState);
+console.log(testAirPurifierPricesState[airPurifiers[0].id][selectedCountry].currency);
 
 const airPurifierGroups = buildAirPurifierGroups(
   airPurifiers,
@@ -101,7 +113,10 @@ const airPurifierGroups = buildAirPurifierGroups(
 
     deposition_per_h: testFormData.deposition_per_h,
     roomVolume_m3: testFormData.roomVolume,
-  }
+  },
+  { selectedCountry,
+    // currency: testAirPurifierPricesState[airPurifiers[0].id][selectedCountry].currency,
+    airPurifiersPrices: testAirPurifierPricesState }
 );
 
 console.log(airPurifierGroups);
