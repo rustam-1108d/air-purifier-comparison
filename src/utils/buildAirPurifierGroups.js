@@ -78,47 +78,47 @@ const buildAirPurifierGroups = (purifiers, {
 
 export default buildAirPurifierGroups;
 
-import { airPurifiers } from "../data/airPurifiers.js";
+// import { airPurifiers } from "../data/airPurifiers.js";
 
-const testFormData = {
-  roomVolume: 50,
-  ventilationRate: 30,
-  outdoorPm10Concentration: 50,
-  // penetrationFactor: 1,
+// const testFormData = {
+//   roomVolume: 50,
+//   ventilationRate: 30,
+//   outdoorPm10Concentration: 50,
+//   // penetrationFactor: 1,
 
-  indoorPm10GenerationRate: 1000,
-  // deposition_per_h: 0,
-}
-const maxAirPurifierCount = 2;
-const maxCombinedNoiseDbA = 37;
-const minimumCadrM3PerHour = 30;
+//   indoorPm10GenerationRate: 1000,
+//   // deposition_per_h: 0,
+// }
+// const maxAirPurifierCount = 2;
+// const maxCombinedNoiseDbA = 37;
+// const minimumCadrM3PerHour = 30;
 
-const selectedCountry = 'KZ';
+// const selectedCountry = 'KZ';
 
-const getAirPurifierPrices = () => Object.fromEntries(airPurifiers.map(purifier => [purifier.id, purifier.purifierPrices]));
-const testAirPurifierPricesState = getAirPurifierPrices();
-console.log(testAirPurifierPricesState);
-console.log(testAirPurifierPricesState[airPurifiers[0].id][selectedCountry].currency);
+// const getAirPurifierPrices = () => Object.fromEntries(airPurifiers.map(purifier => [purifier.id, purifier.purifierPrices]));
+// const testAirPurifierPricesState = getAirPurifierPrices();
+// console.log(testAirPurifierPricesState);
+// console.log(testAirPurifierPricesState[airPurifiers[0].id][selectedCountry].currency);
 
-const airPurifierGroups = buildAirPurifierGroups(
-  airPurifiers,
-  {
-    maxCount: maxAirPurifierCount,
-    maxNoiseDbA: maxCombinedNoiseDbA,
-    minCadr: minimumCadrM3PerHour,
+// const airPurifierGroups = buildAirPurifierGroups(
+//   airPurifiers,
+//   {
+//     maxCount: maxAirPurifierCount,
+//     maxNoiseDbA: maxCombinedNoiseDbA,
+//     minCadr: minimumCadrM3PerHour,
 
-    ventilation_m3ph: testFormData.ventilationRate,
-    // penetrationFactor: testFormData.penetrationFactor,
-    outdoorPm10_ugm3: testFormData.outdoorPm10Concentration,
+//     ventilation_m3ph: testFormData.ventilationRate,
+//     // penetrationFactor: testFormData.penetrationFactor,
+//     outdoorPm10_ugm3: testFormData.outdoorPm10Concentration,
 
-    indoorPm10Gen_ugph: testFormData.indoorPm10GenerationRate,
+//     indoorPm10Gen_ugph: testFormData.indoorPm10GenerationRate,
 
-    // deposition_per_h: testFormData.deposition_per_h,
-    roomVolume_m3: testFormData.roomVolume,
-  },
-  { selectedCountry,
-    // currency: testAirPurifierPricesState[airPurifiers[0].id][selectedCountry].currency,
-    airPurifiersPrices: testAirPurifierPricesState }
-);
+//     // deposition_per_h: testFormData.deposition_per_h,
+//     roomVolume_m3: testFormData.roomVolume,
+//   },
+//   { selectedCountry,
+//     // currency: testAirPurifierPricesState[airPurifiers[0].id][selectedCountry].currency,
+//     airPurifiersPrices: testAirPurifierPricesState }
+// );
 
-console.log(airPurifierGroups);
+// console.log(airPurifierGroups);
