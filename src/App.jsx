@@ -18,6 +18,8 @@ function App() {
     indoorPm2_5GenerationRate: 0,
     indoorPm10GenerationRate: 0,
     roomVolume: 50,
+    maxAirPurifierCount: 2,
+    maxCombinedNoiseDbA: 37,
   });
 
   const requiredPm2_5CADR = calculateRequiredParticulateCADR({
@@ -35,6 +37,8 @@ function App() {
     indoorParticulateGenerationRate: form.indoorPm10GenerationRate,
     roomVolume: form.roomVolume,
   });
+
+  const minimumRequiredCADR = Math.max(requiredPm2_5CADR ?? 0, requiredPm10CADR ?? 0);
 
   console.log(form);
 
@@ -105,10 +109,19 @@ function App() {
         <label htmlFor="roomVolume">Room Volume</label>
         <input type="text" id="roomVolume" name="roomVolume" maxLength={4} inputMode="numeric" pattern="\d*" value={form.roomVolume} onChange={handleChange} onBlur={handleBlur} />
       </div>
+      <div>
+        <label htmlFor="maxAirPurifierCount">Max Air Purifier Count</label>
+        <input type="text" id="maxAirPurifierCount" name="maxAirPurifierCount" maxLength={2} inputMode="numeric" pattern="\d*" value={form.maxAirPurifierCount} onChange={handleChange} onBlur={handleBlur} />
+      </div>
+      <div>
+        <label htmlFor="maxCombinedNoiseDbA">Max Combined Noise (dB)</label>
+        <input type="text" id="maxCombinedNoiseDbA" name="maxCombinedNoiseDbA" maxLength={3} inputMode="numeric" pattern="\d*" value={form.maxCombinedNoiseDbA} onChange={handleChange} onBlur={handleBlur} />
+      </div>
 
       <div>
         {requiredPm2_5CADR === null ? <p>Indoor PM2.5 Concentration Limit must be greater than zero</p> : <p>Required CADR for PM2.5: {requiredPm2_5CADR.toFixed(2)} m³/h</p>}
         {requiredPm10CADR === null ? <p>Indoor PM10 Concentration Limit must be greater than zero</p> : <p>Required CADR for PM10: {requiredPm10CADR.toFixed(2)} m³/h</p>}
+        {minimumRequiredCADR === 0 ? <p>At least one of the required CADR values must be greater than zero</p> : <p>Minimum Required CADR: {minimumRequiredCADR.toFixed(2)} m³/h</p>}
       </div>
     </>
   )
