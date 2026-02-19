@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 import calculateRequiredParticulateCADR from './utils/calculateRequiredParticulateCADR';
 
@@ -8,6 +8,9 @@ import './App.css'
 
 function App() {
   const [selectedCountry, setSelectedCountry] = useState(countries[0].code);
+  const [electricityPricesByCountry, setElectricityPricesByCountry] = useState(
+    () => Object.fromEntries(countries.map((country) => [country.code, '']))
+  );
 
   const [form, setForm] = useState({
     outdoorPm2_5Concentration: 15,
@@ -64,6 +67,17 @@ function App() {
     }
   };
 
+  const handleElectricityPriceChange = (e) => {
+    const { value } = e.target;
+
+    if (/^\d*(\.\d{0,4})?$/.test(value)) {
+      setElectricityPricesByCountry((prev) => ({
+        ...prev,
+        [selectedCountry]: value,
+      }));
+    }
+  };
+
   return (
     <>
       <div>
@@ -75,6 +89,19 @@ function App() {
             </option>
           ))}
         </select>
+      </div>
+
+      <div>
+        <label htmlFor="electricityPrice">Electricity Price ({countries.find((country) => country.code === selectedCountry)?.currency}/kWh)</label>
+        <input
+          type="text"
+          id="electricityPrice"
+          name="electricityPrice"
+          inputMode="decimal"
+          value={electricityPricesByCountry[selectedCountry] ?? ''}
+          onChange={handleElectricityPriceChange}
+          placeholder="0.0000"
+        />
       </div>
 
       <div>
