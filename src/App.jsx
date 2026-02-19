@@ -21,7 +21,7 @@ function App() {
   const [electricityPricesByCity, setElectricityPricesByCity] = useState(
     () => getInitialElectricityPriceByCity()
   );
-  const [airPurifierPricesByCountry] = useState(
+  const [airPurifierPricesByCountry, setAirPurifierPricesByCountry] = useState(
     () => Object.fromEntries(
       airPurifiers.map((purifier) => [
         purifier.id,
@@ -34,7 +34,7 @@ function App() {
       ])
     )
   );
-  const [filterPricesByCountry] = useState(
+  const [filterPricesByCountry, setFilterPricesByCountry] = useState(
     () => Object.fromEntries(
       airPurifiers.map((purifier) => [
         purifier.id,
