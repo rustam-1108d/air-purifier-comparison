@@ -5,6 +5,7 @@ import calculateRequiredParticulateCADR from './utils/calculateRequiredParticula
 import countries from './data/countries.js';
 import cities from './data/cities.js';
 import { getInitialElectricityPriceByCountry, getInitialElectricityPriceByCity } from './data/electricityPrices.js';
+import { airPurifiers } from './data/airPurifiers.js';
 
 import './App.css'
 
@@ -20,8 +21,36 @@ function App() {
   const [electricityPricesByCity, setElectricityPricesByCity] = useState(
     () => getInitialElectricityPriceByCity()
   );
+  const [airPurifierPricesByCountry] = useState(
+    () => Object.fromEntries(
+      airPurifiers.map((purifier) => [
+        purifier.id,
+        Object.fromEntries(
+          countries.map((country) => [
+            country.code,
+            purifier.purifierPrices?.[country.code]?.amount ?? null,
+          ])
+        ),
+      ])
+    )
+  );
+  const [filterPricesByCountry] = useState(
+    () => Object.fromEntries(
+      airPurifiers.map((purifier) => [
+        purifier.id,
+        Object.fromEntries(
+          countries.map((country) => [
+            country.code,
+            purifier.filterPrices?.[country.code]?.amount ?? null,
+          ])
+        ),
+      ])
+    )
+  );
   console.log('Electricity Prices by Country:', electricityPricesByCountry);
   console.log('Electricity Prices by City:', electricityPricesByCity);
+  console.log('Air Purifier Prices by Country:', airPurifierPricesByCountry);
+  console.log('Filter Prices by Country:', filterPricesByCountry);
 
   const [form, setForm] = useState({
     outdoorPm2_5Concentration: 15,
