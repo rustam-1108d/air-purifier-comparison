@@ -34,6 +34,9 @@ function App() {
     roomVolume: 50,
     maxAirPurifierCount: 2,
     maxCombinedNoiseDbA: 37,
+
+    annualOperatingHours: 8760,
+    ownershipYears: 5,
   });
 
   const requiredPm2_5CADR = calculateRequiredParticulateCADR({
@@ -192,6 +195,14 @@ function App() {
       <div>
         <label htmlFor="maxCombinedNoiseDbA">Max Combined Noise (dB)</label>
         <input type="text" id="maxCombinedNoiseDbA" name="maxCombinedNoiseDbA" maxLength={3} inputMode="numeric" pattern="\d*" value={form.maxCombinedNoiseDbA} onChange={handleChange} onBlur={handleBlur} />
+      </div>
+      <div>
+        <label htmlFor="annualOperatingHours">Annual Operating Hours</label>
+        <input type="text" id="annualOperatingHours" name="annualOperatingHours" maxLength={4} inputMode="numeric" pattern="\d*" value={form.annualOperatingHours} onChange={handleChange} onBlur={handleBlur} />
+      </div>
+      <div>
+        <label htmlFor="ownershipYears">Ownership Years</label>
+        <input type="text" id="ownershipYears" name="ownershipYears" maxLength={2} inputMode="numeric" pattern="\d*" value={form.ownershipYears} onChange={handleChange} onBlur={handleBlur} />
       </div>
 
       <div>
