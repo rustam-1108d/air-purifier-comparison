@@ -15,7 +15,7 @@ function App() {
   const [electricityPricesByCountry, setElectricityPricesByCountry] = useState(
     () => {
       const initialElectricityPrices = getInitialElectricityPriceByCountry();
-      return Object.fromEntries(countries.map((country) => [country.code, initialElectricityPrices[country.code] ?? '']));
+      return Object.fromEntries(countries.map((country) => [country.code, initialElectricityPrices[country.code] ?? null]));
     }
   );
   const [electricityPricesByCity, setElectricityPricesByCity] = useState(
@@ -47,6 +47,7 @@ function App() {
       ])
     )
   );
+  const [priceInputDrafts, setPriceInputDrafts] = useState({});
   console.log('Electricity Prices by Country:', electricityPricesByCountry);
   console.log('Electricity Prices by City:', electricityPricesByCity);
   console.log('Air Purifier Prices by Country:', airPurifierPricesByCountry);
@@ -90,8 +91,12 @@ function App() {
   const availableCities = cities.filter((city) => city.countryCode === selectedCountry);
 
   const currentElectricityPrice = selectedCityId
-    ? (electricityPricesByCity[selectedCityId] ?? '')
-    : (electricityPricesByCountry[selectedCountry] ?? '');
+    ? (electricityPricesByCity[selectedCityId] ?? null)
+    : (electricityPricesByCountry[selectedCountry] ?? null);
+
+  const electricityDraftKey = selectedCityId
+    ? `electricity-city-${selectedCityId}`
+    : `electricity-country-${selectedCountry}`;
 
   // console.log(form);
   // console.log('availableCities:', availableCities);
@@ -122,45 +127,81 @@ function App() {
   };
 
   const handleElectricityPriceChange = (e) => {
-    const { value } = e.target;
+    const normalizedValue = e.target.value.replace(/,/g, '.');
 
-    if (/^\d*(\.\d{0,4})?$/.test(value)) {
+    if (/^\d*(\.\d{0,4})?$/.test(normalizedValue)) {
+      const parsedValue = normalizedValue === '' || normalizedValue === '.' ? null : Number(normalizedValue);
+
+      setPriceInputDrafts((prev) => ({
+        ...prev,
+        [electricityDraftKey]: normalizedValue,
+      }));
+
       if (selectedCityId) {
         setElectricityPricesByCity((prev) => ({
           ...prev,
-          [selectedCityId]: value,
+          [selectedCityId]: parsedValue,
         }));
       } else {
         setElectricityPricesByCountry((prev) => ({
           ...prev,
-          [selectedCountry]: value,
+          [selectedCountry]: parsedValue,
         }));
       }
     }
   };
 
   const handleAirPurifierPriceChange = (purifierId, value) => {
-    if (/^\d*(\.\d{0,4})?$/.test(value)) {
+    const normalizedValue = value.replace(/,/g, '.');
+
+    if (/^\d*(\.\d{0,4})?$/.test(normalizedValue)) {
+      const parsedValue = normalizedValue === '' || normalizedValue === '.' ? null : Number(normalizedValue);
+      const draftKey = `purifier-${purifierId}-${selectedCountry}`;
+
+      setPriceInputDrafts((prev) => ({
+        ...prev,
+        [draftKey]: normalizedValue,
+      }));
+
       setAirPurifierPricesByCountry((prev) => ({
         ...prev,
         [purifierId]: {
           ...prev[purifierId],
-          [selectedCountry]: value,
+          [selectedCountry]: parsedValue,
         },
       }));
     }
   };
 
   const handleFilterPriceChange = (purifierId, value) => {
-    if (/^\d*(\.\d{0,4})?$/.test(value)) {
+    const normalizedValue = value.replace(/,/g, '.');
+
+    if (/^\d*(\.\d{0,4})?$/.test(normalizedValue)) {
+      const parsedValue = normalizedValue === '' || normalizedValue === '.' ? null : Number(normalizedValue);
+      const draftKey = `filter-${purifierId}-${selectedCountry}`;
+
+      setPriceInputDrafts((prev) => ({
+        ...prev,
+        [draftKey]: normalizedValue,
+      }));
+
       setFilterPricesByCountry((prev) => ({
         ...prev,
         [purifierId]: {
           ...prev[purifierId],
-          [selectedCountry]: value,
+          [selectedCountry]: parsedValue,
         },
       }));
     }
+  };
+
+  const handlePriceInputBlur = (draftKey) => {
+    setPriceInputDrafts((prev) => {
+      if (!(draftKey in prev)) return prev;
+      const next = { ...prev };
+      delete next[draftKey];
+      return next;
+    });
   };
 
   return (
@@ -203,8 +244,9 @@ function App() {
           id="electricityPrice"
           name="electricityPrice"
           inputMode="decimal"
-          value={currentElectricityPrice}
+          value={priceInputDrafts[electricityDraftKey] ?? (currentElectricityPrice ?? '')}
           onChange={handleElectricityPriceChange}
+          onBlur={() => handlePriceInputBlur(electricityDraftKey)}
           placeholder="0.0000"
         />
       </div>
@@ -281,8 +323,12 @@ function App() {
                   type="text"
                   id={`purifier-price-${purifier.id}`}
                   inputMode="decimal"
-                  value={airPurifierPricesByCountry[purifier.id]?.[selectedCountry] ?? ''}
+                  value={
+                    priceInputDrafts[`purifier-${purifier.id}-${selectedCountry}`]
+                    ?? (airPurifierPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
+                  }
                   onChange={(e) => handleAirPurifierPriceChange(purifier.id, e.target.value)}
+                  onBlur={() => handlePriceInputBlur(`purifier-${purifier.id}-${selectedCountry}`)}
                   placeholder="0.0000"
                 />
               </div>
@@ -294,8 +340,12 @@ function App() {
                   type="text"
                   id={`filter-price-${purifier.id}`}
                   inputMode="decimal"
-                  value={filterPricesByCountry[purifier.id]?.[selectedCountry] ?? ''}
+                  value={
+                    priceInputDrafts[`filter-${purifier.id}-${selectedCountry}`]
+                    ?? (filterPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
+                  }
                   onChange={(e) => handleFilterPriceChange(purifier.id, e.target.value)}
+                  onBlur={() => handlePriceInputBlur(`filter-${purifier.id}-${selectedCountry}`)}
                   placeholder="0.0000"
                 />
               </div>
