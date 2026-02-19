@@ -3,14 +3,25 @@ import { useState } from 'react'
 import calculateRequiredParticulateCADR from './utils/calculateRequiredParticulateCADR';
 
 import countries from './data/countries.js';
+import cities from './data/cities.js';
+import { getInitialElectricityPriceByCountry, getInitialElectricityPriceByCity } from './data/electricityPrices.js';
 
 import './App.css'
 
 function App() {
   const [selectedCountry, setSelectedCountry] = useState(countries[0].code);
+  const [selectedCityId, setSelectedCityId] = useState('');
   const [electricityPricesByCountry, setElectricityPricesByCountry] = useState(
-    () => Object.fromEntries(countries.map((country) => [country.code, '']))
+    () => {
+      const initialElectricityPrices = getInitialElectricityPriceByCountry();
+      return Object.fromEntries(countries.map((country) => [country.code, initialElectricityPrices[country.code] ?? '']));
+    }
   );
+  const [electricityPricesByCity, setElectricityPricesByCity] = useState(
+    () => getInitialElectricityPriceByCity()
+  );
+  console.log('Electricity Prices by Country:', electricityPricesByCountry);
+  console.log('Electricity Prices by City:', electricityPricesByCity);
 
   const [form, setForm] = useState({
     outdoorPm2_5Concentration: 15,
@@ -43,7 +54,18 @@ function App() {
 
   const minimumRequiredCADR = Math.max(requiredPm2_5CADR ?? 0, requiredPm10CADR ?? 0);
 
-  console.log(form);
+  const selectedCountryData = countries.find((country) => country.code === selectedCountry);
+  const availableCities = cities.filter((city) => city.countryCode === selectedCountry);
+
+  const currentElectricityPrice = selectedCityId
+    ? (electricityPricesByCity[selectedCityId] ?? '')
+    : (electricityPricesByCountry[selectedCountry] ?? '');
+
+  // console.log(form);
+  // console.log('availableCities:', availableCities);
+  // console.log('selectedCountryData:', selectedCountryData);
+  console.log('Current Electricity Price:', currentElectricityPrice);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -71,10 +93,17 @@ function App() {
     const { value } = e.target;
 
     if (/^\d*(\.\d{0,4})?$/.test(value)) {
-      setElectricityPricesByCountry((prev) => ({
-        ...prev,
-        [selectedCountry]: value,
-      }));
+      if (selectedCityId) {
+        setElectricityPricesByCity((prev) => ({
+          ...prev,
+          [selectedCityId]: value,
+        }));
+      } else {
+        setElectricityPricesByCountry((prev) => ({
+          ...prev,
+          [selectedCountry]: value,
+        }));
+      }
     }
   };
 
@@ -82,7 +111,15 @@ function App() {
     <>
       <div>
         <label htmlFor="country">Country</label>
-        <select id="country" name="country" value={selectedCountry} onChange={(e) => setSelectedCountry(e.target.value)}>
+        <select
+          id="country"
+          name="country"
+          value={selectedCountry}
+          onChange={(e) => {
+            setSelectedCountry(e.target.value);
+            setSelectedCityId('');
+          }}
+        >
           {countries.map((country) => (
             <option key={country.code} value={country.code}>
               {country.name}
@@ -92,13 +129,25 @@ function App() {
       </div>
 
       <div>
-        <label htmlFor="electricityPrice">Electricity Price ({countries.find((country) => country.code === selectedCountry)?.currency}/kWh)</label>
+        <label htmlFor="city">City (optional)</label>
+        <select id="city" name="city" value={selectedCityId} onChange={(e) => setSelectedCityId(e.target.value)}>
+          <option value="">Country average</option>
+          {availableCities.map((city) => (
+            <option key={city.id} value={city.id}>
+              {city.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label htmlFor="electricityPrice">Electricity Price ({selectedCountryData?.currency}/kWh)</label>
         <input
           type="text"
           id="electricityPrice"
           name="electricityPrice"
           inputMode="decimal"
-          value={electricityPricesByCountry[selectedCountry] ?? ''}
+          value={currentElectricityPrice}
           onChange={handleElectricityPriceChange}
           placeholder="0.0000"
         />
