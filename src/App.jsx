@@ -139,6 +139,30 @@ function App() {
     }
   };
 
+  const handleAirPurifierPriceChange = (purifierId, value) => {
+    if (/^\d*(\.\d{0,4})?$/.test(value)) {
+      setAirPurifierPricesByCountry((prev) => ({
+        ...prev,
+        [purifierId]: {
+          ...prev[purifierId],
+          [selectedCountry]: value,
+        },
+      }));
+    }
+  };
+
+  const handleFilterPriceChange = (purifierId, value) => {
+    if (/^\d*(\.\d{0,4})?$/.test(value)) {
+      setFilterPricesByCountry((prev) => ({
+        ...prev,
+        [purifierId]: {
+          ...prev[purifierId],
+          [selectedCountry]: value,
+        },
+      }));
+    }
+  };
+
   return (
     <>
       <div>
@@ -238,6 +262,46 @@ function App() {
         {requiredPm2_5CADR === null ? <p>Indoor PM2.5 Concentration Limit must be greater than zero</p> : <p>Required CADR for PM2.5: {requiredPm2_5CADR.toFixed(2)} m³/h</p>}
         {requiredPm10CADR === null ? <p>Indoor PM10 Concentration Limit must be greater than zero</p> : <p>Required CADR for PM10: {requiredPm10CADR.toFixed(2)} m³/h</p>}
         {minimumRequiredCADR === 0 ? <p>At least one of the required CADR values must be greater than zero</p> : <p>Minimum Required CADR: {minimumRequiredCADR.toFixed(2)} m³/h</p>}
+      </div>
+
+      <div>
+        <h2>Air Purifier Prices ({selectedCountry})</h2>
+        {airPurifiers.map((purifier) => {
+          const purifierCurrency = selectedCountryData?.currency;
+          const filterCurrency = selectedCountryData?.currency;
+
+          return (
+            <div key={purifier.id}>
+              <h3>{purifier.brand} {purifier.model}</h3>
+              <div>
+                <label htmlFor={`purifier-price-${purifier.id}`}>
+                  Purifier Price ({purifierCurrency})
+                </label>
+                <input
+                  type="text"
+                  id={`purifier-price-${purifier.id}`}
+                  inputMode="decimal"
+                  value={airPurifierPricesByCountry[purifier.id]?.[selectedCountry] ?? ''}
+                  onChange={(e) => handleAirPurifierPriceChange(purifier.id, e.target.value)}
+                  placeholder="0.0000"
+                />
+              </div>
+              <div>
+                <label htmlFor={`filter-price-${purifier.id}`}>
+                  Filter Price ({filterCurrency})
+                </label>
+                <input
+                  type="text"
+                  id={`filter-price-${purifier.id}`}
+                  inputMode="decimal"
+                  value={filterPricesByCountry[purifier.id]?.[selectedCountry] ?? ''}
+                  onChange={(e) => handleFilterPriceChange(purifier.id, e.target.value)}
+                  placeholder="0.0000"
+                />
+              </div>
+            </div>
+          );
+        })}
       </div>
     </>
   )
