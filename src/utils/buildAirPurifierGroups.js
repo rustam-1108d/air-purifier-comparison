@@ -7,7 +7,7 @@ const buildAirPurifierGroups = (purifiers, {
   maxCount,
   maxNoiseDbA,
 
-  minCadr,
+  minRequiredCadr_m3ph,
 
   ventilation_m3ph,
   penetrationFactor = 1,
@@ -37,7 +37,7 @@ const buildAirPurifierGroups = (purifiers, {
         const filterLifeHours = estimateFilterLifeHours({
           cadrStart_m3ph: totalCadrM3PerHour,
           ccm_mg: totalCcmMg,
-          minCadr_m3ph: minCadr,
+          minRequiredCadr_m3ph,
 
           ventilation_m3ph,
           penetrationFactor,
@@ -50,7 +50,7 @@ const buildAirPurifierGroups = (purifiers, {
         });
 
 
-        if (totalCadrM3PerHour >= minCadr && combinedNoiseDbA <= maxNoiseDbA) {
+        if (totalCadrM3PerHour >= minRequiredCadr_m3ph && combinedNoiseDbA <= maxNoiseDbA) {
           groups.push({
             purifierId: purifier.id,
             brand: purifier.brand,
@@ -101,7 +101,7 @@ export default buildAirPurifierGroups;
 //   {
 //     maxCount: maxAirPurifierCount,
 //     maxNoiseDbA: maxCombinedNoiseDbA,
-//     minCadr: minimumCadrM3PerHour,
+//     minRequiredCadr_m3ph: minimumCadrM3PerHour,
 
 //     ventilation_m3ph: testFormData.ventilationRate,
 //     // penetrationFactor: testFormData.penetrationFactor,

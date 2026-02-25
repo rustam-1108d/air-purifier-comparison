@@ -3,7 +3,7 @@ import calculateIndoorParticulateConcentration from "./calculateIndoorParticulat
 const estimateFilterLifeHours = ({
   cadrStart_m3ph,
   ccm_mg,
-  minCadr_m3ph,
+  minRequiredCadr_m3ph,
 
   ventilation_m3ph,
   penetrationFactor = 1,
@@ -18,7 +18,7 @@ const estimateFilterLifeHours = ({
   stopAtCcm = true
 }) => {
   const vals = [
-    cadrStart_m3ph, ccm_mg, minCadr_m3ph,
+    cadrStart_m3ph, ccm_mg, minRequiredCadr_m3ph,
     roomVolume_m3, ventilation_m3ph, outdoorPm10_ugm3, penetrationFactor,
     indoorPm10Gen_ugph, deposition_per_h, maxHours
   ];
@@ -26,7 +26,7 @@ const estimateFilterLifeHours = ({
   if (roomVolume_m3 <= 0) throw new Error("roomVolume_m3 must be > 0");
   if (cadrStart_m3ph <= 0) throw new Error("cadrStart_m3ph must be > 0");
   if (ccm_mg <= 0) throw new Error("ccm_mg must be > 0");
-  if (minCadr_m3ph < 0) throw new Error("minCadr_m3ph must be >= 0");
+  if (minRequiredCadr_m3ph < 0) throw new Error("minRequiredCadr_m3ph must be >= 0");
   if (penetrationFactor < 0 || penetrationFactor > 1) throw new Error("penetrationFactor must be in [0,1]");
   if (maxHours < 0) throw new Error("maxHours must be >= 0");
 
@@ -37,7 +37,7 @@ const estimateFilterLifeHours = ({
   for (let h = 0; h <= maxHours; h++) {
     const cadr_t = cadrFromMt(Mt_mg);
 
-    if (cadr_t <= minCadr_m3ph || (stopAtCcm && Mt_mg >= ccm_mg)) return h;
+    if (cadr_t <= minRequiredCadr_m3ph || (stopAtCcm && Mt_mg >= ccm_mg)) return h;
 
     const cInside_ugm3 = calculateIndoorParticulateConcentration({
       ventilationRate: ventilation_m3ph,
@@ -63,7 +63,7 @@ export default estimateFilterLifeHours;
 // console.log(estimateFilterLifeHours({
 //   cadrStart_m3ph: 180,
 //   ccm_mg: 6000,
-//   minCadr_m3ph: 70,
+//   minRequiredCadr_m3ph: 70,
 
 //   ventilation_m3ph: 30,
 //   penetrationFactor: 1,
