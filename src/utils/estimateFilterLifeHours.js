@@ -56,7 +56,7 @@ const estimateFilterLifeHours = ({
     };
   };
 
-  for (let h = 0; h <= maxHours; h++) {
+  for (let h = 0; h < maxHours; h += 1) {
     const cadr_t = cadrFromMt(Mt_mg);
 
     if (cadr_t <= minRequiredCadr_m3ph) {
