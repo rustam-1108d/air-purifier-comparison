@@ -88,6 +88,7 @@ function App() {
   const minimumRequiredCADR = Math.max(requiredPm2_5CADR ?? 0, requiredPm10CADR ?? 0);
 
   const selectedCountryData = countries.find((country) => country.code === selectedCountry);
+  const selectedCountryCurrency = selectedCountryData?.currency;
   const availableCities = cities.filter((city) => city.countryCode === selectedCountry);
 
   const currentElectricityPrice = selectedCityId
@@ -238,7 +239,7 @@ function App() {
       </div>
 
       <div>
-        <label htmlFor="electricityPrice">Electricity Price ({selectedCountryData?.currency}/kWh)</label>
+        <label htmlFor="electricityPrice">Electricity Price ({selectedCountryCurrency}/kWh)</label>
         <input
           type="text"
           id="electricityPrice"
@@ -309,15 +310,12 @@ function App() {
       <div>
         <h2>Air Purifier Prices ({selectedCountry})</h2>
         {airPurifiers.map((purifier) => {
-          const purifierCurrency = selectedCountryData?.currency;
-          const filterCurrency = selectedCountryData?.currency;
-
           return (
             <div key={purifier.id}>
               <h3>{purifier.brand} {purifier.model}</h3>
               <div>
                 <label htmlFor={`purifier-price-${purifier.id}`}>
-                  Purifier Price ({purifierCurrency})
+                  Purifier Price ({selectedCountryCurrency})
                 </label>
                 <input
                   type="text"
@@ -334,7 +332,7 @@ function App() {
               </div>
               <div>
                 <label htmlFor={`filter-price-${purifier.id}`}>
-                  Filter Price ({filterCurrency})
+                  Filter Price ({selectedCountryCurrency})
                 </label>
                 <input
                   type="text"
