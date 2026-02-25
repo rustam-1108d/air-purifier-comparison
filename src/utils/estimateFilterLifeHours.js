@@ -31,15 +31,42 @@ const estimateFilterLifeHours = ({
   if (maxHours < 0) throw new Error("maxHours must be >= 0");
 
   let Mt_mg = 0; // total captured mass (mg)
+  let cInside_ugm3 = null;
 
   const cadrFromMt = (mt_mg) => Math.max(0, cadrStart_m3ph * (1 - 0.5 * (mt_mg / ccm_mg)));
+
+  const buildResult = (hours, stopReason) => {
+    const finalCadr_m3ph = cadrFromMt(Mt_mg);
+    const reachedMinRequiredCadr = finalCadr_m3ph <= minRequiredCadr_m3ph;
+    const reachedCcm = Mt_mg >= ccm_mg;
+
+    return {
+      hours,
+      days: hours / 24,
+      years: hours / (365 * 24),
+      stopReason,
+      reachedMinRequiredCadr,
+      reachedCcm,
+      finalCadr_m3ph,
+      minRequiredCadr_m3ph,
+      capturedMass_mg: Mt_mg,
+      ccm_mg,
+      capturedMassFractionOfCcm: Mt_mg / ccm_mg,
+      lastEstimatedIndoorPm10_ugm3: cInside_ugm3,
+    };
+  };
 
   for (let h = 0; h <= maxHours; h++) {
     const cadr_t = cadrFromMt(Mt_mg);
 
-    if (cadr_t <= minRequiredCadr_m3ph || (stopAtCcm && Mt_mg >= ccm_mg)) return h;
+    if (cadr_t <= minRequiredCadr_m3ph) {
+      return buildResult(h, "min_required_cadr_reached");
+    }
+    if (stopAtCcm && Mt_mg >= ccm_mg) {
+      return buildResult(h, "ccm_reached");
+    }
 
-    const cInside_ugm3 = calculateIndoorParticulateConcentration({
+    cInside_ugm3 = calculateIndoorParticulateConcentration({
       ventilationRate: ventilation_m3ph,
       penetrationFactor,
       outdoorParticulateConcentration: outdoorPm10_ugm3,
@@ -55,7 +82,7 @@ const estimateFilterLifeHours = ({
     Mt_mg += capturedThisHour_mg;
   }
 
-  return maxHours;
+  return buildResult(maxHours, "max_hours_reached");
 };
 
 export default estimateFilterLifeHours;

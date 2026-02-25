@@ -34,7 +34,7 @@ const buildAirPurifierGroups = (purifiers, {
 
         const totalCcmMg = purifier.ccmMg * quantity;
 
-        const filterLifeHours = estimateFilterLifeHours({
+        const filterLifeEstimate = estimateFilterLifeHours({
           cadrStart_m3ph: totalCadrM3PerHour,
           ccm_mg: totalCcmMg,
           minRequiredCadr_m3ph,
@@ -48,6 +48,8 @@ const buildAirPurifierGroups = (purifiers, {
           deposition_per_h,
           roomVolume_m3,
         });
+
+        const filterLifeHours = filterLifeEstimate.hours;
 
 
         if (totalCadrM3PerHour >= minRequiredCadr_m3ph && combinedNoiseDbA <= maxNoiseDbA) {
@@ -63,6 +65,7 @@ const buildAirPurifierGroups = (purifiers, {
             combinedNoiseDbA: Number(combinedNoiseDbA.toFixed(1)),
             totalCcmMg,
             filterLifeHours,
+            filterLifeEstimate,
           });
         }
       }
