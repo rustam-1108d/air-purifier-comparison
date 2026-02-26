@@ -120,6 +120,55 @@ function App() {
     form.roomVolume,
   ]);
 
+  const airPurifierGroupsWithCosts = useMemo(() => {
+    const ownershipPeriodHours = form.annualOperatingHours * form.ownershipYears;
+
+    return airPurifierGroups.map((group) => {
+      const purifierUnitPrice = airPurifierPricesByCountry[group.purifierId]?.[selectedCountry] ?? null;
+      const filterUnitPrice = filterPricesByCountry[group.purifierId]?.[selectedCountry] ?? null;
+
+      const purchaseCost = Number.isFinite(purifierUnitPrice)
+        ? purifierUnitPrice * group.quantity
+        : null;
+
+      const electricityCost = Number.isFinite(currentElectricityPrice)
+        ? (group.totalPowerWatts / 1000) * ownershipPeriodHours * currentElectricityPrice
+        : null;
+
+      const filterReplacements = Number.isFinite(group.filterLifeHours) && group.filterLifeHours > 0
+        ? Math.max(0, Math.ceil(ownershipPeriodHours / group.filterLifeHours) - 1)
+        : null;
+
+      const filterCost = Number.isFinite(filterUnitPrice) && Number.isFinite(filterReplacements)
+        ? filterUnitPrice * group.quantity * filterReplacements
+        : null;
+
+      const totalCostOfOwnership = Number.isFinite(purchaseCost)
+        && Number.isFinite(electricityCost)
+        && Number.isFinite(filterCost)
+        ? purchaseCost + electricityCost + filterCost
+        : null;
+
+      return {
+        ...group,
+        ownershipPeriodHours,
+        purchaseCost,
+        electricityCost,
+        filterReplacements,
+        filterCost,
+        totalCostOfOwnership,
+      };
+    });
+  }, [
+    airPurifierGroups,
+    form.annualOperatingHours,
+    form.ownershipYears,
+    airPurifierPricesByCountry,
+    filterPricesByCountry,
+    selectedCountry,
+    currentElectricityPrice,
+  ]);
+
   const electricityDraftKey = selectedCityId
     ? `electricity-city-${selectedCityId}`
     : `electricity-country-${selectedCountry}`;
@@ -379,7 +428,10 @@ function App() {
 
       <div>
         <h2>Air Purifier Groups</h2>
-        {airPurifierGroups.length === 0 ? (
+        <p>
+          Cost period: {form.ownershipYears} years × {form.annualOperatingHours} hours/year = {form.ownershipYears * form.annualOperatingHours} hours
+        </p>
+        {airPurifierGroupsWithCosts.length === 0 ? (
           <p>No matching groups for the current constraints.</p>
         ) : (
           <table>
@@ -393,10 +445,14 @@ function App() {
                 <th>Total Power (W)</th>
                 <th>Noise (dBA)</th>
                 <th>Filter Life (h)</th>
+                <th>Purchase ({selectedCountryCurrency})</th>
+                <th>Electricity ({selectedCountryCurrency})</th>
+                <th>Filters ({selectedCountryCurrency})</th>
+                <th>TCO ({selectedCountryCurrency})</th>
               </tr>
             </thead>
             <tbody>
-              {airPurifierGroups.map((group) => (
+              {airPurifierGroupsWithCosts.map((group) => (
                 <tr key={`${group.purifierId}-${group.speedId}-${group.quantity}`}>
                   <td>{group.brand}</td>
                   <td>{group.model}</td>
@@ -406,6 +462,10 @@ function App() {
                   <td>{group.totalPowerWatts.toFixed(2)}</td>
                   <td>{group.combinedNoiseDbA.toFixed(1)}</td>
                   <td>{group.filterLifeHours === null ? 'N/A' : group.filterLifeHours.toFixed(0)}</td>
+                  <td>{group.purchaseCost === null ? 'N/A' : group.purchaseCost.toFixed(2)}</td>
+                  <td>{group.electricityCost === null ? 'N/A' : group.electricityCost.toFixed(2)}</td>
+                  <td>{group.filterCost === null ? 'N/A' : group.filterCost.toFixed(2)}</td>
+                  <td>{group.totalCostOfOwnership === null ? 'N/A' : group.totalCostOfOwnership.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
