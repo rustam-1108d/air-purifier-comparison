@@ -70,6 +70,15 @@ function App() {
     annualOperatingHours: 8760,
     ownershipYears: 5,
   });
+  console.log('Form State:', form);
+  console.log('pm10out')
+  console.log(form.outdoorPm10Concentration)
+  console.log('vent')
+  console.log(form.ventilationRate)
+  console.log('gen10')
+  console.log(form.indoorPm10GenerationRate)
+  console.log('vol')
+  console.log(form.roomVolume)
 
   const requiredPm2_5CADR = calculateRequiredParticulateCADR({
     indoorParticulateConcentrationLimit: form.indoorPm2_5ConcentrationLimit,
