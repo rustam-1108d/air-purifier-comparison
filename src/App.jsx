@@ -106,8 +106,22 @@ function App() {
     ? (electricityPricesByCity[selectedCityId] ?? null)
     : (electricityPricesByCountry[selectedCountry] ?? null);
 
+  const hasValidGroupInputs = Number.isFinite(minimumRequiredCADR)
+    && Number.isFinite(form.maxAirPurifierCount)
+    && Number.isFinite(form.maxCombinedNoiseDbA)
+    && Number.isFinite(form.ventilationRate)
+    && Number.isFinite(form.outdoorPm10Concentration)
+    && Number.isFinite(form.indoorPm10GenerationRate)
+    && Number.isFinite(form.roomVolume)
+    && form.maxAirPurifierCount > 0
+    && form.maxCombinedNoiseDbA >= 0
+    && form.ventilationRate >= 0
+    && form.outdoorPm10Concentration >= 0
+    && form.indoorPm10GenerationRate >= 0
+    && form.roomVolume > 0;
+
   const airPurifierGroups = useMemo(() => {
-    if (minimumRequiredCADR <= 0) {
+    if (!hasValidGroupInputs || minimumRequiredCADR <= 0) {
       return [];
     }
 
@@ -121,6 +135,7 @@ function App() {
       roomVolume_m3: form.roomVolume,
     });
   }, [
+    hasValidGroupInputs,
     minimumRequiredCADR,
     form.maxAirPurifierCount,
     form.maxCombinedNoiseDbA,
