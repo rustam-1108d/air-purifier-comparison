@@ -6,6 +6,7 @@ import buildAirPurifierGroups from './utils/buildAirPurifierGroups';
 import countries from './data/countries.js';
 import cities from './data/cities.js';
 import { getInitialElectricityPriceByCountry, getInitialElectricityPriceByCity } from './data/electricityPrices.js';
+import { getInitialAirQualityByCountry, getInitialAirQualityByCity } from './data/airQuality.js';
 import { airPurifiers } from './data/airPurifiers.js';
 
 import './App.css'
@@ -21,6 +22,23 @@ function App() {
   );
   const [electricityPricesByCity, setElectricityPricesByCity] = useState(
     () => getInitialElectricityPriceByCity()
+  );
+  const [airQualityByCountry, setAirQualityByCountry] = useState(
+    () => {
+      const initialAirQuality = getInitialAirQualityByCountry();
+      return Object.fromEntries(
+        countries.map((country) => [
+          country.code,
+          initialAirQuality[country.code] ?? {
+            outdoorPm2_5Concentration: null,
+            outdoorPm10Concentration: null,
+          },
+        ])
+      );
+    }
+  );
+  const [airQualityByCity, setAirQualityByCity] = useState(
+    () => getInitialAirQualityByCity()
   );
   const [airPurifierPricesByCountry, setAirPurifierPricesByCountry] = useState(
     () => Object.fromEntries(
@@ -56,8 +74,6 @@ function App() {
   // console.log('Filter Prices by Country:', filterPricesByCountry);
 
   const [form, setForm] = useState({
-    outdoorPm2_5AnnualAverageConcentration: 15,
-    outdoorPm10AnnualAverageConcentration: 40,
     indoorPm2_5AnnualAverageConcentrationLimit: 5,
     indoorPm10AnnualAverageConcentrationLimit: 15,
     ventilationRate: 30,
@@ -70,19 +86,17 @@ function App() {
     annualOperatingHours: 8760,
     ownershipYears: 5,
   });
-  console.log('Form State:', form);
-  console.log('pm10out')
-  console.log(form.outdoorPm10AnnualAverageConcentration)
-  console.log('vent')
-  console.log(form.ventilationRate)
-  console.log('gen10')
-  console.log(form.indoorPm10GenerationRate)
-  console.log('vol')
-  console.log(form.roomVolume)
+
+  const currentAirQuality = selectedCityId
+    ? (airQualityByCity[selectedCityId] ?? null)
+    : (airQualityByCountry[selectedCountry] ?? null);
+
+  const outdoorPm2_5AnnualAverageConcentration = currentAirQuality?.outdoorPm2_5Concentration ?? null;
+  const outdoorPm10AnnualAverageConcentration = currentAirQuality?.outdoorPm10Concentration ?? null;
 
   const requiredPm2_5CADR = calculateRequiredParticulateCADR({
     indoorParticulateConcentrationLimit: form.indoorPm2_5AnnualAverageConcentrationLimit,
-    outdoorParticulateConcentration: form.outdoorPm2_5AnnualAverageConcentration,
+    outdoorParticulateConcentration: outdoorPm2_5AnnualAverageConcentration,
     ventilationRate: form.ventilationRate,
     indoorParticulateGenerationRate: form.indoorPm2_5GenerationRate,
     roomVolume: form.roomVolume,
@@ -90,7 +104,7 @@ function App() {
 
   const requiredPm10CADR = calculateRequiredParticulateCADR({
     indoorParticulateConcentrationLimit: form.indoorPm10AnnualAverageConcentrationLimit,
-    outdoorParticulateConcentration: form.outdoorPm10AnnualAverageConcentration,
+    outdoorParticulateConcentration: outdoorPm10AnnualAverageConcentration,
     ventilationRate: form.ventilationRate,
     indoorParticulateGenerationRate: form.indoorPm10GenerationRate,
     roomVolume: form.roomVolume,
@@ -110,13 +124,13 @@ function App() {
     && Number.isFinite(form.maxAirPurifierCount)
     && Number.isFinite(form.maxCombinedNoiseDbA)
     && Number.isFinite(form.ventilationRate)
-    && Number.isFinite(form.outdoorPm10AnnualAverageConcentration)
+    && Number.isFinite(outdoorPm10AnnualAverageConcentration)
     && Number.isFinite(form.indoorPm10GenerationRate)
     && Number.isFinite(form.roomVolume)
     && form.maxAirPurifierCount > 0
     && form.maxCombinedNoiseDbA >= 0
     && form.ventilationRate >= 0
-    && form.outdoorPm10AnnualAverageConcentration >= 0
+    && outdoorPm10AnnualAverageConcentration >= 0
     && form.indoorPm10GenerationRate >= 0
     && form.roomVolume > 0;
 
@@ -130,7 +144,7 @@ function App() {
       maxNoiseDbA: form.maxCombinedNoiseDbA,
       minRequiredCadr_m3ph: minimumRequiredCADR,
       ventilation_m3ph: form.ventilationRate,
-      outdoorPm10_ugm3: form.outdoorPm10AnnualAverageConcentration,
+      outdoorPm10_ugm3: outdoorPm10AnnualAverageConcentration,
       indoorPm10Gen_ugph: form.indoorPm10GenerationRate,
       roomVolume_m3: form.roomVolume,
     });
@@ -140,7 +154,7 @@ function App() {
     form.maxAirPurifierCount,
     form.maxCombinedNoiseDbA,
     form.ventilationRate,
-    form.outdoorPm10AnnualAverageConcentration,
+    outdoorPm10AnnualAverageConcentration,
     form.indoorPm10GenerationRate,
     form.roomVolume,
   ]);
@@ -220,6 +234,12 @@ function App() {
   const electricityDraftKey = selectedCityId
     ? `electricity-city-${selectedCityId}`
     : `electricity-country-${selectedCountry}`;
+  const pm2_5DraftKey = selectedCityId
+    ? `pm2_5-city-${selectedCityId}`
+    : `pm2_5-country-${selectedCountry}`;
+  const pm10DraftKey = selectedCityId
+    ? `pm10-city-${selectedCityId}`
+    : `pm10-country-${selectedCountry}`;
 
   // console.log(form);
   // console.log('availableCities:', availableCities);
@@ -269,6 +289,68 @@ function App() {
         setElectricityPricesByCountry((prev) => ({
           ...prev,
           [selectedCountry]: parsedValue,
+        }));
+      }
+    }
+  };
+
+  const handleOutdoorPm2_5Change = (e) => {
+    const normalizedValue = e.target.value.replace(/,/g, '.');
+
+    if (/^\d*(\.\d{0,4})?$/.test(normalizedValue)) {
+      const parsedValue = normalizedValue === '' || normalizedValue === '.' ? null : Number(normalizedValue);
+
+      setPriceInputDrafts((prev) => ({
+        ...prev,
+        [pm2_5DraftKey]: normalizedValue,
+      }));
+
+      if (selectedCityId) {
+        setAirQualityByCity((prev) => ({
+          ...prev,
+          [selectedCityId]: {
+            ...(prev[selectedCityId] ?? {}),
+            outdoorPm2_5Concentration: parsedValue,
+          },
+        }));
+      } else {
+        setAirQualityByCountry((prev) => ({
+          ...prev,
+          [selectedCountry]: {
+            ...(prev[selectedCountry] ?? {}),
+            outdoorPm2_5Concentration: parsedValue,
+          },
+        }));
+      }
+    }
+  };
+
+  const handleOutdoorPm10Change = (e) => {
+    const normalizedValue = e.target.value.replace(/,/g, '.');
+
+    if (/^\d*(\.\d{0,4})?$/.test(normalizedValue)) {
+      const parsedValue = normalizedValue === '' || normalizedValue === '.' ? null : Number(normalizedValue);
+
+      setPriceInputDrafts((prev) => ({
+        ...prev,
+        [pm10DraftKey]: normalizedValue,
+      }));
+
+      if (selectedCityId) {
+        setAirQualityByCity((prev) => ({
+          ...prev,
+          [selectedCityId]: {
+            ...(prev[selectedCityId] ?? {}),
+            outdoorPm10Concentration: parsedValue,
+          },
+        }));
+      } else {
+        setAirQualityByCountry((prev) => ({
+          ...prev,
+          [selectedCountry]: {
+            ...(prev[selectedCountry] ?? {}),
+            outdoorPm10Concentration: parsedValue,
+          },
         }));
       }
     }
@@ -397,11 +479,29 @@ function App() {
 
       <div>
         <label htmlFor="outdoorPm2_5AnnualAverageConcentration">Outdoor PM2.5 Concentration (annual average, µg/m³)</label>
-        <input type="text" id="outdoorPm2_5AnnualAverageConcentration" name="outdoorPm2_5AnnualAverageConcentration" maxLength={4} inputMode="numeric" pattern="\d*" value={form.outdoorPm2_5AnnualAverageConcentration} onChange={handleChange} onBlur={handleBlur} />
+        <input
+          type="text"
+          id="outdoorPm2_5AnnualAverageConcentration"
+          name="outdoorPm2_5AnnualAverageConcentration"
+          inputMode="decimal"
+          value={priceInputDrafts[pm2_5DraftKey] ?? (outdoorPm2_5AnnualAverageConcentration ?? '')}
+          onChange={handleOutdoorPm2_5Change}
+          onBlur={() => handlePriceInputBlur(pm2_5DraftKey)}
+          placeholder="0.0000"
+        />
       </div>
       <div>
         <label htmlFor="outdoorPm10AnnualAverageConcentration">Outdoor PM10 Concentration (annual average, µg/m³)</label>
-        <input type="text" id="outdoorPm10AnnualAverageConcentration" name="outdoorPm10AnnualAverageConcentration" maxLength={4} inputMode="numeric" pattern="\d*" value={form.outdoorPm10AnnualAverageConcentration} onChange={handleChange} onBlur={handleBlur} />
+        <input
+          type="text"
+          id="outdoorPm10AnnualAverageConcentration"
+          name="outdoorPm10AnnualAverageConcentration"
+          inputMode="decimal"
+          value={priceInputDrafts[pm10DraftKey] ?? (outdoorPm10AnnualAverageConcentration ?? '')}
+          onChange={handleOutdoorPm10Change}
+          onBlur={() => handlePriceInputBlur(pm10DraftKey)}
+          placeholder="0.0000"
+        />
       </div>
       <div>
         <label htmlFor="indoorPm2_5AnnualAverageConcentrationLimit">Indoor PM2.5 Concentration Limit (annual average, µg/m³)</label>
