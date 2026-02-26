@@ -50,10 +50,10 @@ function App() {
   );
   const [priceInputDrafts, setPriceInputDrafts] = useState({});
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-  console.log('Electricity Prices by Country:', electricityPricesByCountry);
-  console.log('Electricity Prices by City:', electricityPricesByCity);
-  console.log('Air Purifier Prices by Country:', airPurifierPricesByCountry);
-  console.log('Filter Prices by Country:', filterPricesByCountry);
+  // console.log('Electricity Prices by Country:', electricityPricesByCountry);
+  // console.log('Electricity Prices by City:', electricityPricesByCity);
+  // console.log('Air Purifier Prices by Country:', airPurifierPricesByCountry);
+  // console.log('Filter Prices by Country:', filterPricesByCountry);
 
   const [form, setForm] = useState({
     outdoorPm2_5Concentration: 15,
@@ -200,7 +200,7 @@ function App() {
   // console.log(form);
   // console.log('availableCities:', availableCities);
   // console.log('selectedCountryData:', selectedCountryData);
-  console.log('Current Electricity Price:', currentElectricityPrice);
+  // console.log('Current Electricity Price:', currentElectricityPrice);
 
 
   const handleChange = (e) => {
