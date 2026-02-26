@@ -56,10 +56,10 @@ function App() {
   // console.log('Filter Prices by Country:', filterPricesByCountry);
 
   const [form, setForm] = useState({
-    outdoorPm2_5Concentration: 15,
-    outdoorPm10Concentration: 40,
-    indoorPm2_5ConcentrationLimit: 5,
-    indoorPm10ConcentrationLimit: 15,
+    outdoorPm2_5AnnualAverageConcentration: 15,
+    outdoorPm10AnnualAverageConcentration: 40,
+    indoorPm2_5AnnualAverageConcentrationLimit: 5,
+    indoorPm10AnnualAverageConcentrationLimit: 15,
     ventilationRate: 30,
     indoorPm2_5GenerationRate: 0,
     indoorPm10GenerationRate: 0,
@@ -72,7 +72,7 @@ function App() {
   });
   console.log('Form State:', form);
   console.log('pm10out')
-  console.log(form.outdoorPm10Concentration)
+  console.log(form.outdoorPm10AnnualAverageConcentration)
   console.log('vent')
   console.log(form.ventilationRate)
   console.log('gen10')
@@ -81,16 +81,16 @@ function App() {
   console.log(form.roomVolume)
 
   const requiredPm2_5CADR = calculateRequiredParticulateCADR({
-    indoorParticulateConcentrationLimit: form.indoorPm2_5ConcentrationLimit,
-    outdoorParticulateConcentration: form.outdoorPm2_5Concentration,
+    indoorParticulateConcentrationLimit: form.indoorPm2_5AnnualAverageConcentrationLimit,
+    outdoorParticulateConcentration: form.outdoorPm2_5AnnualAverageConcentration,
     ventilationRate: form.ventilationRate,
     indoorParticulateGenerationRate: form.indoorPm2_5GenerationRate,
     roomVolume: form.roomVolume,
   });
 
   const requiredPm10CADR = calculateRequiredParticulateCADR({
-    indoorParticulateConcentrationLimit: form.indoorPm10ConcentrationLimit,
-    outdoorParticulateConcentration: form.outdoorPm10Concentration,
+    indoorParticulateConcentrationLimit: form.indoorPm10AnnualAverageConcentrationLimit,
+    outdoorParticulateConcentration: form.outdoorPm10AnnualAverageConcentration,
     ventilationRate: form.ventilationRate,
     indoorParticulateGenerationRate: form.indoorPm10GenerationRate,
     roomVolume: form.roomVolume,
@@ -110,13 +110,13 @@ function App() {
     && Number.isFinite(form.maxAirPurifierCount)
     && Number.isFinite(form.maxCombinedNoiseDbA)
     && Number.isFinite(form.ventilationRate)
-    && Number.isFinite(form.outdoorPm10Concentration)
+    && Number.isFinite(form.outdoorPm10AnnualAverageConcentration)
     && Number.isFinite(form.indoorPm10GenerationRate)
     && Number.isFinite(form.roomVolume)
     && form.maxAirPurifierCount > 0
     && form.maxCombinedNoiseDbA >= 0
     && form.ventilationRate >= 0
-    && form.outdoorPm10Concentration >= 0
+    && form.outdoorPm10AnnualAverageConcentration >= 0
     && form.indoorPm10GenerationRate >= 0
     && form.roomVolume > 0;
 
@@ -130,7 +130,7 @@ function App() {
       maxNoiseDbA: form.maxCombinedNoiseDbA,
       minRequiredCadr_m3ph: minimumRequiredCADR,
       ventilation_m3ph: form.ventilationRate,
-      outdoorPm10_ugm3: form.outdoorPm10Concentration,
+      outdoorPm10_ugm3: form.outdoorPm10AnnualAverageConcentration,
       indoorPm10Gen_ugph: form.indoorPm10GenerationRate,
       roomVolume_m3: form.roomVolume,
     });
@@ -140,7 +140,7 @@ function App() {
     form.maxAirPurifierCount,
     form.maxCombinedNoiseDbA,
     form.ventilationRate,
-    form.outdoorPm10Concentration,
+    form.outdoorPm10AnnualAverageConcentration,
     form.indoorPm10GenerationRate,
     form.roomVolume,
   ]);
@@ -396,20 +396,20 @@ function App() {
       </div>
 
       <div>
-        <label htmlFor="outdoorPm2_5Concentration">Outdoor PM2.5 Concentration</label>
-        <input type="text" id="outdoorPm2_5Concentration" name="outdoorPm2_5Concentration" maxLength={4} inputMode="numeric" pattern="\d*" value={form.outdoorPm2_5Concentration} onChange={handleChange} onBlur={handleBlur} />
+        <label htmlFor="outdoorPm2_5AnnualAverageConcentration">Outdoor PM2.5 Concentration</label>
+        <input type="text" id="outdoorPm2_5AnnualAverageConcentration" name="outdoorPm2_5AnnualAverageConcentration" maxLength={4} inputMode="numeric" pattern="\d*" value={form.outdoorPm2_5AnnualAverageConcentration} onChange={handleChange} onBlur={handleBlur} />
       </div>
       <div>
-        <label htmlFor="outdoorPm10Concentration">Outdoor PM10 Concentration</label>
-        <input type="text" id="outdoorPm10Concentration" name="outdoorPm10Concentration" maxLength={4} inputMode="numeric" pattern="\d*" value={form.outdoorPm10Concentration} onChange={handleChange} onBlur={handleBlur} />
+        <label htmlFor="outdoorPm10AnnualAverageConcentration">Outdoor PM10 Concentration</label>
+        <input type="text" id="outdoorPm10AnnualAverageConcentration" name="outdoorPm10AnnualAverageConcentration" maxLength={4} inputMode="numeric" pattern="\d*" value={form.outdoorPm10AnnualAverageConcentration} onChange={handleChange} onBlur={handleBlur} />
       </div>
       <div>
-        <label htmlFor="indoorPm2_5ConcentrationLimit">Indoor PM2.5 Concentration Limit</label>
-        <input type="text" id="indoorPm2_5ConcentrationLimit" name="indoorPm2_5ConcentrationLimit" maxLength={4} inputMode="numeric" pattern="\d*" value={form.indoorPm2_5ConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
+        <label htmlFor="indoorPm2_5AnnualAverageConcentrationLimit">Indoor PM2.5 Concentration Limit</label>
+        <input type="text" id="indoorPm2_5AnnualAverageConcentrationLimit" name="indoorPm2_5AnnualAverageConcentrationLimit" maxLength={4} inputMode="numeric" pattern="\d*" value={form.indoorPm2_5AnnualAverageConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
       </div>
       <div>
-        <label htmlFor="indoorPm10ConcentrationLimit">Indoor PM10 Concentration Limit</label>
-        <input type="text" id="indoorPm10ConcentrationLimit" name="indoorPm10ConcentrationLimit" maxLength={4} inputMode="numeric" pattern="\d*" value={form.indoorPm10ConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
+        <label htmlFor="indoorPm10AnnualAverageConcentrationLimit">Indoor PM10 Concentration Limit</label>
+        <input type="text" id="indoorPm10AnnualAverageConcentrationLimit" name="indoorPm10AnnualAverageConcentrationLimit" maxLength={4} inputMode="numeric" pattern="\d*" value={form.indoorPm10AnnualAverageConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
       </div>
       <div>
         <label htmlFor="ventilationRate">Ventilation Rate</label>
