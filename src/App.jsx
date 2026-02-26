@@ -49,6 +49,7 @@ function App() {
     )
   );
   const [priceInputDrafts, setPriceInputDrafts] = useState({});
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   console.log('Electricity Prices by Country:', electricityPricesByCountry);
   console.log('Electricity Prices by City:', electricityPricesByCity);
   console.log('Air Purifier Prices by Country:', airPurifierPricesByCountry);
@@ -169,6 +170,29 @@ function App() {
     currentElectricityPrice,
   ]);
 
+  const sortedAirPurifierGroupsWithCosts = useMemo(() => {
+    if (!sortConfig.key) {
+      return airPurifierGroupsWithCosts;
+    }
+
+    const sorted = [...airPurifierGroupsWithCosts].sort((a, b) => {
+      const aValue = a[sortConfig.key];
+      const bValue = b[sortConfig.key];
+
+      if (aValue === null && bValue === null) return 0;
+      if (aValue === null) return 1;
+      if (bValue === null) return -1;
+
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return aValue - bValue;
+      }
+
+      return String(aValue).localeCompare(String(bValue));
+    });
+
+    return sortConfig.direction === 'asc' ? sorted : sorted.reverse();
+  }, [airPurifierGroupsWithCosts, sortConfig]);
+
   const electricityDraftKey = selectedCityId
     ? `electricity-city-${selectedCityId}`
     : `electricity-country-${selectedCountry}`;
@@ -277,6 +301,27 @@ function App() {
       delete next[draftKey];
       return next;
     });
+  };
+
+  const handleSort = (key) => {
+    setSortConfig((prev) => {
+      if (prev.key === key) {
+        return {
+          key,
+          direction: prev.direction === 'asc' ? 'desc' : 'asc',
+        };
+      }
+
+      return {
+        key,
+        direction: 'asc',
+      };
+    });
+  };
+
+  const getSortIndicator = (key) => {
+    if (sortConfig.key !== key) return '↕';
+    return sortConfig.direction === 'asc' ? '▲' : '▼';
   };
 
   return (
@@ -431,41 +476,67 @@ function App() {
         <p>
           Cost period: {form.ownershipYears} years × {form.annualOperatingHours} hours/year = {form.ownershipYears * form.annualOperatingHours} hours
         </p>
-        {airPurifierGroupsWithCosts.length === 0 ? (
+        {sortedAirPurifierGroupsWithCosts.length === 0 ? (
           <p>No matching groups for the current constraints.</p>
         ) : (
           <table>
             <thead>
               <tr>
-                <th>Brand</th>
-                <th>Model</th>
-                <th>Speed</th>
-                <th>Qty</th>
-                <th>Total CADR (m³/h)</th>
-                <th>Total Power (W)</th>
-                <th>Noise (dBA)</th>
-                <th>Filter Life (h)</th>
-                <th>Purchase ({selectedCountryCurrency})</th>
-                <th>Electricity ({selectedCountryCurrency})</th>
-                <th>Filters ({selectedCountryCurrency})</th>
-                <th>TCO ({selectedCountryCurrency})</th>
+                <th><button type="button" onClick={() => handleSort('brand')}>Brand {getSortIndicator('brand')}</button></th>
+                <th><button type="button" onClick={() => handleSort('model')}>Model {getSortIndicator('model')}</button></th>
+                <th><button type="button" onClick={() => handleSort('speedName')}>Speed {getSortIndicator('speedName')}</button></th>
+                <th><button type="button" onClick={() => handleSort('quantity')}>Qty {getSortIndicator('quantity')}</button></th>
+                <th><button type="button" onClick={() => handleSort('totalCadrM3PerHour')}>Total CADR (m³/h) {getSortIndicator('totalCadrM3PerHour')}</button></th>
+                <th><button type="button" onClick={() => handleSort('totalPowerWatts')}>Total Power (W) {getSortIndicator('totalPowerWatts')}</button></th>
+                <th><button type="button" onClick={() => handleSort('combinedNoiseDbA')}>Noise (dBA) {getSortIndicator('combinedNoiseDbA')}</button></th>
+                <th><button type="button" onClick={() => handleSort('filterLifeHours')}>Filter Life (h) {getSortIndicator('filterLifeHours')}</button></th>
+                <th><button type="button" onClick={() => handleSort('purchaseCost')}>Purchase ({selectedCountryCurrency}) {getSortIndicator('purchaseCost')}</button></th>
+                <th><button type="button" onClick={() => handleSort('electricityCost')}>Electricity ({selectedCountryCurrency}) {getSortIndicator('electricityCost')}</button></th>
+                <th><button type="button" onClick={() => handleSort('filterCost')}>Filters ({selectedCountryCurrency}) {getSortIndicator('filterCost')}</button></th>
+                <th><button type="button" onClick={() => handleSort('totalCostOfOwnership')}>TCO ({selectedCountryCurrency}) {getSortIndicator('totalCostOfOwnership')}</button></th>
               </tr>
             </thead>
             <tbody>
-              {airPurifierGroupsWithCosts.map((group) => (
+              {sortedAirPurifierGroupsWithCosts.map((group) => (
                 <tr key={`${group.purifierId}-${group.speedId}-${group.quantity}`}>
                   <td>{group.brand}</td>
                   <td>{group.model}</td>
                   <td>{group.speedName}</td>
                   <td>{group.quantity}</td>
-                  <td>{group.totalCadrM3PerHour.toFixed(2)}</td>
-                  <td>{group.totalPowerWatts.toFixed(2)}</td>
-                  <td>{group.combinedNoiseDbA.toFixed(1)}</td>
-                  <td>{group.filterLifeHours === null ? 'N/A' : group.filterLifeHours.toFixed(0)}</td>
-                  <td>{group.purchaseCost === null ? 'N/A' : group.purchaseCost.toFixed(2)}</td>
-                  <td>{group.electricityCost === null ? 'N/A' : group.electricityCost.toFixed(2)}</td>
-                  <td>{group.filterCost === null ? 'N/A' : group.filterCost.toFixed(2)}</td>
-                  <td>{group.totalCostOfOwnership === null ? 'N/A' : group.totalCostOfOwnership.toFixed(2)}</td>
+                  <td title={`Total CADR = ${group.totalCadrM3PerHour.toFixed(2)} m³/h (single unit ${(group.totalCadrM3PerHour / group.quantity).toFixed(2)} × quantity ${group.quantity})`}>
+                    {group.totalCadrM3PerHour.toFixed(2)}
+                  </td>
+                  <td title={`Total power = ${group.totalPowerWatts.toFixed(2)} W (single unit ${(group.totalPowerWatts / group.quantity).toFixed(2)} × quantity ${group.quantity})`}>
+                    {group.totalPowerWatts.toFixed(2)}
+                  </td>
+                  <td title={`Combined noise from ${group.quantity} units: ${group.combinedNoiseDbA.toFixed(1)} dBA`}>
+                    {group.combinedNoiseDbA.toFixed(1)}
+                  </td>
+                  <td title={group.filterLifeHours === null
+                    ? 'Filter life unavailable for this configuration'
+                    : `Estimated from CADR decay model. Stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`}>
+                    {group.filterLifeHours === null ? 'N/A' : group.filterLifeHours.toFixed(0)}
+                  </td>
+                  <td title={group.purchaseCost === null
+                    ? 'Purchase cost unavailable: purifier price missing'
+                    : `Purchase = unit price × quantity = ${(group.purchaseCost / group.quantity).toFixed(2)} × ${group.quantity}`}>
+                    {group.purchaseCost === null ? 'N/A' : group.purchaseCost.toFixed(2)}
+                  </td>
+                  <td title={group.electricityCost === null
+                    ? 'Electricity cost unavailable: electricity price missing'
+                    : `Electricity = (power W / 1000) × ${group.ownershipPeriodHours} h × ${(currentElectricityPrice ?? 0).toFixed(4)} ${selectedCountryCurrency}/kWh`}>
+                    {group.electricityCost === null ? 'N/A' : group.electricityCost.toFixed(2)}
+                  </td>
+                  <td title={group.filterCost === null
+                    ? 'Filter cost unavailable: filter price or filter life missing'
+                    : `Filters = unit filter price × quantity × replacements = ${(group.filterCost / (group.quantity * (group.filterReplacements || 1))).toFixed(2)} × ${group.quantity} × ${group.filterReplacements}`}>
+                    {group.filterCost === null ? 'N/A' : group.filterCost.toFixed(2)}
+                  </td>
+                  <td title={group.totalCostOfOwnership === null
+                    ? 'TCO unavailable: one or more cost components missing'
+                    : `TCO = Purchase + Electricity + Filters = ${group.purchaseCost?.toFixed(2)} + ${group.electricityCost?.toFixed(2)} + ${group.filterCost?.toFixed(2)}`}>
+                    {group.totalCostOfOwnership === null ? 'N/A' : group.totalCostOfOwnership.toFixed(2)}
+                  </td>
                 </tr>
               ))}
             </tbody>
