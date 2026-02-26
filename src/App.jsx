@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import calculateRequiredParticulateCADR from './utils/calculateRequiredParticulateCADR';
+import buildAirPurifierGroups from './utils/buildAirPurifierGroups';
 
 import countries from './data/countries.js';
 import cities from './data/cities.js';
@@ -94,6 +95,30 @@ function App() {
   const currentElectricityPrice = selectedCityId
     ? (electricityPricesByCity[selectedCityId] ?? null)
     : (electricityPricesByCountry[selectedCountry] ?? null);
+
+  const airPurifierGroups = useMemo(() => {
+    if (minimumRequiredCADR <= 0) {
+      return [];
+    }
+
+    return buildAirPurifierGroups(airPurifiers, {
+      maxCount: form.maxAirPurifierCount,
+      maxNoiseDbA: form.maxCombinedNoiseDbA,
+      minRequiredCadr_m3ph: minimumRequiredCADR,
+      ventilation_m3ph: form.ventilationRate,
+      outdoorPm10_ugm3: form.outdoorPm10Concentration,
+      indoorPm10Gen_ugph: form.indoorPm10GenerationRate,
+      roomVolume_m3: form.roomVolume,
+    });
+  }, [
+    minimumRequiredCADR,
+    form.maxAirPurifierCount,
+    form.maxCombinedNoiseDbA,
+    form.ventilationRate,
+    form.outdoorPm10Concentration,
+    form.indoorPm10GenerationRate,
+    form.roomVolume,
+  ]);
 
   const electricityDraftKey = selectedCityId
     ? `electricity-city-${selectedCityId}`
@@ -350,6 +375,42 @@ function App() {
             </div>
           );
         })}
+      </div>
+
+      <div>
+        <h2>Air Purifier Groups</h2>
+        {airPurifierGroups.length === 0 ? (
+          <p>No matching groups for the current constraints.</p>
+        ) : (
+          <table>
+            <thead>
+              <tr>
+                <th>Brand</th>
+                <th>Model</th>
+                <th>Speed</th>
+                <th>Qty</th>
+                <th>Total CADR (m³/h)</th>
+                <th>Total Power (W)</th>
+                <th>Noise (dBA)</th>
+                <th>Filter Life (h)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {airPurifierGroups.map((group) => (
+                <tr key={`${group.purifierId}-${group.speedId}-${group.quantity}`}>
+                  <td>{group.brand}</td>
+                  <td>{group.model}</td>
+                  <td>{group.speedName}</td>
+                  <td>{group.quantity}</td>
+                  <td>{group.totalCadrM3PerHour.toFixed(2)}</td>
+                  <td>{group.totalPowerWatts.toFixed(2)}</td>
+                  <td>{group.combinedNoiseDbA.toFixed(1)}</td>
+                  <td>{group.filterLifeHours === null ? 'N/A' : group.filterLifeHours.toFixed(0)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </>
   )
