@@ -246,10 +246,34 @@ function App() {
   // console.log('selectedCountryData:', selectedCountryData);
   // console.log('Current Electricity Price:', currentElectricityPrice);
 
+  const decimalFormFieldNames = new Set([
+    'indoorPm2_5AnnualAverageConcentrationLimit',
+    'indoorPm10AnnualAverageConcentrationLimit',
+    'ventilationRate',
+    'indoorPm2_5GenerationRate',
+    'indoorPm10GenerationRate',
+    'roomVolume',
+    'maxCombinedNoiseDbA',
+  ]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const numericValue = value.replace(/\D/g, ''); // Remove non-numeric characters
+
+    if (decimalFormFieldNames.has(name)) {
+      const normalizedValue = value.replace(/,/g, '.');
+
+      if (!/^\d*(\.\d{0,4})?$/.test(normalizedValue)) {
+        return;
+      }
+
+      setForm((prev) => ({
+        ...prev,
+        [name]: normalizedValue === '' || normalizedValue === '.' ? '' : Number(normalizedValue),
+      }));
+      return;
+    }
+
+    const numericValue = value.replace(/\D/g, '');
 
     setForm((prev) => ({
       ...prev,
@@ -498,27 +522,27 @@ function App() {
       </div>
       <div>
         <label htmlFor="indoorPm2_5AnnualAverageConcentrationLimit">Indoor PM2.5 Concentration Limit (annual average, µg/m³)</label>
-        <input type="text" id="indoorPm2_5AnnualAverageConcentrationLimit" name="indoorPm2_5AnnualAverageConcentrationLimit" maxLength={4} inputMode="numeric" pattern="\d*" value={form.indoorPm2_5AnnualAverageConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
+        <input type="text" id="indoorPm2_5AnnualAverageConcentrationLimit" name="indoorPm2_5AnnualAverageConcentrationLimit" inputMode="decimal" value={form.indoorPm2_5AnnualAverageConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
       </div>
       <div>
         <label htmlFor="indoorPm10AnnualAverageConcentrationLimit">Indoor PM10 Concentration Limit (annual average, µg/m³)</label>
-        <input type="text" id="indoorPm10AnnualAverageConcentrationLimit" name="indoorPm10AnnualAverageConcentrationLimit" maxLength={4} inputMode="numeric" pattern="\d*" value={form.indoorPm10AnnualAverageConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
+        <input type="text" id="indoorPm10AnnualAverageConcentrationLimit" name="indoorPm10AnnualAverageConcentrationLimit" inputMode="decimal" value={form.indoorPm10AnnualAverageConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
       </div>
       <div>
         <label htmlFor="ventilationRate">Ventilation Rate (m³/h)</label>
-        <input type="text" id="ventilationRate" name="ventilationRate" maxLength={4} inputMode="numeric" pattern="\d*" value={form.ventilationRate} onChange={handleChange} onBlur={handleBlur} />
+        <input type="text" id="ventilationRate" name="ventilationRate" inputMode="decimal" value={form.ventilationRate} onChange={handleChange} onBlur={handleBlur} />
       </div>
       <div>
         <label htmlFor="indoorPm2_5GenerationRate">Indoor PM2.5 Generation Rate (µg/h)</label>
-        <input type="text" id="indoorPm2_5GenerationRate" name="indoorPm2_5GenerationRate" maxLength={4} inputMode="numeric" pattern="\d*" value={form.indoorPm2_5GenerationRate} onChange={handleChange} onBlur={handleBlur} />
+        <input type="text" id="indoorPm2_5GenerationRate" name="indoorPm2_5GenerationRate" inputMode="decimal" value={form.indoorPm2_5GenerationRate} onChange={handleChange} onBlur={handleBlur} />
       </div>
       <div>
         <label htmlFor="indoorPm10GenerationRate">Indoor PM10 Generation Rate (µg/h)</label>
-        <input type="text" id="indoorPm10GenerationRate" name="indoorPm10GenerationRate" maxLength={4} inputMode="numeric" pattern="\d*" value={form.indoorPm10GenerationRate} onChange={handleChange} onBlur={handleBlur} />
+        <input type="text" id="indoorPm10GenerationRate" name="indoorPm10GenerationRate" inputMode="decimal" value={form.indoorPm10GenerationRate} onChange={handleChange} onBlur={handleBlur} />
       </div>
       <div>
         <label htmlFor="roomVolume">Room Volume (m³)</label>
-        <input type="text" id="roomVolume" name="roomVolume" maxLength={4} inputMode="numeric" pattern="\d*" value={form.roomVolume} onChange={handleChange} onBlur={handleBlur} />
+        <input type="text" id="roomVolume" name="roomVolume" inputMode="decimal" value={form.roomVolume} onChange={handleChange} onBlur={handleBlur} />
       </div>
       <div>
         <label htmlFor="maxAirPurifierCount">Max Air Purifier Count</label>
@@ -526,7 +550,7 @@ function App() {
       </div>
       <div>
         <label htmlFor="maxCombinedNoiseDbA">Max Combined Noise (dB)</label>
-        <input type="text" id="maxCombinedNoiseDbA" name="maxCombinedNoiseDbA" maxLength={3} inputMode="numeric" pattern="\d*" value={form.maxCombinedNoiseDbA} onChange={handleChange} onBlur={handleBlur} />
+        <input type="text" id="maxCombinedNoiseDbA" name="maxCombinedNoiseDbA" inputMode="decimal" value={form.maxCombinedNoiseDbA} onChange={handleChange} onBlur={handleBlur} />
       </div>
       <div>
         <label htmlFor="annualOperatingHours">Annual Operating Hours</label>
