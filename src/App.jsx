@@ -269,43 +269,52 @@ function App() {
     }
   };
 
+  const handleLocationDecimalInputChange = ({ value, draftKey, onCityUpdate, onCountryUpdate }) => {
+    const normalizedValue = value.replace(/,/g, '.');
+
+    if (!/^\d*(\.\d{0,4})?$/.test(normalizedValue)) {
+      return;
+    }
+
+    const parsedValue = normalizedValue === '' || normalizedValue === '.' ? null : Number(normalizedValue);
+
+    setPriceInputDrafts((prev) => ({
+      ...prev,
+      [draftKey]: normalizedValue,
+    }));
+
+    if (selectedCityId) {
+      onCityUpdate(parsedValue);
+      return;
+    }
+
+    onCountryUpdate(parsedValue);
+  };
+
   const handleElectricityPriceChange = (e) => {
-    const normalizedValue = e.target.value.replace(/,/g, '.');
-
-    if (/^\d*(\.\d{0,4})?$/.test(normalizedValue)) {
-      const parsedValue = normalizedValue === '' || normalizedValue === '.' ? null : Number(normalizedValue);
-
-      setPriceInputDrafts((prev) => ({
-        ...prev,
-        [electricityDraftKey]: normalizedValue,
-      }));
-
-      if (selectedCityId) {
+    handleLocationDecimalInputChange({
+      value: e.target.value,
+      draftKey: electricityDraftKey,
+      onCityUpdate: (parsedValue) => {
         setElectricityPricesByCity((prev) => ({
           ...prev,
           [selectedCityId]: parsedValue,
         }));
-      } else {
+      },
+      onCountryUpdate: (parsedValue) => {
         setElectricityPricesByCountry((prev) => ({
           ...prev,
           [selectedCountry]: parsedValue,
         }));
-      }
-    }
+      },
+    });
   };
 
   const handleOutdoorPm2_5Change = (e) => {
-    const normalizedValue = e.target.value.replace(/,/g, '.');
-
-    if (/^\d*(\.\d{0,4})?$/.test(normalizedValue)) {
-      const parsedValue = normalizedValue === '' || normalizedValue === '.' ? null : Number(normalizedValue);
-
-      setPriceInputDrafts((prev) => ({
-        ...prev,
-        [pm2_5DraftKey]: normalizedValue,
-      }));
-
-      if (selectedCityId) {
+    handleLocationDecimalInputChange({
+      value: e.target.value,
+      draftKey: pm2_5DraftKey,
+      onCityUpdate: (parsedValue) => {
         setAirQualityByCity((prev) => ({
           ...prev,
           [selectedCityId]: {
@@ -313,7 +322,8 @@ function App() {
             outdoorPm2_5Concentration: parsedValue,
           },
         }));
-      } else {
+      },
+      onCountryUpdate: (parsedValue) => {
         setAirQualityByCountry((prev) => ({
           ...prev,
           [selectedCountry]: {
@@ -321,22 +331,15 @@ function App() {
             outdoorPm2_5Concentration: parsedValue,
           },
         }));
-      }
-    }
+      },
+    });
   };
 
   const handleOutdoorPm10Change = (e) => {
-    const normalizedValue = e.target.value.replace(/,/g, '.');
-
-    if (/^\d*(\.\d{0,4})?$/.test(normalizedValue)) {
-      const parsedValue = normalizedValue === '' || normalizedValue === '.' ? null : Number(normalizedValue);
-
-      setPriceInputDrafts((prev) => ({
-        ...prev,
-        [pm10DraftKey]: normalizedValue,
-      }));
-
-      if (selectedCityId) {
+    handleLocationDecimalInputChange({
+      value: e.target.value,
+      draftKey: pm10DraftKey,
+      onCityUpdate: (parsedValue) => {
         setAirQualityByCity((prev) => ({
           ...prev,
           [selectedCityId]: {
@@ -344,7 +347,8 @@ function App() {
             outdoorPm10Concentration: parsedValue,
           },
         }));
-      } else {
+      },
+      onCountryUpdate: (parsedValue) => {
         setAirQualityByCountry((prev) => ({
           ...prev,
           [selectedCountry]: {
@@ -352,8 +356,8 @@ function App() {
             outdoorPm10Concentration: parsedValue,
           },
         }));
-      }
-    }
+      },
+    });
   };
 
   const handleAirPurifierPriceChange = (purifierId, value) => {
