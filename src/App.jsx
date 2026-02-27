@@ -269,7 +269,7 @@ function App() {
     }
   };
 
-  const handleLocationDecimalInputChange = ({ value, draftKey, onCityUpdate, onCountryUpdate }) => {
+  const handleDecimalInputChange = ({ value, draftKey, onCountryUpdate, onCityUpdate }) => {
     const normalizedValue = value.replace(/,/g, '.');
 
     if (!/^\d*(\.\d{0,4})?$/.test(normalizedValue)) {
@@ -283,7 +283,7 @@ function App() {
       [draftKey]: normalizedValue,
     }));
 
-    if (selectedCityId) {
+    if (selectedCityId && onCityUpdate) {
       onCityUpdate(parsedValue);
       return;
     }
@@ -291,25 +291,8 @@ function App() {
     onCountryUpdate(parsedValue);
   };
 
-  const handleCountryDecimalInputChange = ({ value, draftKey, onCountryUpdate }) => {
-    const normalizedValue = value.replace(/,/g, '.');
-
-    if (!/^\d*(\.\d{0,4})?$/.test(normalizedValue)) {
-      return;
-    }
-
-    const parsedValue = normalizedValue === '' || normalizedValue === '.' ? null : Number(normalizedValue);
-
-    setPriceInputDrafts((prev) => ({
-      ...prev,
-      [draftKey]: normalizedValue,
-    }));
-
-    onCountryUpdate(parsedValue);
-  };
-
   const handleElectricityPriceChange = (e) => {
-    handleLocationDecimalInputChange({
+    handleDecimalInputChange({
       value: e.target.value,
       draftKey: electricityDraftKey,
       onCityUpdate: (parsedValue) => {
@@ -328,7 +311,7 @@ function App() {
   };
 
   const handleOutdoorPm2_5Change = (e) => {
-    handleLocationDecimalInputChange({
+    handleDecimalInputChange({
       value: e.target.value,
       draftKey: pm2_5DraftKey,
       onCityUpdate: (parsedValue) => {
@@ -353,7 +336,7 @@ function App() {
   };
 
   const handleOutdoorPm10Change = (e) => {
-    handleLocationDecimalInputChange({
+    handleDecimalInputChange({
       value: e.target.value,
       draftKey: pm10DraftKey,
       onCityUpdate: (parsedValue) => {
@@ -380,7 +363,7 @@ function App() {
   const handleAirPurifierPriceChange = (purifierId, value) => {
     const draftKey = `purifier-${purifierId}-${selectedCountry}`;
 
-    handleCountryDecimalInputChange({
+    handleDecimalInputChange({
       value,
       draftKey,
       onCountryUpdate: (parsedValue) => {
@@ -398,7 +381,7 @@ function App() {
   const handleFilterPriceChange = (purifierId, value) => {
     const draftKey = `filter-${purifierId}-${selectedCountry}`;
 
-    handleCountryDecimalInputChange({
+    handleDecimalInputChange({
       value,
       draftKey,
       onCountryUpdate: (parsedValue) => {
