@@ -444,7 +444,7 @@ function App() {
     });
   };
 
-  const handlePriceInputBlur = (draftKey) => {
+  const handleDraftInputBlur = (draftKey) => {
     setInputDrafts((prev) => {
       if (!(draftKey in prev)) return prev;
       const next = { ...prev };
@@ -515,7 +515,7 @@ function App() {
           inputMode="decimal"
           value={inputDrafts[electricityDraftKey] ?? (currentElectricityPrice ?? '')}
           onChange={handleElectricityPriceChange}
-          onBlur={() => handlePriceInputBlur(electricityDraftKey)}
+          onBlur={() => handleDraftInputBlur(electricityDraftKey)}
           placeholder="0.0000"
         />
       </div>
@@ -528,7 +528,7 @@ function App() {
           inputMode="decimal"
           value={inputDrafts[pm2_5DraftKey] ?? (outdoorPm2_5AnnualAverageConcentration ?? '')}
           onChange={handleOutdoorPm2_5Change}
-          onBlur={() => handlePriceInputBlur(pm2_5DraftKey)}
+          onBlur={() => handleDraftInputBlur(pm2_5DraftKey)}
           placeholder="0.0000"
         />
       </div>
@@ -540,7 +540,7 @@ function App() {
           inputMode="decimal"
           value={inputDrafts[pm10DraftKey] ?? (outdoorPm10AnnualAverageConcentration ?? '')}
           onChange={handleOutdoorPm10Change}
-          onBlur={() => handlePriceInputBlur(pm10DraftKey)}
+          onBlur={() => handleDraftInputBlur(pm10DraftKey)}
           placeholder="0.0000"
         />
       </div>
@@ -610,7 +610,7 @@ function App() {
                     ?? (airPurifierPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
                   }
                   onChange={(e) => handleAirPurifierPriceChange(purifier.id, e.target.value)}
-                  onBlur={() => handlePriceInputBlur(`purifier-${purifier.id}-${selectedCountry}`)}
+                  onBlur={() => handleDraftInputBlur(`purifier-${purifier.id}-${selectedCountry}`)}
                   placeholder="0.0000"
                 />
               </div>
@@ -627,7 +627,7 @@ function App() {
                     ?? (filterPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
                   }
                   onChange={(e) => handleFilterPriceChange(purifier.id, e.target.value)}
-                  onBlur={() => handlePriceInputBlur(`filter-${purifier.id}-${selectedCountry}`)}
+                  onBlur={() => handleDraftInputBlur(`filter-${purifier.id}-${selectedCountry}`)}
                   placeholder="0.0000"
                 />
               </div>
