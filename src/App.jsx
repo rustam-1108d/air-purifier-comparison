@@ -464,7 +464,6 @@ function App() {
         <input
           type="text"
           id="electricityPrice"
-          name="electricityPrice"
           inputMode="decimal"
           value={priceInputDrafts[electricityDraftKey] ?? (currentElectricityPrice ?? '')}
           onChange={handleElectricityPriceChange}
@@ -478,7 +477,6 @@ function App() {
         <input
           type="text"
           id="outdoorPm2_5AnnualAverageConcentration"
-          name="outdoorPm2_5AnnualAverageConcentration"
           inputMode="decimal"
           value={priceInputDrafts[pm2_5DraftKey] ?? (outdoorPm2_5AnnualAverageConcentration ?? '')}
           onChange={handleOutdoorPm2_5Change}
@@ -491,7 +489,6 @@ function App() {
         <input
           type="text"
           id="outdoorPm10AnnualAverageConcentration"
-          name="outdoorPm10AnnualAverageConcentration"
           inputMode="decimal"
           value={priceInputDrafts[pm10DraftKey] ?? (outdoorPm10AnnualAverageConcentration ?? '')}
           onChange={handleOutdoorPm10Change}
