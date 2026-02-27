@@ -53,6 +53,33 @@ export const airPurifiers = [
     },
   },
   {
+    id: 'smart-air-sa600-5-speed',
+    brand: 'Smart Air',
+    model: 'SA600 (5-speed version)',
+    speedSettings: [
+      { id: 1, modeName: 'Speed 1', cadrM3PerHour: 125, powerWatts: 3, soundPressureLevelDbA: 24 },
+      { id: 2, modeName: 'Speed 2', cadrM3PerHour: 180, powerWatts: 5, soundPressureLevelDbA: 31 },
+      { id: 3, modeName: 'Speed 3', cadrM3PerHour: 240, powerWatts: 9, soundPressureLevelDbA: 39 },
+      { id: 4, modeName: 'Speed 4', cadrM3PerHour: 320, powerWatts: 14, soundPressureLevelDbA: 43 },
+      { id: 5, modeName: 'Speed 5', cadrM3PerHour: 500, powerWatts: 60, soundPressureLevelDbA: 52 },
+    ],
+    ccmMg: 7400,
+    purifierPrices: {
+      CN: { amount: 999, currency: 'CNY' },
+      KZ: { amount: 121_250, currency: 'KZT' },
+      RU: { amount: null, currency: 'RUB' },
+      UK: { amount: 222, currency: 'GBP' },
+      US: { amount: 279.95, currency: 'USD' },
+    },
+    filterPrices: {
+      CN: { amount: 219, currency: 'CNY' },
+      KZ: { amount: 19_400, currency: 'KZT' },
+      RU: { amount: null, currency: 'RUB' },
+      UK: { amount: 36, currency: 'GBP' },
+      US: { amount: 57.99, currency: 'USD' },
+    },
+  },
+  {
     id: 'xiaomi-smart-air-purifier-4-pro',
     brand: 'Xiaomi',
     model: 'Smart Air Purifier 4 Pro',
