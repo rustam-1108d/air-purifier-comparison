@@ -80,6 +80,31 @@ export const airPurifiers = [
     },
   },
   {
+    id: 'smart-air-blast-mini',
+    brand: 'Smart Air',
+    model: 'Blast Mini (HEPA Filter Only)',
+    speedSettings: [
+      { id: 1, modeName: 'Speed 1', cadrM3PerHour: 340, powerWatts: 49, soundPressureLevelDbA: 36 },
+      { id: 2, modeName: 'Speed 2', cadrM3PerHour: 450, powerWatts: 82, soundPressureLevelDbA: 43 },
+      { id: 3, modeName: 'Speed 3', cadrM3PerHour: 740, powerWatts: 122, soundPressureLevelDbA: 49 },
+    ],
+    ccmMg: 18000,
+    purifierPrices: {
+      CN: { amount: 1_749, currency: 'CNY' },
+      KZ: { amount: 85_000, currency: 'KZT' },
+      RU: { amount: null, currency: 'RUB' },
+      UK: { amount: 432, currency: 'GBP' },
+      US: { amount: 667, currency: 'USD' },
+    },
+    filterPrices: {
+      CN: { amount: 450, currency: 'CNY' },
+      KZ: { amount: 56_990, currency: 'KZT' },
+      RU: { amount: null, currency: 'RUB' },
+      UK: { amount: 90, currency: 'GBP' },
+      US: { amount: 149.99, currency: 'USD' },
+    },
+  },
+  {
     id: 'xiaomi-smart-air-purifier-4-pro',
     brand: 'Xiaomi',
     model: 'Smart Air Purifier 4 Pro',
