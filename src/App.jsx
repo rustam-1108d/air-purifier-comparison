@@ -66,7 +66,7 @@ function App() {
       ])
     )
   );
-  const [priceInputDrafts, setPriceInputDrafts] = useState({});
+  const [inputDrafts, setInputDrafts] = useState({});
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   // console.log('Electricity Prices by Country:', electricityPricesByCountry);
   // console.log('Electricity Prices by City:', electricityPricesByCity);
@@ -278,7 +278,7 @@ function App() {
 
     const parsedValue = normalizedValue === '' || normalizedValue === '.' ? null : Number(normalizedValue);
 
-    setPriceInputDrafts((prev) => ({
+    setInputDrafts((prev) => ({
       ...prev,
       [draftKey]: normalizedValue,
     }));
@@ -397,7 +397,7 @@ function App() {
   };
 
   const handlePriceInputBlur = (draftKey) => {
-    setPriceInputDrafts((prev) => {
+    setInputDrafts((prev) => {
       if (!(draftKey in prev)) return prev;
       const next = { ...prev };
       delete next[draftKey];
@@ -465,7 +465,7 @@ function App() {
           type="text"
           id="electricityPrice"
           inputMode="decimal"
-          value={priceInputDrafts[electricityDraftKey] ?? (currentElectricityPrice ?? '')}
+          value={inputDrafts[electricityDraftKey] ?? (currentElectricityPrice ?? '')}
           onChange={handleElectricityPriceChange}
           onBlur={() => handlePriceInputBlur(electricityDraftKey)}
           placeholder="0.0000"
@@ -478,7 +478,7 @@ function App() {
           type="text"
           id="outdoorPm2_5AnnualAverageConcentration"
           inputMode="decimal"
-          value={priceInputDrafts[pm2_5DraftKey] ?? (outdoorPm2_5AnnualAverageConcentration ?? '')}
+          value={inputDrafts[pm2_5DraftKey] ?? (outdoorPm2_5AnnualAverageConcentration ?? '')}
           onChange={handleOutdoorPm2_5Change}
           onBlur={() => handlePriceInputBlur(pm2_5DraftKey)}
           placeholder="0.0000"
@@ -490,7 +490,7 @@ function App() {
           type="text"
           id="outdoorPm10AnnualAverageConcentration"
           inputMode="decimal"
-          value={priceInputDrafts[pm10DraftKey] ?? (outdoorPm10AnnualAverageConcentration ?? '')}
+          value={inputDrafts[pm10DraftKey] ?? (outdoorPm10AnnualAverageConcentration ?? '')}
           onChange={handleOutdoorPm10Change}
           onBlur={() => handlePriceInputBlur(pm10DraftKey)}
           placeholder="0.0000"
@@ -558,7 +558,7 @@ function App() {
                   id={`purifier-price-${purifier.id}`}
                   inputMode="decimal"
                   value={
-                    priceInputDrafts[`purifier-${purifier.id}-${selectedCountry}`]
+                    inputDrafts[`purifier-${purifier.id}-${selectedCountry}`]
                     ?? (airPurifierPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
                   }
                   onChange={(e) => handleAirPurifierPriceChange(purifier.id, e.target.value)}
@@ -575,7 +575,7 @@ function App() {
                   id={`filter-price-${purifier.id}`}
                   inputMode="decimal"
                   value={
-                    priceInputDrafts[`filter-${purifier.id}-${selectedCountry}`]
+                    inputDrafts[`filter-${purifier.id}-${selectedCountry}`]
                     ?? (filterPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
                   }
                   onChange={(e) => handleFilterPriceChange(purifier.id, e.target.value)}
