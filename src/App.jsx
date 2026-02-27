@@ -317,7 +317,7 @@ function App() {
     }
   };
 
-  const handleDecimalInputChange = ({ value, draftKey, onCountryUpdate, onCityUpdate }) => {
+  const handleLocationDecimalInputChange = ({ value, draftKey, onCountryUpdate, onCityUpdate }) => {
     const normalizedValue = value.replace(/,/g, '.');
 
     if (!/^\d*(\.\d{0,4})?$/.test(normalizedValue)) {
@@ -340,7 +340,7 @@ function App() {
   };
 
   const handleElectricityPriceChange = (e) => {
-    handleDecimalInputChange({
+    handleLocationDecimalInputChange({
       value: e.target.value,
       draftKey: electricityDraftKey,
       onCityUpdate: (parsedValue) => {
@@ -359,7 +359,7 @@ function App() {
   };
 
   const handleOutdoorPm2_5Change = (e) => {
-    handleDecimalInputChange({
+    handleLocationDecimalInputChange({
       value: e.target.value,
       draftKey: pm2_5DraftKey,
       onCityUpdate: (parsedValue) => {
@@ -384,7 +384,7 @@ function App() {
   };
 
   const handleOutdoorPm10Change = (e) => {
-    handleDecimalInputChange({
+    handleLocationDecimalInputChange({
       value: e.target.value,
       draftKey: pm10DraftKey,
       onCityUpdate: (parsedValue) => {
@@ -411,7 +411,7 @@ function App() {
   const handleAirPurifierPriceChange = (purifierId, value) => {
     const draftKey = `purifier-${purifierId}-${selectedCountry}`;
 
-    handleDecimalInputChange({
+    handleLocationDecimalInputChange({
       value,
       draftKey,
       onCountryUpdate: (parsedValue) => {
@@ -429,7 +429,7 @@ function App() {
   const handleFilterPriceChange = (purifierId, value) => {
     const draftKey = `filter-${purifierId}-${selectedCountry}`;
 
-    handleDecimalInputChange({
+    handleLocationDecimalInputChange({
       value,
       draftKey,
       onCountryUpdate: (parsedValue) => {
