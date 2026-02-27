@@ -291,6 +291,23 @@ function App() {
     onCountryUpdate(parsedValue);
   };
 
+  const handleCountryDecimalInputChange = ({ value, draftKey, onCountryUpdate }) => {
+    const normalizedValue = value.replace(/,/g, '.');
+
+    if (!/^\d*(\.\d{0,4})?$/.test(normalizedValue)) {
+      return;
+    }
+
+    const parsedValue = normalizedValue === '' || normalizedValue === '.' ? null : Number(normalizedValue);
+
+    setPriceInputDrafts((prev) => ({
+      ...prev,
+      [draftKey]: normalizedValue,
+    }));
+
+    onCountryUpdate(parsedValue);
+  };
+
   const handleElectricityPriceChange = (e) => {
     handleLocationDecimalInputChange({
       value: e.target.value,
@@ -361,47 +378,39 @@ function App() {
   };
 
   const handleAirPurifierPriceChange = (purifierId, value) => {
-    const normalizedValue = value.replace(/,/g, '.');
+    const draftKey = `purifier-${purifierId}-${selectedCountry}`;
 
-    if (/^\d*(\.\d{0,4})?$/.test(normalizedValue)) {
-      const parsedValue = normalizedValue === '' || normalizedValue === '.' ? null : Number(normalizedValue);
-      const draftKey = `purifier-${purifierId}-${selectedCountry}`;
-
-      setPriceInputDrafts((prev) => ({
-        ...prev,
-        [draftKey]: normalizedValue,
-      }));
-
-      setAirPurifierPricesByCountry((prev) => ({
-        ...prev,
-        [purifierId]: {
-          ...prev[purifierId],
-          [selectedCountry]: parsedValue,
-        },
-      }));
-    }
+    handleCountryDecimalInputChange({
+      value,
+      draftKey,
+      onCountryUpdate: (parsedValue) => {
+        setAirPurifierPricesByCountry((prev) => ({
+          ...prev,
+          [purifierId]: {
+            ...prev[purifierId],
+            [selectedCountry]: parsedValue,
+          },
+        }));
+      },
+    });
   };
 
   const handleFilterPriceChange = (purifierId, value) => {
-    const normalizedValue = value.replace(/,/g, '.');
+    const draftKey = `filter-${purifierId}-${selectedCountry}`;
 
-    if (/^\d*(\.\d{0,4})?$/.test(normalizedValue)) {
-      const parsedValue = normalizedValue === '' || normalizedValue === '.' ? null : Number(normalizedValue);
-      const draftKey = `filter-${purifierId}-${selectedCountry}`;
-
-      setPriceInputDrafts((prev) => ({
-        ...prev,
-        [draftKey]: normalizedValue,
-      }));
-
-      setFilterPricesByCountry((prev) => ({
-        ...prev,
-        [purifierId]: {
-          ...prev[purifierId],
-          [selectedCountry]: parsedValue,
-        },
-      }));
-    }
+    handleCountryDecimalInputChange({
+      value,
+      draftKey,
+      onCountryUpdate: (parsedValue) => {
+        setFilterPricesByCountry((prev) => ({
+          ...prev,
+          [purifierId]: {
+            ...prev[purifierId],
+            [selectedCountry]: parsedValue,
+          },
+        }));
+      },
+    });
   };
 
   const handlePriceInputBlur = (draftKey) => {
