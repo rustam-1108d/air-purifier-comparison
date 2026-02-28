@@ -12,6 +12,7 @@ import { airPurifiers } from './data/airPurifiers.js';
 import './App.css'
 
 const DEFAULT_DECIMAL_PLACES = 4;
+const DEFAULT_INTEGER_DIGITS = 9;
 
 const FORM_DECIMAL_PLACES_BY_FIELD = {
   indoorPm2_5AnnualAverageConcentrationLimit: 4,
@@ -23,6 +24,16 @@ const FORM_DECIMAL_PLACES_BY_FIELD = {
   maxCombinedNoiseDbA: 4,
 };
 
+const FORM_INTEGER_DIGITS_BY_FIELD = {
+  indoorPm2_5AnnualAverageConcentrationLimit: 4,
+  indoorPm10AnnualAverageConcentrationLimit: 4,
+  ventilationRate: 5,
+  indoorPm2_5GenerationRate: 7,
+  indoorPm10GenerationRate: 7,
+  roomVolume: 5,
+  maxCombinedNoiseDbA: 3,
+};
+
 const LOCATION_DECIMAL_PLACES = {
   electricityPrice: 4,
   outdoorPm2_5: 4,
@@ -31,10 +42,22 @@ const LOCATION_DECIMAL_PLACES = {
   filterPrice: 4,
 };
 
+const LOCATION_INTEGER_DIGITS = {
+  electricityPrice: 6,
+  outdoorPm2_5: 4,
+  outdoorPm10: 4,
+  purifierPrice: 7,
+  filterPrice: 7,
+};
+
 const normalizeDecimalInput = (value) => value.replace(/,/g, '.');
 
-const isValidDecimalInput = (value, maxDecimalPlaces = DEFAULT_DECIMAL_PLACES) => {
-  const pattern = new RegExp(`^\\d*(\\.\\d{0,${maxDecimalPlaces}})?$`);
+const isValidDecimalInput = (
+  value,
+  maxDecimalPlaces = DEFAULT_DECIMAL_PLACES,
+  maxIntegerDigits = DEFAULT_INTEGER_DIGITS,
+) => {
+  const pattern = new RegExp(`^\\d{0,${maxIntegerDigits}}(\\.\\d{0,${maxDecimalPlaces}})?$`);
   return pattern.test(value);
 };
 
@@ -285,8 +308,9 @@ function App() {
     if (decimalFormFieldNames.has(name)) {
       const normalizedValue = normalizeDecimalInput(value);
       const maxDecimalPlaces = FORM_DECIMAL_PLACES_BY_FIELD[name] ?? DEFAULT_DECIMAL_PLACES;
+      const maxIntegerDigits = FORM_INTEGER_DIGITS_BY_FIELD[name] ?? DEFAULT_INTEGER_DIGITS;
 
-      if (!isValidDecimalInput(normalizedValue, maxDecimalPlaces)) {
+      if (!isValidDecimalInput(normalizedValue, maxDecimalPlaces, maxIntegerDigits)) {
         return;
       }
 
@@ -341,10 +365,17 @@ function App() {
     }
   };
 
-  const handleLocationDecimalInputChange = ({ value, draftKey, onCountryUpdate, onCityUpdate, maxDecimalPlaces = DEFAULT_DECIMAL_PLACES }) => {
+  const handleLocationDecimalInputChange = ({
+    value,
+    draftKey,
+    onCountryUpdate,
+    onCityUpdate,
+    maxDecimalPlaces = DEFAULT_DECIMAL_PLACES,
+    maxIntegerDigits = DEFAULT_INTEGER_DIGITS,
+  }) => {
     const normalizedValue = normalizeDecimalInput(value);
 
-    if (!isValidDecimalInput(normalizedValue, maxDecimalPlaces)) {
+    if (!isValidDecimalInput(normalizedValue, maxDecimalPlaces, maxIntegerDigits)) {
       return;
     }
 
@@ -368,6 +399,7 @@ function App() {
       value: e.target.value,
       draftKey: electricityDraftKey,
       maxDecimalPlaces: LOCATION_DECIMAL_PLACES.electricityPrice,
+      maxIntegerDigits: LOCATION_INTEGER_DIGITS.electricityPrice,
       onCityUpdate: (parsedValue) => {
         setElectricityPricesByCity((prev) => ({
           ...prev,
@@ -388,6 +420,7 @@ function App() {
       value: e.target.value,
       draftKey: pm2_5DraftKey,
       maxDecimalPlaces: LOCATION_DECIMAL_PLACES.outdoorPm2_5,
+      maxIntegerDigits: LOCATION_INTEGER_DIGITS.outdoorPm2_5,
       onCityUpdate: (parsedValue) => {
         setAirQualityByCity((prev) => ({
           ...prev,
@@ -414,6 +447,7 @@ function App() {
       value: e.target.value,
       draftKey: pm10DraftKey,
       maxDecimalPlaces: LOCATION_DECIMAL_PLACES.outdoorPm10,
+      maxIntegerDigits: LOCATION_INTEGER_DIGITS.outdoorPm10,
       onCityUpdate: (parsedValue) => {
         setAirQualityByCity((prev) => ({
           ...prev,
@@ -442,6 +476,7 @@ function App() {
       value,
       draftKey,
       maxDecimalPlaces: LOCATION_DECIMAL_PLACES.purifierPrice,
+      maxIntegerDigits: LOCATION_INTEGER_DIGITS.purifierPrice,
       onCountryUpdate: (parsedValue) => {
         setAirPurifierPricesByCountry((prev) => ({
           ...prev,
@@ -461,6 +496,7 @@ function App() {
       value,
       draftKey,
       maxDecimalPlaces: LOCATION_DECIMAL_PLACES.filterPrice,
+      maxIntegerDigits: LOCATION_INTEGER_DIGITS.filterPrice,
       onCountryUpdate: (parsedValue) => {
         setFilterPricesByCountry((prev) => ({
           ...prev,
