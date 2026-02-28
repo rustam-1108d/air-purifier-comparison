@@ -15,6 +15,8 @@ const DEFAULT_DECIMAL_PLACES = 4;
 const DEFAULT_INTEGER_DIGITS = 9;
 const MIN_ANNUAL_OPERATING_HOURS = 0;
 const MAX_ANNUAL_OPERATING_HOURS = 8784;
+const MIN_OWNERSHIP_YEARS = 1;
+const MAX_OWNERSHIP_YEARS = 99;
 
 const FORM_DECIMAL_PLACES_BY_FIELD = {
   indoorPm2_5AnnualAverageConcentrationLimit: 4,
@@ -183,6 +185,14 @@ function App() {
       : null;
   const isAnnualOperatingHoursValid = annualOperatingHoursValidationMessage === null;
 
+  const ownershipYearsValidationMessage = form.ownershipYears === ''
+    ? 'Ownership Years is required.'
+    : form.ownershipYears < MIN_OWNERSHIP_YEARS || form.ownershipYears > MAX_OWNERSHIP_YEARS
+      ? `Ownership Years must be between ${MIN_OWNERSHIP_YEARS} and ${MAX_OWNERSHIP_YEARS}.`
+      : null;
+  const isOwnershipYearsValid = ownershipYearsValidationMessage === null;
+  const isCostPeriodValid = isAnnualOperatingHoursValid && isOwnershipYearsValid;
+
   const hasValidGroupInputs = Number.isFinite(minimumRequiredCADR)
     && Number.isFinite(form.maxAirPurifierCount)
     && Number.isFinite(form.maxCombinedNoiseDbA)
@@ -223,7 +233,7 @@ function App() {
   ]);
 
   const airPurifierGroupsWithCosts = useMemo(() => {
-    const ownershipPeriodHours = isAnnualOperatingHoursValid
+    const ownershipPeriodHours = isCostPeriodValid
       ? form.annualOperatingHours * form.ownershipYears
       : null;
 
@@ -267,7 +277,7 @@ function App() {
     airPurifierGroups,
     form.annualOperatingHours,
     form.ownershipYears,
-    isAnnualOperatingHoursValid,
+    isCostPeriodValid,
     airPurifierPricesByCountry,
     filterPricesByCountry,
     selectedCountry,
@@ -345,6 +355,13 @@ function App() {
     if (name === 'annualOperatingHours' && numericValue !== '') {
       const parsedHours = Number(numericValue);
       if (parsedHours > MAX_ANNUAL_OPERATING_HOURS) {
+        return;
+      }
+    }
+
+    if (name === 'ownershipYears' && numericValue !== '') {
+      const parsedYears = Number(numericValue);
+      if (parsedYears > MAX_OWNERSHIP_YEARS) {
         return;
       }
     }
@@ -670,6 +687,9 @@ function App() {
       <div>
         <label htmlFor="ownershipYears">Ownership Years</label>
         <input type="text" id="ownershipYears" name="ownershipYears" maxLength={2} inputMode="numeric" pattern="\d*" value={form.ownershipYears} onChange={handleChange} onBlur={handleBlur} />
+        {ownershipYearsValidationMessage && (
+          <p>{ownershipYearsValidationMessage}</p>
+        )}
       </div>
 
       <div>
@@ -725,12 +745,12 @@ function App() {
 
       <div>
         <h2>Air Purifier Groups</h2>
-        {isAnnualOperatingHoursValid ? (
+        {isCostPeriodValid ? (
           <p>
             Cost period: {form.ownershipYears} years × {form.annualOperatingHours} hours/year = {form.ownershipYears * form.annualOperatingHours} hours
           </p>
         ) : (
-          <p>Cost period unavailable until Annual Operating Hours is valid.</p>
+          <p>Cost period unavailable until Annual Operating Hours and Ownership Years are valid.</p>
         )}
         {sortedAirPurifierGroupsWithCosts.length === 0 ? (
           <p>No matching groups for the current constraints.</p>
