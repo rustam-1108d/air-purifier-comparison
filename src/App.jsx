@@ -859,10 +859,10 @@ function App() {
         <h2>Air Purifier Groups</h2>
         {isCostPeriodValid ? (
           <p>
-            Cost period: {form.ownershipYears} years × {form.annualOperatingHours} hours/year = {form.ownershipYears * form.annualOperatingHours} hours
+            Cost of ownership period: {form.ownershipYears} years × {form.annualOperatingHours} hours/year = {form.ownershipYears * form.annualOperatingHours} hours
           </p>
         ) : (
-          <p>Cost period unavailable until Annual Operating Hours and Ownership Years are valid.</p>
+          <p>Cost of ownership period unavailable until Annual Operating Hours and Ownership Years are valid.</p>
         )}
         {sortedAirPurifierGroupsWithCosts.length === 0 ? (
           <p>No matching groups for the current constraints.</p>
@@ -872,16 +872,16 @@ function App() {
               <tr>
                 <th><button type="button" onClick={() => handleSort('brand')}>Brand {getSortIndicator('brand')}</button></th>
                 <th><button type="button" onClick={() => handleSort('model')}>Model {getSortIndicator('model')}</button></th>
-                <th><button type="button" onClick={() => handleSort('speedName')}>Speed {getSortIndicator('speedName')}</button></th>
-                <th><button type="button" onClick={() => handleSort('quantity')}>Qty {getSortIndicator('quantity')}</button></th>
-                <th><button type="button" onClick={() => handleSort('totalCadrM3PerHour')}>Total CADR (m³/h) {getSortIndicator('totalCadrM3PerHour')}</button></th>
+                <th><button type="button" onClick={() => handleSort('speedName')}>Speed Setting {getSortIndicator('speedName')}</button></th>
+                <th><button type="button" onClick={() => handleSort('quantity')}>Quantity of Air Purifiers {getSortIndicator('quantity')}</button></th>
+                <th><button type="button" onClick={() => handleSort('totalCadrM3PerHour')}>Total Starting CADR (m³/h) {getSortIndicator('totalCadrM3PerHour')}</button></th>
                 <th><button type="button" onClick={() => handleSort('totalPowerWatts')}>Total Power (W) {getSortIndicator('totalPowerWatts')}</button></th>
-                <th><button type="button" onClick={() => handleSort('combinedNoiseDbA')}>Noise (dBA) {getSortIndicator('combinedNoiseDbA')}</button></th>
-                <th><button type="button" onClick={() => handleSort('filterLifeHours')}>Filter Life (h) {getSortIndicator('filterLifeHours')}</button></th>
-                <th><button type="button" onClick={() => handleSort('purchaseCost')}>Purchase ({selectedCountryCurrency}) {getSortIndicator('purchaseCost')}</button></th>
-                <th><button type="button" onClick={() => handleSort('electricityCost')}>Electricity ({selectedCountryCurrency}) {getSortIndicator('electricityCost')}</button></th>
-                <th><button type="button" onClick={() => handleSort('filterCost')}>Filters ({selectedCountryCurrency}) {getSortIndicator('filterCost')}</button></th>
-                <th><button type="button" onClick={() => handleSort('totalCostOfOwnership')}>TCO ({selectedCountryCurrency}) {getSortIndicator('totalCostOfOwnership')}</button></th>
+                <th><button type="button" onClick={() => handleSort('combinedNoiseDbA')}>Combined Noise (dBA) {getSortIndicator('combinedNoiseDbA')}</button></th>
+                <th><button type="button" onClick={() => handleSort('filterLifeHours')}>Estimated Filter Life (h) {getSortIndicator('filterLifeHours')}</button></th>
+                <th><button type="button" onClick={() => handleSort('purchaseCost')}>Initial Purchase Cost ({selectedCountryCurrency}) {getSortIndicator('purchaseCost')}</button></th>
+                <th><button type="button" onClick={() => handleSort('electricityCost')}>Total Electricity Cost ({selectedCountryCurrency}) {getSortIndicator('electricityCost')}</button></th>
+                <th><button type="button" onClick={() => handleSort('filterCost')}>Total Filter Replacement Cost ({selectedCountryCurrency}) {getSortIndicator('filterCost')}</button></th>
+                <th><button type="button" onClick={() => handleSort('totalCostOfOwnership')}>Total Cost of Ownership ({selectedCountryCurrency}) {getSortIndicator('totalCostOfOwnership')}</button></th>
               </tr>
             </thead>
             <tbody>
