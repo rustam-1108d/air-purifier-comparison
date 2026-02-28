@@ -643,297 +643,326 @@ function App() {
   };
 
   return (
-    <>
-      <div>
-        <label htmlFor="country">Country</label>
-        <select
-          id="country"
-          name="country"
-          value={selectedCountry}
-          onChange={(e) => {
-            setSelectedCountry(e.target.value);
-            setSelectedCityId('');
-          }}
-        >
-          {countries.map((country) => (
-            <option key={country.code} value={country.code}>
-              {country.name}
-            </option>
-          ))}
-        </select>
-      </div>
+    <main className="app-shell">
+      <header className="app-header card">
+        <h1>Air Purifier Comparison</h1>
+        <p>Compare purifier setups by air quality targets, noise constraints, and long-term ownership cost.</p>
+      </header>
 
-      <div>
-        <label htmlFor="city">City (optional)</label>
-        <select id="city" name="city" value={selectedCityId} onChange={(e) => setSelectedCityId(e.target.value)}>
-          <option value="">Country average</option>
-          {availableCities.map((city) => (
-            <option key={city.id} value={city.id}>
-              {city.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <section className="card">
+        <h2>Inputs</h2>
+        <div className="form-grid">
+          <div className="field">
+            <label htmlFor="country">Country</label>
+            <select
+              id="country"
+              name="country"
+              value={selectedCountry}
+              onChange={(e) => {
+                setSelectedCountry(e.target.value);
+                setSelectedCityId('');
+              }}
+            >
+              {countries.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {country.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      <div>
-        <label htmlFor="electricityPrice">Electricity Price ({selectedCountryCurrency}/kWh)</label>
-        <input
-          type="text"
-          id="electricityPrice"
-          inputMode="decimal"
-          value={inputDrafts[electricityDraftKey] ?? (currentElectricityPrice ?? '')}
-          onChange={handleElectricityPriceChange}
-          onBlur={() => handleDraftInputBlur(electricityDraftKey)}
-          placeholder="0.0000"
-        />
-      </div>
+          <div className="field">
+            <label htmlFor="city">City (optional)</label>
+            <select id="city" name="city" value={selectedCityId} onChange={(e) => setSelectedCityId(e.target.value)}>
+              <option value="">Country average</option>
+              {availableCities.map((city) => (
+                <option key={city.id} value={city.id}>
+                  {city.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      <div>
-        <label htmlFor="outdoorPm2_5AnnualAverageConcentration">Outdoor PM2.5 Concentration (annual average, µg/m³)</label>
-        <input
-          type="text"
-          id="outdoorPm2_5AnnualAverageConcentration"
-          inputMode="decimal"
-          value={inputDrafts[pm2_5DraftKey] ?? (outdoorPm2_5AnnualAverageConcentration ?? '')}
-          onChange={handleOutdoorPm2_5Change}
-          onBlur={() => handleDraftInputBlur(pm2_5DraftKey)}
-          placeholder="0.0000"
-        />
-      </div>
-      <div>
-        <label htmlFor="outdoorPm10AnnualAverageConcentration">Outdoor PM10 Concentration (annual average, µg/m³)</label>
-        <input
-          type="text"
-          id="outdoorPm10AnnualAverageConcentration"
-          inputMode="decimal"
-          value={inputDrafts[pm10DraftKey] ?? (outdoorPm10AnnualAverageConcentration ?? '')}
-          onChange={handleOutdoorPm10Change}
-          onBlur={() => handleDraftInputBlur(pm10DraftKey)}
-          placeholder="0.0000"
-        />
-      </div>
-      <div>
-        <label htmlFor="indoorPm2_5AnnualAverageConcentrationLimit">Indoor PM2.5 Concentration Limit (annual average, µg/m³)</label>
-        <input type="text" id="indoorPm2_5AnnualAverageConcentrationLimit" name="indoorPm2_5AnnualAverageConcentrationLimit" inputMode="decimal" value={inputDrafts.indoorPm2_5AnnualAverageConcentrationLimit ?? form.indoorPm2_5AnnualAverageConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
-      </div>
-      <div>
-        <label htmlFor="indoorPm10AnnualAverageConcentrationLimit">Indoor PM10 Concentration Limit (annual average, µg/m³)</label>
-        <input type="text" id="indoorPm10AnnualAverageConcentrationLimit" name="indoorPm10AnnualAverageConcentrationLimit" inputMode="decimal" value={inputDrafts.indoorPm10AnnualAverageConcentrationLimit ?? form.indoorPm10AnnualAverageConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
-      </div>
-      <div>
-        <label htmlFor="ventilationRate">Ventilation Rate (m³/h)</label>
-        <input type="text" id="ventilationRate" name="ventilationRate" inputMode="decimal" value={inputDrafts.ventilationRate ?? form.ventilationRate} onChange={handleChange} onBlur={handleBlur} />
-      </div>
-      <div>
-        <label htmlFor="indoorPm2_5GenerationRate">Indoor PM2.5 Generation Rate (µg/h)</label>
-        <input type="text" id="indoorPm2_5GenerationRate" name="indoorPm2_5GenerationRate" inputMode="decimal" value={inputDrafts.indoorPm2_5GenerationRate ?? form.indoorPm2_5GenerationRate} onChange={handleChange} onBlur={handleBlur} />
-      </div>
-      <div>
-        <label htmlFor="indoorPm10GenerationRate">Indoor PM10 Generation Rate (µg/h)</label>
-        <input type="text" id="indoorPm10GenerationRate" name="indoorPm10GenerationRate" inputMode="decimal" value={inputDrafts.indoorPm10GenerationRate ?? form.indoorPm10GenerationRate} onChange={handleChange} onBlur={handleBlur} />
-      </div>
-      <div>
-        <label htmlFor="roomVolume">Room Volume (m³)</label>
-        <input type="text" id="roomVolume" name="roomVolume" inputMode="decimal" value={inputDrafts.roomVolume ?? form.roomVolume} onChange={handleChange} onBlur={handleBlur} />
-      </div>
-      <div>
-        <label htmlFor="maxAirPurifierCount">Max Air Purifier Count</label>
-        <input type="text" id="maxAirPurifierCount" name="maxAirPurifierCount" maxLength={2} inputMode="numeric" pattern="\d*" value={form.maxAirPurifierCount} onChange={handleChange} onBlur={handleBlur} />
-      </div>
-      <div>
-        <label htmlFor="maxCombinedNoiseDbA">Max Combined Noise (dB)</label>
-        <input type="text" id="maxCombinedNoiseDbA" name="maxCombinedNoiseDbA" inputMode="decimal" value={inputDrafts.maxCombinedNoiseDbA ?? form.maxCombinedNoiseDbA} onChange={handleChange} onBlur={handleBlur} />
-      </div>
-      <div>
-        <label htmlFor="annualOperatingHours">Annual Operating Hours</label>
-        <input type="text" id="annualOperatingHours" name="annualOperatingHours" maxLength={4} inputMode="numeric" pattern="\d*" value={form.annualOperatingHours} onChange={handleChange} onBlur={handleBlur} placeholder="8760" />
-        {annualOperatingHoursValidationMessage && (
-          <p>{annualOperatingHoursValidationMessage}</p>
-        )}
-      </div>
-      <div>
-        <label htmlFor="ownershipYears">Ownership Years</label>
-        <input type="text" id="ownershipYears" name="ownershipYears" maxLength={2} inputMode="numeric" pattern="\d*" value={form.ownershipYears} onChange={handleChange} onBlur={handleBlur} />
-        {ownershipYearsValidationMessage && (
-          <p>{ownershipYearsValidationMessage}</p>
-        )}
-      </div>
-      <div>
-        <label htmlFor="maxFilterUsageHoursGlobal">Max Filter Usage Period (hours, global, optional)</label>
-        <input
-          type="text"
-          id="maxFilterUsageHoursGlobal"
-          inputMode="decimal"
-          value={inputDrafts['max-filter-usage-global'] ?? (maxFilterUsageHoursGlobal ?? '')}
-          onChange={handleMaxFilterUsageGlobalChange}
-          onBlur={() => handleDraftInputBlur('max-filter-usage-global')}
-          placeholder="Optional"
-        />
-        {maxFilterUsageHoursGlobalValidationMessage && (
-          <p>{maxFilterUsageHoursGlobalValidationMessage}</p>
-        )}
-      </div>
+          <div className="field">
+            <label htmlFor="electricityPrice">Electricity Price ({selectedCountryCurrency}/kWh)</label>
+            <input
+              type="text"
+              id="electricityPrice"
+              inputMode="decimal"
+              value={inputDrafts[electricityDraftKey] ?? (currentElectricityPrice ?? '')}
+              onChange={handleElectricityPriceChange}
+              onBlur={() => handleDraftInputBlur(electricityDraftKey)}
+              placeholder="0.0000"
+            />
+          </div>
 
-      <div>
-        {requiredPm2_5CADR === null ? <p>Indoor PM2.5 Concentration Limit must be greater than zero</p> : <p>Required CADR for PM2.5: {requiredPm2_5CADR.toFixed(2)} m³/h</p>}
-        {requiredPm10CADR === null ? <p>Indoor PM10 Concentration Limit must be greater than zero</p> : <p>Required CADR for PM10: {requiredPm10CADR.toFixed(2)} m³/h</p>}
-        {minimumRequiredCADR === 0 ? <p>At least one of the required CADR values must be greater than zero</p> : <p>Minimum Required CADR: {minimumRequiredCADR.toFixed(2)} m³/h</p>}
-      </div>
+          <div className="field">
+            <label htmlFor="outdoorPm2_5AnnualAverageConcentration">Outdoor PM2.5 Concentration (annual average, µg/m³)</label>
+            <input
+              type="text"
+              id="outdoorPm2_5AnnualAverageConcentration"
+              inputMode="decimal"
+              value={inputDrafts[pm2_5DraftKey] ?? (outdoorPm2_5AnnualAverageConcentration ?? '')}
+              onChange={handleOutdoorPm2_5Change}
+              onBlur={() => handleDraftInputBlur(pm2_5DraftKey)}
+              placeholder="0.0000"
+            />
+          </div>
 
-      <div>
+          <div className="field">
+            <label htmlFor="outdoorPm10AnnualAverageConcentration">Outdoor PM10 Concentration (annual average, µg/m³)</label>
+            <input
+              type="text"
+              id="outdoorPm10AnnualAverageConcentration"
+              inputMode="decimal"
+              value={inputDrafts[pm10DraftKey] ?? (outdoorPm10AnnualAverageConcentration ?? '')}
+              onChange={handleOutdoorPm10Change}
+              onBlur={() => handleDraftInputBlur(pm10DraftKey)}
+              placeholder="0.0000"
+            />
+          </div>
+
+          <div className="field">
+            <label htmlFor="indoorPm2_5AnnualAverageConcentrationLimit">Indoor PM2.5 Concentration Limit (annual average, µg/m³)</label>
+            <input type="text" id="indoorPm2_5AnnualAverageConcentrationLimit" name="indoorPm2_5AnnualAverageConcentrationLimit" inputMode="decimal" value={inputDrafts.indoorPm2_5AnnualAverageConcentrationLimit ?? form.indoorPm2_5AnnualAverageConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
+          </div>
+
+          <div className="field">
+            <label htmlFor="indoorPm10AnnualAverageConcentrationLimit">Indoor PM10 Concentration Limit (annual average, µg/m³)</label>
+            <input type="text" id="indoorPm10AnnualAverageConcentrationLimit" name="indoorPm10AnnualAverageConcentrationLimit" inputMode="decimal" value={inputDrafts.indoorPm10AnnualAverageConcentrationLimit ?? form.indoorPm10AnnualAverageConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
+          </div>
+
+          <div className="field">
+            <label htmlFor="ventilationRate">Ventilation Rate (m³/h)</label>
+            <input type="text" id="ventilationRate" name="ventilationRate" inputMode="decimal" value={inputDrafts.ventilationRate ?? form.ventilationRate} onChange={handleChange} onBlur={handleBlur} />
+          </div>
+
+          <div className="field">
+            <label htmlFor="indoorPm2_5GenerationRate">Indoor PM2.5 Generation Rate (µg/h)</label>
+            <input type="text" id="indoorPm2_5GenerationRate" name="indoorPm2_5GenerationRate" inputMode="decimal" value={inputDrafts.indoorPm2_5GenerationRate ?? form.indoorPm2_5GenerationRate} onChange={handleChange} onBlur={handleBlur} />
+          </div>
+
+          <div className="field">
+            <label htmlFor="indoorPm10GenerationRate">Indoor PM10 Generation Rate (µg/h)</label>
+            <input type="text" id="indoorPm10GenerationRate" name="indoorPm10GenerationRate" inputMode="decimal" value={inputDrafts.indoorPm10GenerationRate ?? form.indoorPm10GenerationRate} onChange={handleChange} onBlur={handleBlur} />
+          </div>
+
+          <div className="field">
+            <label htmlFor="roomVolume">Room Volume (m³)</label>
+            <input type="text" id="roomVolume" name="roomVolume" inputMode="decimal" value={inputDrafts.roomVolume ?? form.roomVolume} onChange={handleChange} onBlur={handleBlur} />
+          </div>
+
+          <div className="field">
+            <label htmlFor="maxAirPurifierCount">Max Air Purifier Count</label>
+            <input type="text" id="maxAirPurifierCount" name="maxAirPurifierCount" maxLength={2} inputMode="numeric" pattern="\d*" value={form.maxAirPurifierCount} onChange={handleChange} onBlur={handleBlur} />
+          </div>
+
+          <div className="field">
+            <label htmlFor="maxCombinedNoiseDbA">Max Combined Noise (dB)</label>
+            <input type="text" id="maxCombinedNoiseDbA" name="maxCombinedNoiseDbA" inputMode="decimal" value={inputDrafts.maxCombinedNoiseDbA ?? form.maxCombinedNoiseDbA} onChange={handleChange} onBlur={handleBlur} />
+          </div>
+
+          <div className="field">
+            <label htmlFor="annualOperatingHours">Annual Operating Hours</label>
+            <input type="text" id="annualOperatingHours" name="annualOperatingHours" maxLength={4} inputMode="numeric" pattern="\d*" value={form.annualOperatingHours} onChange={handleChange} onBlur={handleBlur} placeholder="8760" />
+            {annualOperatingHoursValidationMessage && (
+              <p className="message error">{annualOperatingHoursValidationMessage}</p>
+            )}
+          </div>
+
+          <div className="field">
+            <label htmlFor="ownershipYears">Ownership Years</label>
+            <input type="text" id="ownershipYears" name="ownershipYears" maxLength={2} inputMode="numeric" pattern="\d*" value={form.ownershipYears} onChange={handleChange} onBlur={handleBlur} />
+            {ownershipYearsValidationMessage && (
+              <p className="message error">{ownershipYearsValidationMessage}</p>
+            )}
+          </div>
+
+          <div className="field">
+            <label htmlFor="maxFilterUsageHoursGlobal">Max Filter Usage Period (hours, global, optional)</label>
+            <input
+              type="text"
+              id="maxFilterUsageHoursGlobal"
+              inputMode="decimal"
+              value={inputDrafts['max-filter-usage-global'] ?? (maxFilterUsageHoursGlobal ?? '')}
+              onChange={handleMaxFilterUsageGlobalChange}
+              onBlur={() => handleDraftInputBlur('max-filter-usage-global')}
+              placeholder="Optional"
+            />
+            {maxFilterUsageHoursGlobalValidationMessage && (
+              <p className="message error">{maxFilterUsageHoursGlobalValidationMessage}</p>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section className="card metric-panel">
+        <h2>Required CADR</h2>
+        <div className="metrics-grid">
+          {requiredPm2_5CADR === null ? <p className="metric-item">Indoor PM2.5 Concentration Limit must be greater than zero</p> : <p className="metric-item">Required CADR for PM2.5: <strong>{requiredPm2_5CADR.toFixed(2)} m³/h</strong></p>}
+          {requiredPm10CADR === null ? <p className="metric-item">Indoor PM10 Concentration Limit must be greater than zero</p> : <p className="metric-item">Required CADR for PM10: <strong>{requiredPm10CADR.toFixed(2)} m³/h</strong></p>}
+          {minimumRequiredCADR === 0 ? <p className="metric-item">At least one of the required CADR values must be greater than zero</p> : <p className="metric-item">Minimum Required CADR: <strong>{minimumRequiredCADR.toFixed(2)} m³/h</strong></p>}
+        </div>
+      </section>
+
+      <section className="card table-card">
         <h2>Air Purifier Prices ({selectedCountry})</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Brand</th>
-              <th>Model</th>
-              <th>Purifier Price ({selectedCountryCurrency})</th>
-              <th>Filter Price ({selectedCountryCurrency})</th>
-              <th>Max Filter Usage Period (hours, optional override)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {airPurifiers.map((purifier) => {
-              const purifierMaxFilterUsageValidationMessage = getFilterUsageLimitValidationMessage(maxFilterUsageHoursByPurifier[purifier.id]);
-
-              return (
-                <tr key={purifier.id}>
-                  <td>{purifier.brand}</td>
-                  <td>{purifier.model}</td>
-                  <td>
-                    <input
-                      type="text"
-                      id={`purifier-price-${purifier.id}`}
-                      inputMode="decimal"
-                      value={
-                        inputDrafts[`purifier-${purifier.id}-${selectedCountry}`]
-                        ?? (airPurifierPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
-                      }
-                      onChange={(e) => handleAirPurifierPriceChange(purifier.id, e.target.value)}
-                      onBlur={() => handleDraftInputBlur(`purifier-${purifier.id}-${selectedCountry}`)}
-                      placeholder="0.0000"
-                      aria-label={`${purifier.brand} ${purifier.model} purifier price (${selectedCountryCurrency})`}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      id={`filter-price-${purifier.id}`}
-                      inputMode="decimal"
-                      value={
-                        inputDrafts[`filter-${purifier.id}-${selectedCountry}`]
-                        ?? (filterPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
-                      }
-                      onChange={(e) => handleFilterPriceChange(purifier.id, e.target.value)}
-                      onBlur={() => handleDraftInputBlur(`filter-${purifier.id}-${selectedCountry}`)}
-                      placeholder="0.0000"
-                      aria-label={`${purifier.brand} ${purifier.model} filter price (${selectedCountryCurrency})`}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      id={`max-filter-usage-${purifier.id}`}
-                      inputMode="decimal"
-                      value={
-                        inputDrafts[`max-filter-usage-${purifier.id}`]
-                        ?? (maxFilterUsageHoursByPurifier[purifier.id] ?? '')
-                      }
-                      onChange={(e) => handleMaxFilterUsageByPurifierChange(purifier.id, e.target.value)}
-                      onBlur={() => handleDraftInputBlur(`max-filter-usage-${purifier.id}`)}
-                      placeholder="Optional override"
-                      aria-label={`${purifier.brand} ${purifier.model} max filter usage override`}
-                    />
-                    {purifierMaxFilterUsageValidationMessage && (
-                      <p>{purifierMaxFilterUsageValidationMessage}</p>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      <div>
-        <h2>Air Purifier Groups</h2>
-        {isCostPeriodValid ? (
-          <p>
-            Cost of ownership period: {form.ownershipYears} years × {form.annualOperatingHours} hours/year = {form.ownershipYears * form.annualOperatingHours} hours
-          </p>
-        ) : (
-          <p>Cost of ownership period unavailable until Annual Operating Hours and Ownership Years are valid.</p>
-        )}
-        {sortedAirPurifierGroupsWithCosts.length === 0 ? (
-          <p>No matching groups for the current constraints.</p>
-        ) : (
+        <div className="table-wrap">
           <table>
             <thead>
               <tr>
-                <th><button type="button" onClick={() => handleSort('brand')}>Brand {getSortIndicator('brand')}</button></th>
-                <th><button type="button" onClick={() => handleSort('model')}>Model {getSortIndicator('model')}</button></th>
-                <th><button type="button" onClick={() => handleSort('speedName')}>Speed Setting {getSortIndicator('speedName')}</button></th>
-                <th><button type="button" onClick={() => handleSort('quantity')}>Quantity of Air Purifiers {getSortIndicator('quantity')}</button></th>
-                <th><button type="button" onClick={() => handleSort('totalCadrM3PerHour')}>Total Starting CADR (m³/h) {getSortIndicator('totalCadrM3PerHour')}</button></th>
-                <th><button type="button" onClick={() => handleSort('totalPowerWatts')}>Total Power (W) {getSortIndicator('totalPowerWatts')}</button></th>
-                <th><button type="button" onClick={() => handleSort('combinedNoiseDbA')}>Combined Noise (dBA) {getSortIndicator('combinedNoiseDbA')}</button></th>
-                <th><button type="button" onClick={() => handleSort('filterLifeHours')}>Estimated Filter Life (h) {getSortIndicator('filterLifeHours')}</button></th>
-                <th><button type="button" onClick={() => handleSort('purchaseCost')}>Initial Purchase Cost ({selectedCountryCurrency}) {getSortIndicator('purchaseCost')}</button></th>
-                <th><button type="button" onClick={() => handleSort('electricityCost')}>Total Electricity Cost ({selectedCountryCurrency}) {getSortIndicator('electricityCost')}</button></th>
-                <th><button type="button" onClick={() => handleSort('filterCost')}>Total Filter Replacement Cost ({selectedCountryCurrency}) {getSortIndicator('filterCost')}</button></th>
-                <th><button type="button" onClick={() => handleSort('totalCostOfOwnership')}>Total Cost of Ownership ({selectedCountryCurrency}) {getSortIndicator('totalCostOfOwnership')}</button></th>
+                <th>Brand</th>
+                <th>Model</th>
+                <th>Purifier Price ({selectedCountryCurrency})</th>
+                <th>Filter Price ({selectedCountryCurrency})</th>
+                <th>Max Filter Usage Period (hours, optional override)</th>
               </tr>
             </thead>
             <tbody>
-              {sortedAirPurifierGroupsWithCosts.map((group) => (
-                <tr key={`${group.purifierId}-${group.speedId}-${group.quantity}`}>
-                  <td>{group.brand}</td>
-                  <td>{group.model}</td>
-                  <td>{group.speedName}</td>
-                  <td>{group.quantity}</td>
-                  <td title={`Total CADR = ${group.totalCadrM3PerHour.toFixed(2)} m³/h (single unit ${(group.totalCadrM3PerHour / group.quantity).toFixed(2)} × quantity ${group.quantity})`}>
-                    {group.totalCadrM3PerHour.toFixed(2)}
-                  </td>
-                  <td title={`Total power = ${group.totalPowerWatts.toFixed(2)} W (single unit ${(group.totalPowerWatts / group.quantity).toFixed(2)} × quantity ${group.quantity})`}>
-                    {group.totalPowerWatts.toFixed(2)}
-                  </td>
-                  <td title={`Combined noise from ${group.quantity} units: ${group.combinedNoiseDbA.toFixed(1)} dBA`}>
-                    {group.combinedNoiseDbA.toFixed(1)}
-                  </td>
-                  <td title={group.effectiveFilterLifeHours === null
-                    ? 'Filter life unavailable for this configuration'
-                    : Number.isFinite(group.appliedMaxFilterUsageHours)
-                      ? `Capped at ${group.appliedMaxFilterUsageHours.toFixed(2)} h by usage limit. Estimated stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`
-                      : `Estimated from CADR decay model. Stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`}>
-                    {group.effectiveFilterLifeHours === null ? 'N/A' : group.effectiveFilterLifeHours.toFixed(0)}
-                  </td>
-                  <td title={group.purchaseCost === null
-                    ? 'Purchase cost unavailable: purifier price missing'
-                    : `Purchase = unit price × quantity = ${(group.purchaseCost / group.quantity).toFixed(2)} × ${group.quantity}`}>
-                    {group.purchaseCost === null ? 'N/A' : group.purchaseCost.toFixed(2)}
-                  </td>
-                  <td title={group.electricityCost === null
-                    ? 'Electricity cost unavailable: electricity price missing'
-                    : `Electricity = (power W / 1000) × ${group.ownershipPeriodHours} h × ${(currentElectricityPrice ?? 0).toFixed(4)} ${selectedCountryCurrency}/kWh`}>
-                    {group.electricityCost === null ? 'N/A' : group.electricityCost.toFixed(2)}
-                  </td>
-                  <td title={group.filterCost === null
-                    ? 'Filter cost unavailable: filter price or filter life missing'
-                    : `Filters = unit filter price × quantity × replacements = ${(group.filterCost / (group.quantity * (group.filterReplacements || 1))).toFixed(2)} × ${group.quantity} × ${group.filterReplacements}`}>
-                    {group.filterCost === null ? 'N/A' : group.filterCost.toFixed(2)}
-                  </td>
-                  <td title={group.totalCostOfOwnership === null
-                    ? 'TCO unavailable: one or more cost components missing'
-                    : `TCO = Purchase + Electricity + Filters = ${group.purchaseCost?.toFixed(2)} + ${group.electricityCost?.toFixed(2)} + ${group.filterCost?.toFixed(2)}`}>
-                    {group.totalCostOfOwnership === null ? 'N/A' : group.totalCostOfOwnership.toFixed(2)}
-                  </td>
-                </tr>
-              ))}
+              {airPurifiers.map((purifier) => {
+                const purifierMaxFilterUsageValidationMessage = getFilterUsageLimitValidationMessage(maxFilterUsageHoursByPurifier[purifier.id]);
+
+                return (
+                  <tr key={purifier.id}>
+                    <td>{purifier.brand}</td>
+                    <td>{purifier.model}</td>
+                    <td>
+                      <input
+                        type="text"
+                        id={`purifier-price-${purifier.id}`}
+                        inputMode="decimal"
+                        value={
+                          inputDrafts[`purifier-${purifier.id}-${selectedCountry}`]
+                          ?? (airPurifierPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
+                        }
+                        onChange={(e) => handleAirPurifierPriceChange(purifier.id, e.target.value)}
+                        onBlur={() => handleDraftInputBlur(`purifier-${purifier.id}-${selectedCountry}`)}
+                        placeholder="0.0000"
+                        aria-label={`${purifier.brand} ${purifier.model} purifier price (${selectedCountryCurrency})`}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        id={`filter-price-${purifier.id}`}
+                        inputMode="decimal"
+                        value={
+                          inputDrafts[`filter-${purifier.id}-${selectedCountry}`]
+                          ?? (filterPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
+                        }
+                        onChange={(e) => handleFilterPriceChange(purifier.id, e.target.value)}
+                        onBlur={() => handleDraftInputBlur(`filter-${purifier.id}-${selectedCountry}`)}
+                        placeholder="0.0000"
+                        aria-label={`${purifier.brand} ${purifier.model} filter price (${selectedCountryCurrency})`}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        id={`max-filter-usage-${purifier.id}`}
+                        inputMode="decimal"
+                        value={
+                          inputDrafts[`max-filter-usage-${purifier.id}`]
+                          ?? (maxFilterUsageHoursByPurifier[purifier.id] ?? '')
+                        }
+                        onChange={(e) => handleMaxFilterUsageByPurifierChange(purifier.id, e.target.value)}
+                        onBlur={() => handleDraftInputBlur(`max-filter-usage-${purifier.id}`)}
+                        placeholder="Optional override"
+                        aria-label={`${purifier.brand} ${purifier.model} max filter usage override`}
+                      />
+                      {purifierMaxFilterUsageValidationMessage && (
+                        <p className="message error">{purifierMaxFilterUsageValidationMessage}</p>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+        </div>
+      </section>
+
+      <section className="card table-card">
+        <h2>Air Purifier Groups</h2>
+        {isCostPeriodValid ? (
+          <p className="message info">
+            Cost of ownership period: {form.ownershipYears} years × {form.annualOperatingHours} hours/year = {form.ownershipYears * form.annualOperatingHours} hours
+          </p>
+        ) : (
+          <p className="message error">Cost of ownership period unavailable until Annual Operating Hours and Ownership Years are valid.</p>
         )}
-      </div>
-    </>
+        {sortedAirPurifierGroupsWithCosts.length === 0 ? (
+          <p className="message info">No matching groups for the current constraints.</p>
+        ) : (
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th><button type="button" onClick={() => handleSort('brand')}>Brand {getSortIndicator('brand')}</button></th>
+                  <th><button type="button" onClick={() => handleSort('model')}>Model {getSortIndicator('model')}</button></th>
+                  <th><button type="button" onClick={() => handleSort('speedName')}>Speed Setting {getSortIndicator('speedName')}</button></th>
+                  <th><button type="button" onClick={() => handleSort('quantity')}>Quantity of Air Purifiers {getSortIndicator('quantity')}</button></th>
+                  <th><button type="button" onClick={() => handleSort('totalCadrM3PerHour')}>Total Starting CADR (m³/h) {getSortIndicator('totalCadrM3PerHour')}</button></th>
+                  <th><button type="button" onClick={() => handleSort('totalPowerWatts')}>Total Power (W) {getSortIndicator('totalPowerWatts')}</button></th>
+                  <th><button type="button" onClick={() => handleSort('combinedNoiseDbA')}>Combined Noise (dBA) {getSortIndicator('combinedNoiseDbA')}</button></th>
+                  <th><button type="button" onClick={() => handleSort('filterLifeHours')}>Estimated Filter Life (h) {getSortIndicator('filterLifeHours')}</button></th>
+                  <th><button type="button" onClick={() => handleSort('purchaseCost')}>Initial Purchase Cost ({selectedCountryCurrency}) {getSortIndicator('purchaseCost')}</button></th>
+                  <th><button type="button" onClick={() => handleSort('electricityCost')}>Total Electricity Cost ({selectedCountryCurrency}) {getSortIndicator('electricityCost')}</button></th>
+                  <th><button type="button" onClick={() => handleSort('filterCost')}>Total Filter Replacement Cost ({selectedCountryCurrency}) {getSortIndicator('filterCost')}</button></th>
+                  <th><button type="button" onClick={() => handleSort('totalCostOfOwnership')}>Total Cost of Ownership ({selectedCountryCurrency}) {getSortIndicator('totalCostOfOwnership')}</button></th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedAirPurifierGroupsWithCosts.map((group) => (
+                  <tr key={`${group.purifierId}-${group.speedId}-${group.quantity}`}>
+                    <td>{group.brand}</td>
+                    <td>{group.model}</td>
+                    <td>{group.speedName}</td>
+                    <td>{group.quantity}</td>
+                    <td title={`Total CADR = ${group.totalCadrM3PerHour.toFixed(2)} m³/h (single unit ${(group.totalCadrM3PerHour / group.quantity).toFixed(2)} × quantity ${group.quantity})`}>
+                      {group.totalCadrM3PerHour.toFixed(2)}
+                    </td>
+                    <td title={`Total power = ${group.totalPowerWatts.toFixed(2)} W (single unit ${(group.totalPowerWatts / group.quantity).toFixed(2)} × quantity ${group.quantity})`}>
+                      {group.totalPowerWatts.toFixed(2)}
+                    </td>
+                    <td title={`Combined noise from ${group.quantity} units: ${group.combinedNoiseDbA.toFixed(1)} dBA`}>
+                      {group.combinedNoiseDbA.toFixed(1)}
+                    </td>
+                    <td title={group.effectiveFilterLifeHours === null
+                      ? 'Filter life unavailable for this configuration'
+                      : Number.isFinite(group.appliedMaxFilterUsageHours)
+                        ? `Capped at ${group.appliedMaxFilterUsageHours.toFixed(2)} h by usage limit. Estimated stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`
+                        : `Estimated from CADR decay model. Stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`}>
+                      {group.effectiveFilterLifeHours === null ? 'N/A' : group.effectiveFilterLifeHours.toFixed(0)}
+                    </td>
+                    <td title={group.purchaseCost === null
+                      ? 'Purchase cost unavailable: purifier price missing'
+                      : `Purchase = unit price × quantity = ${(group.purchaseCost / group.quantity).toFixed(2)} × ${group.quantity}`}>
+                      {group.purchaseCost === null ? 'N/A' : group.purchaseCost.toFixed(2)}
+                    </td>
+                    <td title={group.electricityCost === null
+                      ? 'Electricity cost unavailable: electricity price missing'
+                      : `Electricity = (power W / 1000) × ${group.ownershipPeriodHours} h × ${(currentElectricityPrice ?? 0).toFixed(4)} ${selectedCountryCurrency}/kWh`}>
+                      {group.electricityCost === null ? 'N/A' : group.electricityCost.toFixed(2)}
+                    </td>
+                    <td title={group.filterCost === null
+                      ? 'Filter cost unavailable: filter price or filter life missing'
+                      : `Filters = unit filter price × quantity × replacements = ${(group.filterCost / (group.quantity * (group.filterReplacements || 1))).toFixed(2)} × ${group.quantity} × ${group.filterReplacements}`}>
+                      {group.filterCost === null ? 'N/A' : group.filterCost.toFixed(2)}
+                    </td>
+                    <td title={group.totalCostOfOwnership === null
+                      ? 'TCO unavailable: one or more cost components missing'
+                      : `TCO = Purchase + Electricity + Filters = ${group.purchaseCost?.toFixed(2)} + ${group.electricityCost?.toFixed(2)} + ${group.filterCost?.toFixed(2)}`}>
+                      {group.totalCostOfOwnership === null ? 'N/A' : group.totalCostOfOwnership.toFixed(2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+    </main>
   )
 }
 
