@@ -147,6 +147,24 @@ h2 {
 	gap: 0.8rem;
 }
 
+.input-groups {
+	display: grid;
+	gap: 0.9rem;
+}
+
+.input-group {
+	border: 1px solid var(--metric-border);
+	border-radius: 12px;
+	padding: 0.75rem;
+	background: var(--metric-bg);
+}
+
+.input-group h3 {
+	margin: 0 0 0.7rem;
+	font-size: 0.9rem;
+	color: var(--heading);
+}
+
 .section-intro {
 	margin: 0 0 0.85rem;
 	font-size: 0.85rem;
@@ -162,6 +180,35 @@ label {
 	font-size: 0.8rem;
 	font-weight: 600;
 	color: var(--label-color);
+}
+
+.label-with-help {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+}
+
+.table-header-with-help {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+}
+
+.help-dot {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1rem;
+	height: 1rem;
+	border: 1px solid var(--control-border);
+	border-radius: 50%;
+	font-size: 0.7rem;
+	font-weight: 700;
+	line-height: 1;
+	color: var(--text-secondary);
+	background: var(--control-bg);
+	cursor: help;
+	user-select: none;
 }
 
 input,
@@ -321,5 +368,9 @@ th button:hover {
 
 	.form-grid {
 		grid-template-columns: 1fr;
+	}
+
+	.input-group {
+		padding: 0.65rem;
 	}
 }

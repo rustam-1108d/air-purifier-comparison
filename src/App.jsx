@@ -706,6 +706,39 @@ function App() {
     setForm(INITIAL_FORM);
   };
 
+  const renderHelpLabel = (label, helpText) => (
+    <span className="label-with-help">
+      <span>{label}</span>
+      {helpText && (
+        <span className="help-dot" title={helpText} aria-label={`${label} help`}>
+          ?
+        </span>
+      )}
+    </span>
+  );
+
+  const renderHeaderWithHelp = (label, helpText) => (
+    <span className="table-header-with-help">
+      <span>{label}</span>
+      {helpText && (
+        <span className="help-dot" title={helpText} aria-label={`${label} help`}>
+          ?
+        </span>
+      )}
+    </span>
+  );
+
+  const renderSortableHeaderWithHelp = (key, label, helpText) => (
+    <span className="table-header-with-help">
+      <span>{label} {getSortIndicator(key)}</span>
+      {helpText && (
+        <span className="help-dot" title={helpText} aria-label={`${label} help`}>
+          ?
+        </span>
+      )}
+    </span>
+  );
+
   return (
     <main className="app-shell">
       <header className="app-header card">
@@ -730,147 +763,199 @@ function App() {
       <section className="card">
         <h2>Inputs</h2>
         <p className="section-intro">Start with location and air quality values, then set room and cost assumptions.</p>
-        <div className="form-grid">
-          <div className="field">
-            <label htmlFor="country">Country</label>
-            <select
-              id="country"
-              name="country"
-              value={selectedCountry}
-              onChange={(e) => {
-                setSelectedCountry(e.target.value);
-                setSelectedCityId('');
-              }}
-            >
-              {countries.map((country) => (
-                <option key={country.code} value={country.code}>
-                  {country.name}
-                </option>
-              ))}
-            </select>
+        <div className="input-groups">
+          <div className="input-group">
+            <h3>1. Location & Outdoor Air</h3>
+            <div className="form-grid">
+              <div className="field">
+                <label htmlFor="country">
+                  {renderHelpLabel('Country', 'Choose the country where the room is located so defaults use the right pricing and air-quality context.')}
+                </label>
+                <select
+                  id="country"
+                  name="country"
+                  value={selectedCountry}
+                  onChange={(e) => {
+                    setSelectedCountry(e.target.value);
+                    setSelectedCityId('');
+                  }}
+                >
+                  {countries.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="field">
+                <label htmlFor="city">
+                  {renderHelpLabel('City (optional)', 'Use a city to override country averages with local values. Pick your nearest city from this list, or keep Country average if you are unsure.')}
+                </label>
+                <select id="city" name="city" value={selectedCityId} onChange={(e) => setSelectedCityId(e.target.value)}>
+                  <option value="">Country average</option>
+                  {availableCities.map((city) => (
+                    <option key={city.id} value={city.id}>
+                      {city.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="field">
+                <label htmlFor="outdoorPm2_5AnnualAverageConcentration">
+                  {renderHelpLabel('Outdoor PM2.5 Concentration (annual average, µg/m³)', 'Enter your local annual PM2.5 average (fine particles, µg/m³). Used to estimate required Clean Air Delivery Rate (CADR). Good sources include city dashboards, national air-quality agencies, WHO data, IQAir, and OpenAQ.')}
+                </label>
+                <input
+                  type="text"
+                  id="outdoorPm2_5AnnualAverageConcentration"
+                  inputMode="decimal"
+                  value={inputDrafts[pm2_5DraftKey] ?? (outdoorPm2_5AnnualAverageConcentration ?? '')}
+                  onChange={handleOutdoorPm2_5Change}
+                  onBlur={() => handleDraftInputBlur(pm2_5DraftKey)}
+                  placeholder="0.0000"
+                />
+              </div>
+
+              <div className="field">
+                <label htmlFor="outdoorPm10AnnualAverageConcentration">
+                  {renderHelpLabel('Outdoor PM10 Concentration (annual average, µg/m³)', 'Enter your local annual PM10 average (includes PM2.5 + coarser particles, µg/m³). Used to estimate required CADR and filter life time. Sources are typically city dashboards, national agencies, WHO data, IQAir, and OpenAQ.')}
+                </label>
+                <input
+                  type="text"
+                  id="outdoorPm10AnnualAverageConcentration"
+                  inputMode="decimal"
+                  value={inputDrafts[pm10DraftKey] ?? (outdoorPm10AnnualAverageConcentration ?? '')}
+                  onChange={handleOutdoorPm10Change}
+                  onBlur={() => handleDraftInputBlur(pm10DraftKey)}
+                  placeholder="0.0000"
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="field">
-            <label htmlFor="city">City (optional)</label>
-            <select id="city" name="city" value={selectedCityId} onChange={(e) => setSelectedCityId(e.target.value)}>
-              <option value="">Country average</option>
-              {availableCities.map((city) => (
-                <option key={city.id} value={city.id}>
-                  {city.name}
-                </option>
-              ))}
-            </select>
+          <div className="input-group">
+            <h3>2. Indoor Air Targets</h3>
+            <div className="form-grid">
+              <div className="field">
+                <label htmlFor="indoorPm2_5AnnualAverageConcentrationLimit">
+                  {renderHelpLabel('Indoor PM2.5 Concentration Limit (annual average, µg/m³)', 'Set the indoor PM2.5 level you want to maintain over the year (µg/m³). Lower targets mean cleaner air but usually require more CADR; use WHO or local indoor air guidance as your reference.')}
+                </label>
+                <input type="text" id="indoorPm2_5AnnualAverageConcentrationLimit" name="indoorPm2_5AnnualAverageConcentrationLimit" inputMode="decimal" value={inputDrafts.indoorPm2_5AnnualAverageConcentrationLimit ?? form.indoorPm2_5AnnualAverageConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
+              </div>
+
+              <div className="field">
+                <label htmlFor="indoorPm10AnnualAverageConcentrationLimit">
+                  {renderHelpLabel('Indoor PM10 Concentration Limit (annual average, µg/m³)', 'Set the indoor PM10 target for annual average conditions (µg/m³). Use WHO or local indoor-air recommendations, then choose the level you want the model to satisfy.')}
+                </label>
+                <input type="text" id="indoorPm10AnnualAverageConcentrationLimit" name="indoorPm10AnnualAverageConcentrationLimit" inputMode="decimal" value={inputDrafts.indoorPm10AnnualAverageConcentrationLimit ?? form.indoorPm10AnnualAverageConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
+              </div>
+
+              <div className="field">
+                <label htmlFor="indoorPm2_5GenerationRate">
+                  {renderHelpLabel('Indoor PM2.5 Generation Rate (µg/h)', 'Estimate how much PM2.5 your room generates each hour (µg/h), for example from cooking, smoking, or candles. Use sensor-based approximations if available, or enter 0 when unknown.')}
+                </label>
+                <input type="text" id="indoorPm2_5GenerationRate" name="indoorPm2_5GenerationRate" inputMode="decimal" value={inputDrafts.indoorPm2_5GenerationRate ?? form.indoorPm2_5GenerationRate} onChange={handleChange} onBlur={handleBlur} />
+              </div>
+
+              <div className="field">
+                <label htmlFor="indoorPm10GenerationRate">
+                  {renderHelpLabel('Indoor PM10 Generation Rate (µg/h)', 'Estimate hourly indoor PM10 generation (µg/h), from sources like resuspended dust, tracked-in dirt, and indoor materials. You can infer this from sensor trends, and use 0 if you do not have a reliable estimate.')}
+                </label>
+                <input type="text" id="indoorPm10GenerationRate" name="indoorPm10GenerationRate" inputMode="decimal" value={inputDrafts.indoorPm10GenerationRate ?? form.indoorPm10GenerationRate} onChange={handleChange} onBlur={handleBlur} />
+              </div>
+            </div>
           </div>
 
-          <div className="field">
-            <label htmlFor="electricityPrice">Electricity Price ({selectedCountryCurrency}/kWh)</label>
-            <input
-              type="text"
-              id="electricityPrice"
-              inputMode="decimal"
-              value={inputDrafts[electricityDraftKey] ?? (currentElectricityPrice ?? '')}
-              onChange={handleElectricityPriceChange}
-              onBlur={() => handleDraftInputBlur(electricityDraftKey)}
-              placeholder="0.0000"
-            />
+          <div className="input-group">
+            <h3>3. Room & Operating Constraints</h3>
+            <div className="form-grid">
+              <div className="field">
+                <label htmlFor="roomVolume">
+                  {renderHelpLabel('Room Volume (m³)', 'Enter the room air volume in cubic meters, usually calculated as length × width × height. Use your room measurements or floor-plan dimensions.')}
+                </label>
+                <input type="text" id="roomVolume" name="roomVolume" inputMode="decimal" value={inputDrafts.roomVolume ?? form.roomVolume} onChange={handleChange} onBlur={handleBlur} />
+              </div>
+
+              <div className="field">
+                <label htmlFor="ventilationRate">
+                  {renderHelpLabel('Ventilation Rate (m³/h)', 'Enter the outside-air flow into the room per hour (m³/h). If you don’t have measurements, use target rates from ventilation standards/guidelines for this room type.')}
+                </label>
+                <input type="text" id="ventilationRate" name="ventilationRate" inputMode="decimal" value={inputDrafts.ventilationRate ?? form.ventilationRate} onChange={handleChange} onBlur={handleBlur} />
+              </div>
+
+              <div className="field">
+                <label htmlFor="maxAirPurifierCount">
+                  {renderHelpLabel('Max Air Purifier Count', 'Set the maximum number of air purifiers that can be placed in the room. Choose this based on room space, power-outlet availability, and personal preferences.')}
+                </label>
+                <input type="text" id="maxAirPurifierCount" name="maxAirPurifierCount" maxLength={2} inputMode="numeric" pattern="\d*" value={form.maxAirPurifierCount} onChange={handleChange} onBlur={handleBlur} />
+              </div>
+
+              <div className="field">
+                <label htmlFor="maxCombinedNoiseDbA">
+                  {renderHelpLabel('Max Combined Noise (dBA)', 'Set the total noise limit for all selected air purifiers running together (not per unit). Base this on comfort needs, or office/building noise policies.')}
+                </label>
+                <input type="text" id="maxCombinedNoiseDbA" name="maxCombinedNoiseDbA" inputMode="decimal" value={inputDrafts.maxCombinedNoiseDbA ?? form.maxCombinedNoiseDbA} onChange={handleChange} onBlur={handleBlur} />
+              </div>
+            </div>
           </div>
 
-          <div className="field">
-            <label htmlFor="outdoorPm2_5AnnualAverageConcentration">Outdoor PM2.5 Concentration (annual average, µg/m³)</label>
-            <input
-              type="text"
-              id="outdoorPm2_5AnnualAverageConcentration"
-              inputMode="decimal"
-              value={inputDrafts[pm2_5DraftKey] ?? (outdoorPm2_5AnnualAverageConcentration ?? '')}
-              onChange={handleOutdoorPm2_5Change}
-              onBlur={() => handleDraftInputBlur(pm2_5DraftKey)}
-              placeholder="0.0000"
-            />
-          </div>
+          <div className="input-group">
+            <h3>4. Cost & Filter Lifetime</h3>
+            <div className="form-grid">
+              <div className="field">
+                <label htmlFor="electricityPrice">
+                  {renderHelpLabel(`Electricity Price (${selectedCountryCurrency}/kWh)`, 'Enter your effective electricity tariff per kWh in local currency so operating cost is realistic. Use your utility bill, tariff schedule, or energy-regulator portal.')}
+                </label>
+                <input
+                  type="text"
+                  id="electricityPrice"
+                  inputMode="decimal"
+                  value={inputDrafts[electricityDraftKey] ?? (currentElectricityPrice ?? '')}
+                  onChange={handleElectricityPriceChange}
+                  onBlur={() => handleDraftInputBlur(electricityDraftKey)}
+                  placeholder="0.0000"
+                />
+              </div>
 
-          <div className="field">
-            <label htmlFor="outdoorPm10AnnualAverageConcentration">Outdoor PM10 Concentration (annual average, µg/m³)</label>
-            <input
-              type="text"
-              id="outdoorPm10AnnualAverageConcentration"
-              inputMode="decimal"
-              value={inputDrafts[pm10DraftKey] ?? (outdoorPm10AnnualAverageConcentration ?? '')}
-              onChange={handleOutdoorPm10Change}
-              onBlur={() => handleDraftInputBlur(pm10DraftKey)}
-              placeholder="0.0000"
-            />
-          </div>
+              <div className="field">
+                <label htmlFor="annualOperatingHours">
+                  {renderHelpLabel('Annual Operating Hours', 'Enter expected runtime per year. Continuous operation is about 8760 hours.')}
+                </label>
+                <input type="text" id="annualOperatingHours" name="annualOperatingHours" maxLength={4} inputMode="numeric" pattern="\d*" value={form.annualOperatingHours} onChange={handleChange} onBlur={handleBlur} placeholder="8760" />
+                {annualOperatingHoursValidationMessage && (
+                  <p className="message error">{annualOperatingHoursValidationMessage}</p>
+                )}
+              </div>
 
-          <div className="field">
-            <label htmlFor="indoorPm2_5AnnualAverageConcentrationLimit">Indoor PM2.5 Concentration Limit (annual average, µg/m³)</label>
-            <input type="text" id="indoorPm2_5AnnualAverageConcentrationLimit" name="indoorPm2_5AnnualAverageConcentrationLimit" inputMode="decimal" value={inputDrafts.indoorPm2_5AnnualAverageConcentrationLimit ?? form.indoorPm2_5AnnualAverageConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
-          </div>
+              <div className="field">
+                <label htmlFor="ownershipYears">
+                  {renderHelpLabel('Ownership Years', 'Set the number of years for total cost of ownership analysis, typically aligned with your replacement cycle, warranty horizon, or budget plan.')}
+                </label>
+                <input type="text" id="ownershipYears" name="ownershipYears" maxLength={2} inputMode="numeric" pattern="\d*" value={form.ownershipYears} onChange={handleChange} onBlur={handleBlur} />
+                {ownershipYearsValidationMessage && (
+                  <p className="message error">{ownershipYearsValidationMessage}</p>
+                )}
+              </div>
 
-          <div className="field">
-            <label htmlFor="indoorPm10AnnualAverageConcentrationLimit">Indoor PM10 Concentration Limit (annual average, µg/m³)</label>
-            <input type="text" id="indoorPm10AnnualAverageConcentrationLimit" name="indoorPm10AnnualAverageConcentrationLimit" inputMode="decimal" value={inputDrafts.indoorPm10AnnualAverageConcentrationLimit ?? form.indoorPm10AnnualAverageConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
-          </div>
-
-          <div className="field">
-            <label htmlFor="ventilationRate">Ventilation Rate (m³/h)</label>
-            <input type="text" id="ventilationRate" name="ventilationRate" inputMode="decimal" value={inputDrafts.ventilationRate ?? form.ventilationRate} onChange={handleChange} onBlur={handleBlur} />
-          </div>
-
-          <div className="field">
-            <label htmlFor="indoorPm2_5GenerationRate">Indoor PM2.5 Generation Rate (µg/h)</label>
-            <input type="text" id="indoorPm2_5GenerationRate" name="indoorPm2_5GenerationRate" inputMode="decimal" value={inputDrafts.indoorPm2_5GenerationRate ?? form.indoorPm2_5GenerationRate} onChange={handleChange} onBlur={handleBlur} />
-          </div>
-
-          <div className="field">
-            <label htmlFor="indoorPm10GenerationRate">Indoor PM10 Generation Rate (µg/h)</label>
-            <input type="text" id="indoorPm10GenerationRate" name="indoorPm10GenerationRate" inputMode="decimal" value={inputDrafts.indoorPm10GenerationRate ?? form.indoorPm10GenerationRate} onChange={handleChange} onBlur={handleBlur} />
-          </div>
-
-          <div className="field">
-            <label htmlFor="roomVolume">Room Volume (m³)</label>
-            <input type="text" id="roomVolume" name="roomVolume" inputMode="decimal" value={inputDrafts.roomVolume ?? form.roomVolume} onChange={handleChange} onBlur={handleBlur} />
-          </div>
-
-          <div className="field">
-            <label htmlFor="maxAirPurifierCount">Max Air Purifier Count</label>
-            <input type="text" id="maxAirPurifierCount" name="maxAirPurifierCount" maxLength={2} inputMode="numeric" pattern="\d*" value={form.maxAirPurifierCount} onChange={handleChange} onBlur={handleBlur} />
-          </div>
-
-          <div className="field">
-            <label htmlFor="maxCombinedNoiseDbA">Max Combined Noise (dB)</label>
-            <input type="text" id="maxCombinedNoiseDbA" name="maxCombinedNoiseDbA" inputMode="decimal" value={inputDrafts.maxCombinedNoiseDbA ?? form.maxCombinedNoiseDbA} onChange={handleChange} onBlur={handleBlur} />
-          </div>
-
-          <div className="field">
-            <label htmlFor="annualOperatingHours">Annual Operating Hours</label>
-            <input type="text" id="annualOperatingHours" name="annualOperatingHours" maxLength={4} inputMode="numeric" pattern="\d*" value={form.annualOperatingHours} onChange={handleChange} onBlur={handleBlur} placeholder="8760" />
-            {annualOperatingHoursValidationMessage && (
-              <p className="message error">{annualOperatingHoursValidationMessage}</p>
-            )}
-          </div>
-
-          <div className="field">
-            <label htmlFor="ownershipYears">Ownership Years</label>
-            <input type="text" id="ownershipYears" name="ownershipYears" maxLength={2} inputMode="numeric" pattern="\d*" value={form.ownershipYears} onChange={handleChange} onBlur={handleBlur} />
-            {ownershipYearsValidationMessage && (
-              <p className="message error">{ownershipYearsValidationMessage}</p>
-            )}
-          </div>
-
-          <div className="field">
-            <label htmlFor="maxFilterUsageHoursGlobal">Max Filter Usage Period (hours, global, optional)</label>
-            <input
-              type="text"
-              id="maxFilterUsageHoursGlobal"
-              inputMode="decimal"
-              value={inputDrafts['max-filter-usage-global'] ?? (maxFilterUsageHoursGlobal ?? '')}
-              onChange={handleMaxFilterUsageGlobalChange}
-              onBlur={() => handleDraftInputBlur('max-filter-usage-global')}
-              placeholder="Optional"
-            />
-            {maxFilterUsageHoursGlobalValidationMessage && (
-              <p className="message error">{maxFilterUsageHoursGlobalValidationMessage}</p>
-            )}
+              <div className="field">
+                <label htmlFor="maxFilterUsageHoursGlobal">
+                  {renderHelpLabel('Max Filter Usage Period (hours, global, optional)', 'Optionally cap filter runtime before replacement across all models. Leave blank to rely on model estimates, or use manufacturer guidance and maintenance policy to set a fixed limit.')}
+                </label>
+                <input
+                  type="text"
+                  id="maxFilterUsageHoursGlobal"
+                  inputMode="decimal"
+                  value={inputDrafts['max-filter-usage-global'] ?? (maxFilterUsageHoursGlobal ?? '')}
+                  onChange={handleMaxFilterUsageGlobalChange}
+                  onBlur={() => handleDraftInputBlur('max-filter-usage-global')}
+                  placeholder="Optional"
+                />
+                {maxFilterUsageHoursGlobalValidationMessage && (
+                  <p className="message error">{maxFilterUsageHoursGlobalValidationMessage}</p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -892,9 +977,9 @@ function App() {
               <tr>
                 <th>Brand</th>
                 <th>Model</th>
-                <th>Purifier Price ({selectedCountryCurrency})</th>
-                <th>Filter Price ({selectedCountryCurrency})</th>
-                <th>Max Filter Usage Period (hours, optional override)</th>
+                <th>{renderHeaderWithHelp(`Purifier Price (${selectedCountryCurrency})`, 'Purchase price per purifier unit in the selected country.')}</th>
+                <th>{renderHeaderWithHelp(`Filter Price (${selectedCountryCurrency})`, 'Replacement filter price per unit.')}</th>
+                <th>{renderHeaderWithHelp('Max Filter Usage Period (hours, optional override)', 'Optional per-model runtime cap that overrides the global filter usage cap.')}</th>
               </tr>
             </thead>
             <tbody>
@@ -991,14 +1076,14 @@ function App() {
                   <th><button type="button" onClick={() => handleSort('model')}>Model {getSortIndicator('model')}</button></th>
                   <th><button type="button" onClick={() => handleSort('speedName')}>Speed Setting {getSortIndicator('speedName')}</button></th>
                   <th><button type="button" onClick={() => handleSort('quantity')}>Quantity of Air Purifiers {getSortIndicator('quantity')}</button></th>
-                  <th><button type="button" onClick={() => handleSort('totalCadrM3PerHour')}>Total Starting CADR (m³/h) {getSortIndicator('totalCadrM3PerHour')}</button></th>
+                  <th><button type="button" onClick={() => handleSort('totalCadrM3PerHour')}>{renderSortableHeaderWithHelp('totalCadrM3PerHour', 'Total Starting CADR (m³/h)', 'Total clean-air delivery from all units in the group at the selected speed.')}</button></th>
                   <th><button type="button" onClick={() => handleSort('totalPowerWatts')}>Total Power (W) {getSortIndicator('totalPowerWatts')}</button></th>
                   <th><button type="button" onClick={() => handleSort('combinedNoiseDbA')}>Combined Noise (dBA) {getSortIndicator('combinedNoiseDbA')}</button></th>
-                  <th><button type="button" onClick={() => handleSort('filterLifeHours')}>Estimated Filter Life (h) {getSortIndicator('filterLifeHours')}</button></th>
+                  <th><button type="button" onClick={() => handleSort('filterLifeHours')}>{renderSortableHeaderWithHelp('filterLifeHours', 'Estimated Filter Life (h)', 'Projected runtime before replacement threshold after applying global or model-specific caps.')}</button></th>
                   <th><button type="button" onClick={() => handleSort('purchaseCost')}>Initial Purchase Cost ({selectedCountryCurrency}) {getSortIndicator('purchaseCost')}</button></th>
-                  <th><button type="button" onClick={() => handleSort('electricityCost')}>Total Electricity Cost ({selectedCountryCurrency}) {getSortIndicator('electricityCost')}</button></th>
-                  <th><button type="button" onClick={() => handleSort('filterCost')}>Total Filter Replacement Cost ({selectedCountryCurrency}) {getSortIndicator('filterCost')}</button></th>
-                  <th><button type="button" onClick={() => handleSort('totalCostOfOwnership')}>Total Cost of Ownership ({selectedCountryCurrency}) {getSortIndicator('totalCostOfOwnership')}</button></th>
+                  <th><button type="button" onClick={() => handleSort('electricityCost')}>{renderSortableHeaderWithHelp('electricityCost', `Total Electricity Cost (${selectedCountryCurrency})`, 'Energy cost for the selected ownership period based on power draw and electricity price.')}</button></th>
+                  <th><button type="button" onClick={() => handleSort('filterCost')}>{renderSortableHeaderWithHelp('filterCost', `Total Filter Replacement Cost (${selectedCountryCurrency})`, 'Replacement filter cost for the selected ownership period.')}</button></th>
+                  <th><button type="button" onClick={() => handleSort('totalCostOfOwnership')}>{renderSortableHeaderWithHelp('totalCostOfOwnership', `Total Cost of Ownership (${selectedCountryCurrency})`, 'Combined purchase, electricity, and filter replacement cost for the selected period.')}</button></th>
                 </tr>
               </thead>
               <tbody>
