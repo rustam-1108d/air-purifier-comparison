@@ -209,10 +209,14 @@ label {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
+	flex: 0 0 auto;
+	aspect-ratio: 1 / 1;
 	width: 1rem;
 	height: 1rem;
+	min-width: 1rem;
+	min-height: 1rem;
 	border: 1px solid var(--control-border);
-	border-radius: 50%;
+	border-radius: 9999px;
 	font-size: 0.7rem;
 	font-weight: 700;
 	line-height: 1;
