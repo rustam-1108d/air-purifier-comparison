@@ -239,6 +239,10 @@ label {
 	cursor: help;
 }
 
+.cell-tooltip-value {
+	display: inline-block;
+}
+
 .floating-tooltip {
 	position: fixed;
 	z-index: 9999;

@@ -718,7 +718,10 @@ function App() {
 
     const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
     const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-    const rect = element.getBoundingClientRect();
+    const anchorElement = element.classList.contains('cell-tooltip')
+      ? (element.querySelector('.cell-tooltip-value') ?? element)
+      : element;
+    const rect = anchorElement.getBoundingClientRect();
     const edgePadding = 16;
     const maxWidth = Number(element.dataset.tooltipMaxWidth ?? 320);
     const estimatedHeight = Number(element.dataset.tooltipEstimatedHeight ?? 96);
@@ -1186,40 +1189,40 @@ function App() {
                     <td>{group.speedName}</td>
                     <td>{group.quantity}</td>
                     <td className="cell-tooltip" data-tooltip={`Total CADR = ${group.totalCadrM3PerHour.toFixed(2)} m³/h (single unit ${(group.totalCadrM3PerHour / group.quantity).toFixed(2)} × quantity ${group.quantity})`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      {group.totalCadrM3PerHour.toFixed(2)}
+                      <span className="cell-tooltip-value">{group.totalCadrM3PerHour.toFixed(2)}</span>
                     </td>
                     <td className="cell-tooltip" data-tooltip={`Total power = ${group.totalPowerWatts.toFixed(2)} W (single unit ${(group.totalPowerWatts / group.quantity).toFixed(2)} × quantity ${group.quantity})`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      {group.totalPowerWatts.toFixed(2)}
+                      <span className="cell-tooltip-value">{group.totalPowerWatts.toFixed(2)}</span>
                     </td>
                     <td className="cell-tooltip" data-tooltip={`Combined noise from ${group.quantity} units: ${group.combinedNoiseDbA.toFixed(1)} dBA`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      {group.combinedNoiseDbA.toFixed(1)}
+                      <span className="cell-tooltip-value">{group.combinedNoiseDbA.toFixed(1)}</span>
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.effectiveFilterLifeHours === null
                       ? 'Filter life unavailable for this configuration'
                       : Number.isFinite(group.appliedMaxFilterUsageHours)
                         ? `Capped at ${group.appliedMaxFilterUsageHours.toFixed(2)} h by usage limit. Estimated stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`
                         : `Estimated from CADR decay model. Stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      {group.effectiveFilterLifeHours === null ? 'N/A' : group.effectiveFilterLifeHours.toFixed(0)}
+                      <span className="cell-tooltip-value">{group.effectiveFilterLifeHours === null ? 'N/A' : group.effectiveFilterLifeHours.toFixed(0)}</span>
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.purchaseCost === null
                       ? 'Purchase cost unavailable: purifier price missing'
                       : `Purchase = unit price × quantity = ${(group.purchaseCost / group.quantity).toFixed(2)} × ${group.quantity}`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      {group.purchaseCost === null ? 'N/A' : group.purchaseCost.toFixed(2)}
+                      <span className="cell-tooltip-value">{group.purchaseCost === null ? 'N/A' : group.purchaseCost.toFixed(2)}</span>
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.electricityCost === null
                       ? 'Electricity cost unavailable: electricity price missing'
                       : `Electricity = (power W / 1000) × ${group.ownershipPeriodHours} h × ${(currentElectricityPrice ?? 0).toFixed(4)} ${selectedCountryCurrency}/kWh`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      {group.electricityCost === null ? 'N/A' : group.electricityCost.toFixed(2)}
+                      <span className="cell-tooltip-value">{group.electricityCost === null ? 'N/A' : group.electricityCost.toFixed(2)}</span>
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.filterCost === null
                       ? 'Filter cost unavailable: filter price or filter life missing'
                       : `Filters = unit filter price × quantity × replacements = ${(group.filterCost / (group.quantity * (group.filterReplacements || 1))).toFixed(2)} × ${group.quantity} × ${group.filterReplacements}`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      {group.filterCost === null ? 'N/A' : group.filterCost.toFixed(2)}
+                      <span className="cell-tooltip-value">{group.filterCost === null ? 'N/A' : group.filterCost.toFixed(2)}</span>
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.totalCostOfOwnership === null
                       ? 'TCO unavailable: one or more cost components missing'
                       : `TCO = Purchase + Electricity + Filters = ${group.purchaseCost?.toFixed(2)} + ${group.electricityCost?.toFixed(2)} + ${group.filterCost?.toFixed(2)}`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      {group.totalCostOfOwnership === null ? 'N/A' : group.totalCostOfOwnership.toFixed(2)}
+                      <span className="cell-tooltip-value">{group.totalCostOfOwnership === null ? 'N/A' : group.totalCostOfOwnership.toFixed(2)}</span>
                     </td>
                   </tr>
                 ))}
