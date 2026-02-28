@@ -134,11 +134,11 @@ export const airPurifiers = [
     brand: 'Xiaomi',
     model: 'Smart Air Purifier 4',
     speedSettings: [
-      { id: 1, modeName: 'Night Mode (Manual mode m2)', cadrM3PerHour: null, powerWatts: null, soundPressureLevelDbA: null },
-      { id: 2, modeName: 'Level 1 (Manual mode m2)', cadrM3PerHour: null, powerWatts: null, soundPressureLevelDbA: null },
-      { id: 3, modeName: 'Level 2 (Manual mode m2)', cadrM3PerHour: null, powerWatts: null, soundPressureLevelDbA: null },
-      { id: 4, modeName: 'Level 3 (Manual mode m2)', cadrM3PerHour: null, powerWatts: null, soundPressureLevelDbA: null },
-      { id: 5, modeName: 'Manual mode m2', cadrM3PerHour: null, powerWatts: null, soundPressureLevelDbA: null },
+      // { id: 1, modeName: 'Night Mode (Manual mode m2)', cadrM3PerHour: null, powerWatts: null, soundPressureLevelDbA: 32.1 },
+      // { id: 2, modeName: 'Level 1 (Manual mode m2)', cadrM3PerHour: null, powerWatts: null, soundPressureLevelDbA: null },
+      // { id: 3, modeName: 'Level 2 (Manual mode m2)', cadrM3PerHour: null, powerWatts: null, soundPressureLevelDbA: null },
+      // { id: 4, modeName: 'Level 3 (Manual mode m2)', cadrM3PerHour: null, powerWatts: null, soundPressureLevelDbA: null },
+      { id: 5, modeName: 'Manual mode 28~48 m2', cadrM3PerHour: 400, powerWatts: 30, soundPressureLevelDbA: 64 },
     ],
     ccmMg: 17285,
     purifierPrices: {
