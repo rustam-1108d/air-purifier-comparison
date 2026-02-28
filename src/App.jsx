@@ -11,6 +11,16 @@ import { airPurifiers } from './data/airPurifiers.js';
 
 import './App.css'
 
+const DECIMAL_INPUT_PATTERN = /^\d*(\.\d{0,4})?$/;
+
+const normalizeDecimalInput = (value) => value.replace(/,/g, '.');
+
+const isValidDecimalInput = (value) => DECIMAL_INPUT_PATTERN.test(value);
+
+const parseDecimalForForm = (value) => (value === '' || value === '.' ? '' : Number(value));
+
+const parseDecimalForNullable = (value) => (value === '' || value === '.' ? null : Number(value));
+
 function App() {
   const [selectedCountry, setSelectedCountry] = useState(countries[0].code);
   const [selectedCityId, setSelectedCityId] = useState('');
@@ -260,13 +270,13 @@ function App() {
     const { name, value } = e.target;
 
     if (decimalFormFieldNames.has(name)) {
-      const normalizedValue = value.replace(/,/g, '.');
+      const normalizedValue = normalizeDecimalInput(value);
 
-      if (!/^\d*(\.\d{0,4})?$/.test(normalizedValue)) {
+      if (!isValidDecimalInput(normalizedValue)) {
         return;
       }
 
-      const parsedValue = normalizedValue === '' || normalizedValue === '.' ? '' : Number(normalizedValue);
+      const parsedValue = parseDecimalForForm(normalizedValue);
 
       setInputDrafts((prev) => ({
         ...prev,
@@ -318,13 +328,13 @@ function App() {
   };
 
   const handleLocationDecimalInputChange = ({ value, draftKey, onCountryUpdate, onCityUpdate }) => {
-    const normalizedValue = value.replace(/,/g, '.');
+    const normalizedValue = normalizeDecimalInput(value);
 
-    if (!/^\d*(\.\d{0,4})?$/.test(normalizedValue)) {
+    if (!isValidDecimalInput(normalizedValue)) {
       return;
     }
 
-    const parsedValue = normalizedValue === '' || normalizedValue === '.' ? null : Number(normalizedValue);
+    const parsedValue = parseDecimalForNullable(normalizedValue);
 
     setInputDrafts((prev) => ({
       ...prev,
