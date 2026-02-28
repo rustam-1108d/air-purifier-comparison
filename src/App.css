@@ -115,6 +115,12 @@ h2 {
 	gap: 0.8rem;
 }
 
+.header-actions {
+	display: flex;
+	gap: 0.55rem;
+	flex-wrap: wrap;
+}
+
 .theme-toggle {
 	border: 1px solid var(--control-border);
 	border-radius: 999px;
@@ -139,6 +145,12 @@ h2 {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 	gap: 0.8rem;
+}
+
+.section-intro {
+	margin: 0 0 0.85rem;
+	font-size: 0.85rem;
+	color: var(--text-secondary);
 }
 
 .field {
@@ -208,6 +220,30 @@ th button:focus-visible {
 	color: var(--message-info);
 }
 
+.summary-card {
+	margin-bottom: 0.7rem;
+	padding: 0.75rem;
+	border: 1px solid var(--metric-border);
+	border-radius: 10px;
+	background: var(--metric-bg);
+}
+
+.summary-title,
+.summary-metrics {
+	margin: 0;
+	font-size: 0.86rem;
+}
+
+.summary-metrics {
+	margin-top: 0.35rem;
+	color: var(--text-secondary);
+}
+
+.summary-title strong,
+.summary-metrics strong {
+	color: var(--metric-strong);
+}
+
 .table-wrap {
 	overflow-x: auto;
 	border-radius: 12px;
@@ -273,6 +309,14 @@ th button:hover {
 	.header-row {
 		align-items: flex-start;
 		flex-direction: column;
+	}
+
+	.header-actions {
+		width: 100%;
+	}
+
+	.header-actions .theme-toggle {
+		width: 100%;
 	}
 
 	.form-grid {

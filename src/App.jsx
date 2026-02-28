@@ -82,6 +82,65 @@ const getFilterUsageLimitValidationMessage = (value) => {
 
 const THEME_STORAGE_KEY = 'app-theme';
 
+const INITIAL_FORM = {
+  indoorPm2_5AnnualAverageConcentrationLimit: 5,
+  indoorPm10AnnualAverageConcentrationLimit: 15,
+  ventilationRate: 30,
+  indoorPm2_5GenerationRate: 0,
+  indoorPm10GenerationRate: 0,
+  roomVolume: 50,
+  maxAirPurifierCount: 2,
+  maxCombinedNoiseDbA: 37,
+  annualOperatingHours: 8760,
+  ownershipYears: 5,
+};
+
+const buildInitialElectricityPricesByCountry = () => {
+  const initialElectricityPrices = getInitialElectricityPriceByCountry();
+  return Object.fromEntries(countries.map((country) => [country.code, initialElectricityPrices[country.code] ?? null]));
+};
+
+const buildInitialAirQualityByCountry = () => {
+  const initialAirQuality = getInitialAirQualityByCountry();
+  return Object.fromEntries(
+    countries.map((country) => [
+      country.code,
+      initialAirQuality[country.code] ?? {
+        outdoorPm2_5Concentration: null,
+        outdoorPm10Concentration: null,
+      },
+    ])
+  );
+};
+
+const buildInitialAirPurifierPricesByCountry = () => Object.fromEntries(
+  airPurifiers.map((purifier) => [
+    purifier.id,
+    Object.fromEntries(
+      countries.map((country) => [
+        country.code,
+        purifier.purifierPrices?.[country.code]?.amount ?? null,
+      ])
+    ),
+  ])
+);
+
+const buildInitialFilterPricesByCountry = () => Object.fromEntries(
+  airPurifiers.map((purifier) => [
+    purifier.id,
+    Object.fromEntries(
+      countries.map((country) => [
+        country.code,
+        purifier.filterPrices?.[country.code]?.amount ?? null,
+      ])
+    ),
+  ])
+);
+
+const buildInitialMaxFilterUsageHoursByPurifier = () => (
+  Object.fromEntries(airPurifiers.map((purifier) => [purifier.id, null]))
+);
+
 const getInitialTheme = () => {
   if (typeof window === 'undefined') {
     return 'dark';
@@ -100,60 +159,26 @@ function App() {
   const [selectedCountry, setSelectedCountry] = useState(countries[0].code);
   const [selectedCityId, setSelectedCityId] = useState('');
   const [electricityPricesByCountry, setElectricityPricesByCountry] = useState(
-    () => {
-      const initialElectricityPrices = getInitialElectricityPriceByCountry();
-      return Object.fromEntries(countries.map((country) => [country.code, initialElectricityPrices[country.code] ?? null]));
-    }
+    () => buildInitialElectricityPricesByCountry()
   );
   const [electricityPricesByCity, setElectricityPricesByCity] = useState(
     () => getInitialElectricityPriceByCity()
   );
   const [airQualityByCountry, setAirQualityByCountry] = useState(
-    () => {
-      const initialAirQuality = getInitialAirQualityByCountry();
-      return Object.fromEntries(
-        countries.map((country) => [
-          country.code,
-          initialAirQuality[country.code] ?? {
-            outdoorPm2_5Concentration: null,
-            outdoorPm10Concentration: null,
-          },
-        ])
-      );
-    }
+    () => buildInitialAirQualityByCountry()
   );
   const [airQualityByCity, setAirQualityByCity] = useState(
     () => getInitialAirQualityByCity()
   );
   const [airPurifierPricesByCountry, setAirPurifierPricesByCountry] = useState(
-    () => Object.fromEntries(
-      airPurifiers.map((purifier) => [
-        purifier.id,
-        Object.fromEntries(
-          countries.map((country) => [
-            country.code,
-            purifier.purifierPrices?.[country.code]?.amount ?? null,
-          ])
-        ),
-      ])
-    )
+    () => buildInitialAirPurifierPricesByCountry()
   );
   const [filterPricesByCountry, setFilterPricesByCountry] = useState(
-    () => Object.fromEntries(
-      airPurifiers.map((purifier) => [
-        purifier.id,
-        Object.fromEntries(
-          countries.map((country) => [
-            country.code,
-            purifier.filterPrices?.[country.code]?.amount ?? null,
-          ])
-        ),
-      ])
-    )
+    () => buildInitialFilterPricesByCountry()
   );
   const [maxFilterUsageHoursGlobal, setMaxFilterUsageHoursGlobal] = useState(null);
   const [maxFilterUsageHoursByPurifier, setMaxFilterUsageHoursByPurifier] = useState(
-    () => Object.fromEntries(airPurifiers.map((purifier) => [purifier.id, null]))
+    () => buildInitialMaxFilterUsageHoursByPurifier()
   );
   const [inputDrafts, setInputDrafts] = useState({});
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -162,19 +187,7 @@ function App() {
   // console.log('Air Purifier Prices by Country:', airPurifierPricesByCountry);
   // console.log('Filter Prices by Country:', filterPricesByCountry);
 
-  const [form, setForm] = useState({
-    indoorPm2_5AnnualAverageConcentrationLimit: 5,
-    indoorPm10AnnualAverageConcentrationLimit: 15,
-    ventilationRate: 30,
-    indoorPm2_5GenerationRate: 0,
-    indoorPm10GenerationRate: 0,
-    roomVolume: 50,
-    maxAirPurifierCount: 2,
-    maxCombinedNoiseDbA: 37,
-
-    annualOperatingHours: 8760,
-    ownershipYears: 5,
-  });
+  const [form, setForm] = useState(INITIAL_FORM);
 
   const currentAirQuality = selectedCityId
     ? (airQualityByCity[selectedCityId] ?? null)
@@ -354,6 +367,20 @@ function App() {
 
     return sortConfig.direction === 'asc' ? sorted : sorted.reverse();
   }, [airPurifierGroupsWithCosts, sortConfig]);
+
+  const bestValueGroup = useMemo(() => {
+    const groupsWithCompleteCosts = airPurifierGroupsWithCosts.filter(
+      (group) => Number.isFinite(group.totalCostOfOwnership)
+    );
+
+    if (groupsWithCompleteCosts.length === 0) {
+      return null;
+    }
+
+    return groupsWithCompleteCosts.reduce((bestGroup, currentGroup) => (
+      currentGroup.totalCostOfOwnership < bestGroup.totalCostOfOwnership ? currentGroup : bestGroup
+    ));
+  }, [airPurifierGroupsWithCosts]);
 
   const electricityDraftKey = selectedCityId
     ? `electricity-city-${selectedCityId}`
@@ -663,24 +690,46 @@ function App() {
     window.localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
 
+  const handleResetAllInputs = () => {
+    setSelectedCountry(countries[0].code);
+    setSelectedCityId('');
+    setElectricityPricesByCountry(buildInitialElectricityPricesByCountry());
+    setElectricityPricesByCity(getInitialElectricityPriceByCity());
+    setAirQualityByCountry(buildInitialAirQualityByCountry());
+    setAirQualityByCity(getInitialAirQualityByCity());
+    setAirPurifierPricesByCountry(buildInitialAirPurifierPricesByCountry());
+    setFilterPricesByCountry(buildInitialFilterPricesByCountry());
+    setMaxFilterUsageHoursGlobal(null);
+    setMaxFilterUsageHoursByPurifier(buildInitialMaxFilterUsageHoursByPurifier());
+    setInputDrafts({});
+    setSortConfig({ key: null, direction: 'asc' });
+    setForm(INITIAL_FORM);
+  };
+
   return (
     <main className="app-shell">
       <header className="app-header card">
         <div className="header-row">
           <h1>Air Purifier Comparison</h1>
-          <button
-            type="button"
-            className="theme-toggle"
-            onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
-          >
-            {theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
-          </button>
+          <div className="header-actions">
+            <button type="button" className="theme-toggle" onClick={handleResetAllInputs}>
+              Reset All Inputs
+            </button>
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
+            >
+              {theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+            </button>
+          </div>
         </div>
         <p>Compare purifier setups by air quality targets, noise constraints, and long-term ownership cost.</p>
       </header>
 
       <section className="card">
         <h2>Inputs</h2>
+        <p className="section-intro">Start with location and air quality values, then set room and cost assumptions.</p>
         <div className="form-grid">
           <div className="field">
             <label htmlFor="country">Country</label>
@@ -914,6 +963,16 @@ function App() {
 
       <section className="card table-card">
         <h2>Air Purifier Groups</h2>
+        {bestValueGroup && (
+          <div className="summary-card" role="status" aria-live="polite">
+            <p className="summary-title">
+              Best Value Option: <strong>{bestValueGroup.brand} {bestValueGroup.model}</strong> ({bestValueGroup.quantity} unit{bestValueGroup.quantity > 1 ? 's' : ''}, {bestValueGroup.speedName})
+            </p>
+            <p className="summary-metrics">
+              TCO: <strong>{bestValueGroup.totalCostOfOwnership?.toFixed(2)} {selectedCountryCurrency}</strong> · Starting CADR: <strong>{bestValueGroup.totalCadrM3PerHour.toFixed(2)} m³/h</strong> · Noise: <strong>{bestValueGroup.combinedNoiseDbA.toFixed(1)} dBA</strong>
+            </p>
+          </div>
+        )}
         {isCostPeriodValid ? (
           <p className="message info">
             Cost of ownership period: {form.ownershipYears} years × {form.annualOperatingHours} hours/year = {form.ownershipYears * form.annualOperatingHours} hours
