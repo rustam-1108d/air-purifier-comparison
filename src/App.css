@@ -1,5 +1,77 @@
 :root {
 	color-scheme: dark;
+	--text-primary: #eef2ff;
+	--text-secondary: rgba(220, 227, 255, 0.86);
+	--heading: rgba(242, 246, 255, 0.96);
+
+	--card-bg: linear-gradient(135deg, rgba(28, 34, 62, 0.78), rgba(14, 18, 36, 0.84));
+	--card-border: rgba(120, 147, 255, 0.28);
+	--card-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+
+	--label-color: rgba(213, 222, 255, 0.94);
+	--control-border: rgba(137, 164, 255, 0.28);
+	--control-bg: rgba(10, 14, 30, 0.72);
+	--control-text: rgba(244, 248, 255, 0.98);
+	--placeholder: rgba(175, 189, 240, 0.72);
+	--focus-border: rgba(129, 218, 255, 0.86);
+	--focus-ring: rgba(96, 198, 255, 0.24);
+
+	--metric-bg: rgba(8, 12, 26, 0.56);
+	--metric-border: rgba(130, 156, 255, 0.22);
+	--metric-strong: rgba(147, 239, 255, 0.98);
+
+	--message-error: rgba(255, 161, 184, 0.95);
+	--message-info: rgba(192, 220, 255, 0.95);
+
+	--table-bg: rgba(8, 11, 24, 0.56);
+	--table-border: rgba(128, 154, 255, 0.2);
+	--table-cell-border: rgba(117, 137, 211, 0.2);
+	--thead-bg: rgba(17, 23, 46, 0.95);
+	--thead-text: rgba(241, 245, 255, 0.97);
+	--row-alt: rgba(35, 46, 88, 0.18);
+	--row-hover: rgba(73, 107, 221, 0.2);
+	--sort-hover: rgba(149, 241, 255, 0.98);
+
+	--toggle-bg: rgba(10, 14, 30, 0.72);
+	--toggle-hover: rgba(40, 61, 138, 0.45);
+}
+
+:root[data-theme='light'] {
+	color-scheme: light;
+	--text-primary: #1c2742;
+	--text-secondary: rgba(40, 55, 92, 0.84);
+	--heading: rgba(18, 30, 59, 0.96);
+
+	--card-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(246, 249, 255, 0.95));
+	--card-border: rgba(102, 130, 222, 0.24);
+	--card-shadow: 0 12px 26px rgba(37, 74, 150, 0.12);
+
+	--label-color: rgba(46, 61, 99, 0.92);
+	--control-border: rgba(133, 157, 228, 0.46);
+	--control-bg: rgba(255, 255, 255, 0.96);
+	--control-text: rgba(18, 32, 64, 0.98);
+	--placeholder: rgba(110, 129, 186, 0.78);
+	--focus-border: rgba(78, 153, 255, 0.95);
+	--focus-ring: rgba(96, 166, 255, 0.24);
+
+	--metric-bg: rgba(245, 249, 255, 0.95);
+	--metric-border: rgba(128, 152, 220, 0.3);
+	--metric-strong: rgba(20, 120, 188, 0.95);
+
+	--message-error: rgba(180, 43, 81, 0.95);
+	--message-info: rgba(37, 85, 177, 0.92);
+
+	--table-bg: rgba(255, 255, 255, 0.95);
+	--table-border: rgba(133, 158, 228, 0.3);
+	--table-cell-border: rgba(144, 168, 230, 0.3);
+	--thead-bg: rgba(230, 239, 255, 0.96);
+	--thead-text: rgba(24, 41, 82, 0.98);
+	--row-alt: rgba(236, 243, 255, 0.72);
+	--row-hover: rgba(205, 223, 255, 0.75);
+	--sort-hover: rgba(44, 122, 234, 0.95);
+
+	--toggle-bg: rgba(242, 247, 255, 0.96);
+	--toggle-hover: rgba(213, 228, 255, 0.95);
 }
 
 .app-shell {
@@ -11,11 +83,11 @@
 }
 
 .card {
-	background: linear-gradient(135deg, rgba(28, 34, 62, 0.78), rgba(14, 18, 36, 0.84));
-	border: 1px solid rgba(120, 147, 255, 0.28);
+	background: var(--card-bg);
+	border: 1px solid var(--card-border);
 	border-radius: 16px;
 	padding: 1rem;
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+	box-shadow: var(--card-shadow);
 	backdrop-filter: blur(8px);
 }
 
@@ -27,13 +99,40 @@
 
 .app-header p {
 	margin: 0.5rem 0 0;
-	color: rgba(220, 227, 255, 0.86);
+	color: var(--text-secondary);
 }
 
 h2 {
 	margin: 0 0 0.8rem;
 	font-size: 1.05rem;
-	color: rgba(242, 246, 255, 0.96);
+	color: var(--heading);
+}
+
+.header-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.8rem;
+}
+
+.theme-toggle {
+	border: 1px solid var(--control-border);
+	border-radius: 999px;
+	padding: 0.42rem 0.75rem;
+	font-size: 0.78rem;
+	font-weight: 700;
+	color: var(--control-text);
+	background: var(--toggle-bg);
+	cursor: pointer;
+	transition: background-color 0.2s ease, transform 0.08s ease;
+}
+
+.theme-toggle:hover {
+	background: var(--toggle-hover);
+}
+
+.theme-toggle:active {
+	transform: translateY(1px);
 }
 
 .form-grid {
@@ -50,32 +149,32 @@ h2 {
 label {
 	font-size: 0.8rem;
 	font-weight: 600;
-	color: rgba(213, 222, 255, 0.94);
+	color: var(--label-color);
 }
 
 input,
 select,
 th button {
 	width: 100%;
-	border: 1px solid rgba(137, 164, 255, 0.28);
+	border: 1px solid var(--control-border);
 	border-radius: 10px;
-	background: rgba(10, 14, 30, 0.72);
-	color: rgba(244, 248, 255, 0.98);
+	background: var(--control-bg);
+	color: var(--control-text);
 	padding: 0.56rem 0.66rem;
 	font-size: 0.9rem;
 	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.08s ease;
 }
 
 input::placeholder {
-	color: rgba(175, 189, 240, 0.72);
+	color: var(--placeholder);
 }
 
 input:focus,
 select:focus,
 th button:focus-visible {
 	outline: none;
-	border-color: rgba(129, 218, 255, 0.86);
-	box-shadow: 0 0 0 3px rgba(96, 198, 255, 0.24);
+	border-color: var(--focus-border);
+	box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .metric-panel .metrics-grid {
@@ -87,13 +186,13 @@ th button:focus-visible {
 .metric-item {
 	margin: 0;
 	padding: 0.75rem;
-	border: 1px solid rgba(130, 156, 255, 0.22);
+	border: 1px solid var(--metric-border);
 	border-radius: 10px;
-	background: rgba(8, 12, 26, 0.56);
+	background: var(--metric-bg);
 }
 
 .metric-item strong {
-	color: rgba(147, 239, 255, 0.98);
+	color: var(--metric-strong);
 }
 
 .message {
@@ -102,11 +201,11 @@ th button:focus-visible {
 }
 
 .message.error {
-	color: rgba(255, 161, 184, 0.95);
+	color: var(--message-error);
 }
 
 .message.info {
-	color: rgba(192, 220, 255, 0.95);
+	color: var(--message-info);
 }
 
 .table-wrap {
@@ -119,13 +218,13 @@ table {
 	border-collapse: collapse;
 	min-width: 980px;
 	font-size: 0.85rem;
-	background: rgba(8, 11, 24, 0.56);
-	border: 1px solid rgba(128, 154, 255, 0.2);
+	background: var(--table-bg);
+	border: 1px solid var(--table-border);
 }
 
 th,
 td {
-	border-bottom: 1px solid rgba(117, 137, 211, 0.2);
+	border-bottom: 1px solid var(--table-cell-border);
 	padding: 0.55rem 0.65rem;
 	text-align: left;
 	vertical-align: top;
@@ -135,17 +234,17 @@ thead th {
 	position: sticky;
 	top: 0;
 	z-index: 1;
-	background: rgba(17, 23, 46, 0.95);
-	color: rgba(241, 245, 255, 0.97);
+	background: var(--thead-bg);
+	color: var(--thead-text);
 	backdrop-filter: blur(4px);
 }
 
 tbody tr:nth-child(even) {
-	background: rgba(35, 46, 88, 0.18);
+	background: var(--row-alt);
 }
 
 tbody tr:hover {
-	background: rgba(73, 107, 221, 0.2);
+	background: var(--row-hover);
 }
 
 th button {
@@ -158,7 +257,7 @@ th button {
 }
 
 th button:hover {
-	color: rgba(149, 241, 255, 0.98);
+	color: var(--sort-hover);
 }
 
 @media (max-width: 760px) {
@@ -169,6 +268,11 @@ th button:hover {
 	.card {
 		padding: 0.75rem;
 		border-radius: 14px;
+	}
+
+	.header-row {
+		align-items: flex-start;
+		flex-direction: column;
 	}
 
 	.form-grid {

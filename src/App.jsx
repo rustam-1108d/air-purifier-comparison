@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import calculateRequiredParticulateCADR from './utils/calculateRequiredParticulateCADR';
 import buildAirPurifierGroups from './utils/buildAirPurifierGroups';
@@ -80,7 +80,23 @@ const getFilterUsageLimitValidationMessage = (value) => {
   return value <= 0 ? 'Max filter usage period must be greater than 0 hours.' : null;
 };
 
+const THEME_STORAGE_KEY = 'app-theme';
+
+const getInitialTheme = () => {
+  if (typeof window === 'undefined') {
+    return 'dark';
+  }
+
+  const savedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+  if (savedTheme === 'light' || savedTheme === 'dark') {
+    return savedTheme;
+  }
+
+  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+};
+
 function App() {
+  const [theme, setTheme] = useState(getInitialTheme);
   const [selectedCountry, setSelectedCountry] = useState(countries[0].code);
   const [selectedCityId, setSelectedCityId] = useState('');
   const [electricityPricesByCountry, setElectricityPricesByCountry] = useState(
@@ -642,10 +658,24 @@ function App() {
     return sortConfig.direction === 'asc' ? '▲' : '▼';
   };
 
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }, [theme]);
+
   return (
     <main className="app-shell">
       <header className="app-header card">
-        <h1>Air Purifier Comparison</h1>
+        <div className="header-row">
+          <h1>Air Purifier Comparison</h1>
+          <button
+            type="button"
+            className="theme-toggle"
+            onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
+          >
+            {theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+          </button>
+        </div>
         <p>Compare purifier setups by air quality targets, noise constraints, and long-term ownership cost.</p>
       </header>
 
