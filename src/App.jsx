@@ -722,36 +722,26 @@ function App() {
     const edgePadding = 16;
     const maxWidth = Number(element.dataset.tooltipMaxWidth ?? 320);
     const estimatedHeight = Number(element.dataset.tooltipEstimatedHeight ?? 96);
-
-    const spaceLeft = rect.left - edgePadding;
-    const spaceRight = viewportWidth - rect.right - edgePadding;
-    const halfTooltipWidth = maxWidth / 2;
-
-    let horizontal = 'center';
-    if (spaceLeft < halfTooltipWidth && spaceRight > spaceLeft) {
-      horizontal = 'start';
-    } else if (spaceRight < halfTooltipWidth && spaceLeft > spaceRight) {
-      horizontal = 'end';
-    }
+    const tooltipWidth = Math.min(maxWidth, viewportWidth - (edgePadding * 2));
+    const targetCenterX = rect.left + (rect.width / 2);
+    const left = Math.min(
+      Math.max(targetCenterX - (tooltipWidth / 2), edgePadding),
+      viewportWidth - edgePadding - tooltipWidth,
+    );
+    const arrowOffset = Math.min(Math.max(targetCenterX - left, 10), tooltipWidth - 10);
 
     const spaceAbove = rect.top - edgePadding;
     const spaceBelow = viewportHeight - rect.bottom - edgePadding;
     const vertical = spaceAbove < estimatedHeight && spaceBelow > spaceAbove ? 'bottom' : 'top';
-
-    const anchorX = horizontal === 'start'
-      ? rect.left
-      : horizontal === 'end'
-        ? rect.right
-        : rect.left + (rect.width / 2);
     const anchorY = vertical === 'top' ? rect.top : rect.bottom;
 
     setActiveTooltip({
       text: tooltipText,
-      horizontal,
       vertical,
-      anchorX,
+      left,
       anchorY,
-      maxWidth,
+      width: tooltipWidth,
+      arrowOffset,
     });
   };
 
@@ -1240,11 +1230,12 @@ function App() {
       </section>
       {activeTooltip && (
         <div
-          className={`floating-tooltip floating-tooltip--${activeTooltip.vertical} floating-tooltip--${activeTooltip.horizontal}`}
+          className={`floating-tooltip floating-tooltip--${activeTooltip.vertical}`}
           style={{
-            left: `${activeTooltip.anchorX}px`,
+            left: `${activeTooltip.left}px`,
             top: `${activeTooltip.anchorY}px`,
-            maxWidth: `${activeTooltip.maxWidth}px`,
+            width: `${activeTooltip.width}px`,
+            '--tooltip-arrow-left': `${activeTooltip.arrowOffset}px`,
           }}
           role="tooltip"
         >

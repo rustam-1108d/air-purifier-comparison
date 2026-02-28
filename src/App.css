@@ -253,6 +253,7 @@ label {
 	text-align: left;
 	box-shadow: var(--tooltip-shadow);
 	white-space: normal;
+	overflow-wrap: break-word;
 	pointer-events: none;
 	backdrop-filter: blur(4px);
 }
@@ -265,28 +266,12 @@ label {
 	background: var(--tooltip-bg);
 }
 
-.floating-tooltip--top.floating-tooltip--center {
-	transform: translate(-50%, calc(-100% - 0.45rem));
+.floating-tooltip--top {
+	transform: translateY(calc(-100% - 0.45rem));
 }
 
-.floating-tooltip--top.floating-tooltip--start {
-	transform: translate(0, calc(-100% - 0.45rem));
-}
-
-.floating-tooltip--top.floating-tooltip--end {
-	transform: translate(-100%, calc(-100% - 0.45rem));
-}
-
-.floating-tooltip--bottom.floating-tooltip--center {
-	transform: translate(-50%, 0.45rem);
-}
-
-.floating-tooltip--bottom.floating-tooltip--start {
-	transform: translate(0, 0.45rem);
-}
-
-.floating-tooltip--bottom.floating-tooltip--end {
-	transform: translate(-100%, 0.45rem);
+.floating-tooltip--bottom {
+	transform: translateY(0.45rem);
 }
 
 .floating-tooltip--top::before {
@@ -303,16 +288,8 @@ label {
 	border-top: 1px solid var(--tooltip-border);
 }
 
-.floating-tooltip--center::before {
-	left: calc(50% - 0.225rem);
-}
-
-.floating-tooltip--start::before {
-	left: 0.7rem;
-}
-
-.floating-tooltip--end::before {
-	right: 0.7rem;
+.floating-tooltip::before {
+	left: calc(var(--tooltip-arrow-left, 50%) - 0.225rem);
 }
 
 input,
