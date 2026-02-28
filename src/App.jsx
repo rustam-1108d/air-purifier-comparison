@@ -11,11 +11,32 @@ import { airPurifiers } from './data/airPurifiers.js';
 
 import './App.css'
 
-const DECIMAL_INPUT_PATTERN = /^\d*(\.\d{0,4})?$/;
+const DEFAULT_DECIMAL_PLACES = 4;
+
+const FORM_DECIMAL_PLACES_BY_FIELD = {
+  indoorPm2_5AnnualAverageConcentrationLimit: 4,
+  indoorPm10AnnualAverageConcentrationLimit: 4,
+  ventilationRate: 4,
+  indoorPm2_5GenerationRate: 4,
+  indoorPm10GenerationRate: 4,
+  roomVolume: 4,
+  maxCombinedNoiseDbA: 4,
+};
+
+const LOCATION_DECIMAL_PLACES = {
+  electricityPrice: 4,
+  outdoorPm2_5: 4,
+  outdoorPm10: 4,
+  purifierPrice: 4,
+  filterPrice: 4,
+};
 
 const normalizeDecimalInput = (value) => value.replace(/,/g, '.');
 
-const isValidDecimalInput = (value) => DECIMAL_INPUT_PATTERN.test(value);
+const isValidDecimalInput = (value, maxDecimalPlaces = DEFAULT_DECIMAL_PLACES) => {
+  const pattern = new RegExp(`^\\d*(\\.\\d{0,${maxDecimalPlaces}})?$`);
+  return pattern.test(value);
+};
 
 const parseDecimalForForm = (value) => (value === '' || value === '.' ? '' : Number(value));
 
@@ -256,23 +277,16 @@ function App() {
   // console.log('selectedCountryData:', selectedCountryData);
   // console.log('Current Electricity Price:', currentElectricityPrice);
 
-  const decimalFormFieldNames = new Set([
-    'indoorPm2_5AnnualAverageConcentrationLimit',
-    'indoorPm10AnnualAverageConcentrationLimit',
-    'ventilationRate',
-    'indoorPm2_5GenerationRate',
-    'indoorPm10GenerationRate',
-    'roomVolume',
-    'maxCombinedNoiseDbA',
-  ]);
+  const decimalFormFieldNames = new Set(Object.keys(FORM_DECIMAL_PLACES_BY_FIELD));
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     if (decimalFormFieldNames.has(name)) {
       const normalizedValue = normalizeDecimalInput(value);
+      const maxDecimalPlaces = FORM_DECIMAL_PLACES_BY_FIELD[name] ?? DEFAULT_DECIMAL_PLACES;
 
-      if (!isValidDecimalInput(normalizedValue)) {
+      if (!isValidDecimalInput(normalizedValue, maxDecimalPlaces)) {
         return;
       }
 
@@ -327,10 +341,10 @@ function App() {
     }
   };
 
-  const handleLocationDecimalInputChange = ({ value, draftKey, onCountryUpdate, onCityUpdate }) => {
+  const handleLocationDecimalInputChange = ({ value, draftKey, onCountryUpdate, onCityUpdate, maxDecimalPlaces = DEFAULT_DECIMAL_PLACES }) => {
     const normalizedValue = normalizeDecimalInput(value);
 
-    if (!isValidDecimalInput(normalizedValue)) {
+    if (!isValidDecimalInput(normalizedValue, maxDecimalPlaces)) {
       return;
     }
 
@@ -353,6 +367,7 @@ function App() {
     handleLocationDecimalInputChange({
       value: e.target.value,
       draftKey: electricityDraftKey,
+      maxDecimalPlaces: LOCATION_DECIMAL_PLACES.electricityPrice,
       onCityUpdate: (parsedValue) => {
         setElectricityPricesByCity((prev) => ({
           ...prev,
@@ -372,6 +387,7 @@ function App() {
     handleLocationDecimalInputChange({
       value: e.target.value,
       draftKey: pm2_5DraftKey,
+      maxDecimalPlaces: LOCATION_DECIMAL_PLACES.outdoorPm2_5,
       onCityUpdate: (parsedValue) => {
         setAirQualityByCity((prev) => ({
           ...prev,
@@ -397,6 +413,7 @@ function App() {
     handleLocationDecimalInputChange({
       value: e.target.value,
       draftKey: pm10DraftKey,
+      maxDecimalPlaces: LOCATION_DECIMAL_PLACES.outdoorPm10,
       onCityUpdate: (parsedValue) => {
         setAirQualityByCity((prev) => ({
           ...prev,
@@ -424,6 +441,7 @@ function App() {
     handleLocationDecimalInputChange({
       value,
       draftKey,
+      maxDecimalPlaces: LOCATION_DECIMAL_PLACES.purifierPrice,
       onCountryUpdate: (parsedValue) => {
         setAirPurifierPricesByCountry((prev) => ({
           ...prev,
@@ -442,6 +460,7 @@ function App() {
     handleLocationDecimalInputChange({
       value,
       draftKey,
+      maxDecimalPlaces: LOCATION_DECIMAL_PLACES.filterPrice,
       onCountryUpdate: (parsedValue) => {
         setFilterPricesByCountry((prev) => ({
           ...prev,
