@@ -235,14 +235,13 @@ label {
 	box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
-.help-dot::after {
-	content: attr(data-tooltip);
-	position: absolute;
-	left: 50%;
-	bottom: calc(100% + 0.45rem);
-	transform: translateX(-50%);
-	min-width: 180px;
-	max-width: min(320px, 78vw);
+.cell-tooltip {
+	cursor: help;
+}
+
+.floating-tooltip {
+	position: fixed;
+	z-index: 9999;
 	padding: 0.45rem 0.55rem;
 	border-radius: 10px;
 	border: 1px solid var(--tooltip-border);
@@ -254,130 +253,66 @@ label {
 	text-align: left;
 	box-shadow: var(--tooltip-shadow);
 	white-space: normal;
-	opacity: 0;
-	visibility: hidden;
 	pointer-events: none;
-	z-index: 4;
+	backdrop-filter: blur(4px);
 }
 
-.help-dot::before {
+.floating-tooltip::before {
 	content: '';
 	position: absolute;
-	left: 50%;
-	bottom: calc(100% + 0.15rem);
-	transform: translateX(-50%) rotate(45deg);
 	width: 0.45rem;
 	height: 0.45rem;
+	background: var(--tooltip-bg);
+}
+
+.floating-tooltip--top.floating-tooltip--center {
+	transform: translate(-50%, calc(-100% - 0.45rem));
+}
+
+.floating-tooltip--top.floating-tooltip--start {
+	transform: translate(0, calc(-100% - 0.45rem));
+}
+
+.floating-tooltip--top.floating-tooltip--end {
+	transform: translate(-100%, calc(-100% - 0.45rem));
+}
+
+.floating-tooltip--bottom.floating-tooltip--center {
+	transform: translate(-50%, 0.45rem);
+}
+
+.floating-tooltip--bottom.floating-tooltip--start {
+	transform: translate(0, 0.45rem);
+}
+
+.floating-tooltip--bottom.floating-tooltip--end {
+	transform: translate(-100%, 0.45rem);
+}
+
+.floating-tooltip--top::before {
+	bottom: -0.26rem;
+	transform: rotate(45deg);
 	border-right: 1px solid var(--tooltip-border);
 	border-bottom: 1px solid var(--tooltip-border);
-	background: var(--tooltip-bg);
-	opacity: 0;
-	visibility: hidden;
-	pointer-events: none;
-	z-index: 4;
 }
 
-.help-dot:hover::after,
-.help-dot:hover::before,
-.help-dot:focus-visible::after,
-.help-dot:focus-visible::before {
-	opacity: 1;
-	visibility: visible;
-}
-
-.help-dot[data-tooltip-align='start']::after,
-.cell-tooltip[data-tooltip-align='start']::after {
-	left: 0;
-	transform: none;
-}
-
-.help-dot[data-tooltip-align='start']::before,
-.cell-tooltip[data-tooltip-align='start']::before {
-	left: 0.5rem;
+.floating-tooltip--bottom::before {
+	top: -0.26rem;
 	transform: rotate(45deg);
-}
-
-.help-dot[data-tooltip-align='end']::after,
-.cell-tooltip[data-tooltip-align='end']::after {
-	left: auto;
-	right: 0;
-	transform: none;
-}
-
-.help-dot[data-tooltip-align='end']::before,
-.cell-tooltip[data-tooltip-align='end']::before {
-	left: auto;
-	right: 0.5rem;
-	transform: rotate(45deg);
-}
-
-.help-dot[data-tooltip-vertical='bottom']::after,
-.cell-tooltip[data-tooltip-vertical='bottom']::after {
-	top: calc(100% + 0.45rem);
-	bottom: auto;
-}
-
-.help-dot[data-tooltip-vertical='bottom']::before,
-.cell-tooltip[data-tooltip-vertical='bottom']::before {
-	top: calc(100% + 0.15rem);
-	bottom: auto;
-	border-right: 0;
-	border-bottom: 0;
 	border-left: 1px solid var(--tooltip-border);
 	border-top: 1px solid var(--tooltip-border);
 }
 
-.cell-tooltip {
-	position: relative;
-	cursor: help;
+.floating-tooltip--center::before {
+	left: calc(50% - 0.225rem);
 }
 
-.cell-tooltip::after {
-	content: attr(data-tooltip);
-	position: absolute;
-	left: 50%;
-	bottom: calc(100% + 0.45rem);
-	transform: translateX(-50%);
-	min-width: 200px;
-	max-width: min(360px, 72vw);
-	padding: 0.45rem 0.55rem;
-	border-radius: 10px;
-	border: 1px solid var(--tooltip-border);
-	background: var(--tooltip-bg);
-	color: var(--tooltip-text);
-	font-size: 0.75rem;
-	font-weight: 500;
-	line-height: 1.35;
-	text-align: left;
-	box-shadow: var(--tooltip-shadow);
-	white-space: normal;
-	opacity: 0;
-	visibility: hidden;
-	pointer-events: none;
-	z-index: 4;
+.floating-tooltip--start::before {
+	left: 0.7rem;
 }
 
-.cell-tooltip::before {
-	content: '';
-	position: absolute;
-	left: 50%;
-	bottom: calc(100% + 0.15rem);
-	transform: translateX(-50%) rotate(45deg);
-	width: 0.45rem;
-	height: 0.45rem;
-	border-right: 1px solid var(--tooltip-border);
-	border-bottom: 1px solid var(--tooltip-border);
-	background: var(--tooltip-bg);
-	opacity: 0;
-	visibility: hidden;
-	pointer-events: none;
-	z-index: 4;
-}
-
-.cell-tooltip:hover::after,
-.cell-tooltip:hover::before {
-	opacity: 1;
-	visibility: visible;
+.floating-tooltip--end::before {
+	right: 0.7rem;
 }
 
 input,

@@ -182,6 +182,7 @@ function App() {
   );
   const [inputDrafts, setInputDrafts] = useState({});
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [activeTooltip, setActiveTooltip] = useState(null);
   // console.log('Electricity Prices by Country:', electricityPricesByCountry);
   // console.log('Electricity Prices by City:', electricityPricesByCity);
   // console.log('Air Purifier Prices by Country:', airPurifierPricesByCountry);
@@ -690,6 +691,74 @@ function App() {
     window.localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
 
+  useEffect(() => {
+    if (!activeTooltip) {
+      return undefined;
+    }
+
+    const hideTooltip = () => setActiveTooltip(null);
+
+    window.addEventListener('scroll', hideTooltip, true);
+    window.addEventListener('resize', hideTooltip);
+
+    return () => {
+      window.removeEventListener('scroll', hideTooltip, true);
+      window.removeEventListener('resize', hideTooltip);
+    };
+  }, [activeTooltip]);
+
+  const showTooltip = (event) => {
+    const element = event.currentTarget;
+    const tooltipText = element.dataset.tooltip;
+
+    if (!tooltipText) {
+      setActiveTooltip(null);
+      return;
+    }
+
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    const rect = element.getBoundingClientRect();
+    const edgePadding = 16;
+    const maxWidth = Number(element.dataset.tooltipMaxWidth ?? 320);
+    const estimatedHeight = Number(element.dataset.tooltipEstimatedHeight ?? 96);
+
+    const spaceLeft = rect.left - edgePadding;
+    const spaceRight = viewportWidth - rect.right - edgePadding;
+    const halfTooltipWidth = maxWidth / 2;
+
+    let horizontal = 'center';
+    if (spaceLeft < halfTooltipWidth && spaceRight > spaceLeft) {
+      horizontal = 'start';
+    } else if (spaceRight < halfTooltipWidth && spaceLeft > spaceRight) {
+      horizontal = 'end';
+    }
+
+    const spaceAbove = rect.top - edgePadding;
+    const spaceBelow = viewportHeight - rect.bottom - edgePadding;
+    const vertical = spaceAbove < estimatedHeight && spaceBelow > spaceAbove ? 'bottom' : 'top';
+
+    const anchorX = horizontal === 'start'
+      ? rect.left
+      : horizontal === 'end'
+        ? rect.right
+        : rect.left + (rect.width / 2);
+    const anchorY = vertical === 'top' ? rect.top : rect.bottom;
+
+    setActiveTooltip({
+      text: tooltipText,
+      horizontal,
+      vertical,
+      anchorX,
+      anchorY,
+      maxWidth,
+    });
+  };
+
+  const hideTooltip = () => {
+    setActiveTooltip(null);
+  };
+
   const handleResetAllInputs = () => {
     setSelectedCountry(countries[0].code);
     setSelectedCityId('');
@@ -717,8 +786,10 @@ function App() {
           data-tooltip={helpText}
           data-tooltip-max-width="320"
           data-tooltip-estimated-height="96"
-          onMouseEnter={updateTooltipAlignment}
-          onFocus={updateTooltipAlignment}
+          onMouseEnter={showTooltip}
+          onMouseLeave={hideTooltip}
+          onFocus={showTooltip}
+          onBlur={hideTooltip}
         >
           ?
         </span>
@@ -737,8 +808,10 @@ function App() {
           data-tooltip={helpText}
           data-tooltip-max-width="320"
           data-tooltip-estimated-height="96"
-          onMouseEnter={updateTooltipAlignment}
-          onFocus={updateTooltipAlignment}
+          onMouseEnter={showTooltip}
+          onMouseLeave={hideTooltip}
+          onFocus={showTooltip}
+          onBlur={hideTooltip}
         >
           ?
         </span>
@@ -757,47 +830,16 @@ function App() {
           data-tooltip={helpText}
           data-tooltip-max-width="320"
           data-tooltip-estimated-height="96"
-          onMouseEnter={updateTooltipAlignment}
-          onFocus={updateTooltipAlignment}
+          onMouseEnter={showTooltip}
+          onMouseLeave={hideTooltip}
+          onFocus={showTooltip}
+          onBlur={hideTooltip}
         >
           ?
         </span>
       )}
     </span>
   );
-
-  const updateTooltipAlignment = (event) => {
-    const element = event.currentTarget;
-    const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-    const rect = element.getBoundingClientRect();
-    const edgePadding = 16;
-    const tooltipMaxWidth = Number(element.dataset.tooltipMaxWidth ?? 320);
-    const tooltipEstimatedHeight = Number(element.dataset.tooltipEstimatedHeight ?? 96);
-    const halfTooltipWidth = tooltipMaxWidth / 2;
-    const spaceLeft = rect.left - edgePadding;
-    const spaceRight = viewportWidth - rect.right - edgePadding;
-    const spaceAbove = rect.top - edgePadding;
-    const spaceBelow = viewportHeight - rect.bottom - edgePadding;
-
-    if (spaceLeft < halfTooltipWidth && spaceRight > spaceLeft) {
-      element.dataset.tooltipAlign = 'start';
-      return;
-    }
-
-    if (spaceRight < halfTooltipWidth && spaceLeft > spaceRight) {
-      element.dataset.tooltipAlign = 'end';
-    } else {
-      element.dataset.tooltipAlign = 'center';
-    }
-
-    if (spaceAbove < tooltipEstimatedHeight && spaceBelow > spaceAbove) {
-      element.dataset.tooltipVertical = 'bottom';
-      return;
-    }
-
-    element.dataset.tooltipVertical = 'top';
-  };
 
   return (
     <main className="app-shell">
@@ -1153,40 +1195,40 @@ function App() {
                     <td>{group.model}</td>
                     <td>{group.speedName}</td>
                     <td>{group.quantity}</td>
-                    <td className="cell-tooltip" data-tooltip={`Total CADR = ${group.totalCadrM3PerHour.toFixed(2)} m³/h (single unit ${(group.totalCadrM3PerHour / group.quantity).toFixed(2)} × quantity ${group.quantity})`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={updateTooltipAlignment}>
+                    <td className="cell-tooltip" data-tooltip={`Total CADR = ${group.totalCadrM3PerHour.toFixed(2)} m³/h (single unit ${(group.totalCadrM3PerHour / group.quantity).toFixed(2)} × quantity ${group.quantity})`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
                       {group.totalCadrM3PerHour.toFixed(2)}
                     </td>
-                    <td className="cell-tooltip" data-tooltip={`Total power = ${group.totalPowerWatts.toFixed(2)} W (single unit ${(group.totalPowerWatts / group.quantity).toFixed(2)} × quantity ${group.quantity})`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={updateTooltipAlignment}>
+                    <td className="cell-tooltip" data-tooltip={`Total power = ${group.totalPowerWatts.toFixed(2)} W (single unit ${(group.totalPowerWatts / group.quantity).toFixed(2)} × quantity ${group.quantity})`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
                       {group.totalPowerWatts.toFixed(2)}
                     </td>
-                    <td className="cell-tooltip" data-tooltip={`Combined noise from ${group.quantity} units: ${group.combinedNoiseDbA.toFixed(1)} dBA`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={updateTooltipAlignment}>
+                    <td className="cell-tooltip" data-tooltip={`Combined noise from ${group.quantity} units: ${group.combinedNoiseDbA.toFixed(1)} dBA`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
                       {group.combinedNoiseDbA.toFixed(1)}
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.effectiveFilterLifeHours === null
                       ? 'Filter life unavailable for this configuration'
                       : Number.isFinite(group.appliedMaxFilterUsageHours)
                         ? `Capped at ${group.appliedMaxFilterUsageHours.toFixed(2)} h by usage limit. Estimated stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`
-                        : `Estimated from CADR decay model. Stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={updateTooltipAlignment}>
+                        : `Estimated from CADR decay model. Stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
                       {group.effectiveFilterLifeHours === null ? 'N/A' : group.effectiveFilterLifeHours.toFixed(0)}
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.purchaseCost === null
                       ? 'Purchase cost unavailable: purifier price missing'
-                      : `Purchase = unit price × quantity = ${(group.purchaseCost / group.quantity).toFixed(2)} × ${group.quantity}`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={updateTooltipAlignment}>
+                      : `Purchase = unit price × quantity = ${(group.purchaseCost / group.quantity).toFixed(2)} × ${group.quantity}`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
                       {group.purchaseCost === null ? 'N/A' : group.purchaseCost.toFixed(2)}
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.electricityCost === null
                       ? 'Electricity cost unavailable: electricity price missing'
-                      : `Electricity = (power W / 1000) × ${group.ownershipPeriodHours} h × ${(currentElectricityPrice ?? 0).toFixed(4)} ${selectedCountryCurrency}/kWh`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={updateTooltipAlignment}>
+                      : `Electricity = (power W / 1000) × ${group.ownershipPeriodHours} h × ${(currentElectricityPrice ?? 0).toFixed(4)} ${selectedCountryCurrency}/kWh`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
                       {group.electricityCost === null ? 'N/A' : group.electricityCost.toFixed(2)}
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.filterCost === null
                       ? 'Filter cost unavailable: filter price or filter life missing'
-                      : `Filters = unit filter price × quantity × replacements = ${(group.filterCost / (group.quantity * (group.filterReplacements || 1))).toFixed(2)} × ${group.quantity} × ${group.filterReplacements}`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={updateTooltipAlignment}>
+                      : `Filters = unit filter price × quantity × replacements = ${(group.filterCost / (group.quantity * (group.filterReplacements || 1))).toFixed(2)} × ${group.quantity} × ${group.filterReplacements}`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
                       {group.filterCost === null ? 'N/A' : group.filterCost.toFixed(2)}
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.totalCostOfOwnership === null
                       ? 'TCO unavailable: one or more cost components missing'
-                      : `TCO = Purchase + Electricity + Filters = ${group.purchaseCost?.toFixed(2)} + ${group.electricityCost?.toFixed(2)} + ${group.filterCost?.toFixed(2)}`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={updateTooltipAlignment}>
+                      : `TCO = Purchase + Electricity + Filters = ${group.purchaseCost?.toFixed(2)} + ${group.electricityCost?.toFixed(2)} + ${group.filterCost?.toFixed(2)}`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
                       {group.totalCostOfOwnership === null ? 'N/A' : group.totalCostOfOwnership.toFixed(2)}
                     </td>
                   </tr>
@@ -1196,6 +1238,19 @@ function App() {
           </div>
         )}
       </section>
+      {activeTooltip && (
+        <div
+          className={`floating-tooltip floating-tooltip--${activeTooltip.vertical} floating-tooltip--${activeTooltip.horizontal}`}
+          style={{
+            left: `${activeTooltip.anchorX}px`,
+            top: `${activeTooltip.anchorY}px`,
+            maxWidth: `${activeTooltip.maxWidth}px`,
+          }}
+          role="tooltip"
+        >
+          {activeTooltip.text}
+        </div>
+      )}
     </main>
   )
 }
