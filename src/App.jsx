@@ -710,9 +710,7 @@ function App() {
     <span className="label-with-help">
       <span>{label}</span>
       {helpText && (
-        <span className="help-dot" title={helpText} aria-label={`${label} help`}>
-          ?
-        </span>
+        <span className="help-dot" aria-label={`${label} help`} tabIndex={0} data-tooltip={helpText}>?</span>
       )}
     </span>
   );
@@ -721,9 +719,7 @@ function App() {
     <span className="table-header-with-help">
       <span>{label}</span>
       {helpText && (
-        <span className="help-dot" title={helpText} aria-label={`${label} help`}>
-          ?
-        </span>
+        <span className="help-dot" aria-label={`${label} help`} tabIndex={0} data-tooltip={helpText}>?</span>
       )}
     </span>
   );
@@ -732,9 +728,7 @@ function App() {
     <span className="table-header-with-help">
       <span>{label} {getSortIndicator(key)}</span>
       {helpText && (
-        <span className="help-dot" title={helpText} aria-label={`${label} help`}>
-          ?
-        </span>
+        <span className="help-dot" aria-label={`${label} help`} tabIndex={0} data-tooltip={helpText}>?</span>
       )}
     </span>
   );

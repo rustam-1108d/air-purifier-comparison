@@ -34,6 +34,11 @@
 
 	--toggle-bg: rgba(10, 14, 30, 0.72);
 	--toggle-hover: rgba(40, 61, 138, 0.45);
+
+	--tooltip-bg: linear-gradient(160deg, rgba(41, 57, 112, 0.98), rgba(20, 28, 58, 0.98));
+	--tooltip-border: rgba(151, 206, 255, 0.42);
+	--tooltip-text: rgba(244, 248, 255, 0.98);
+	--tooltip-shadow: 0 10px 26px rgba(0, 0, 0, 0.42);
 }
 
 :root[data-theme='light'] {
@@ -72,6 +77,11 @@
 
 	--toggle-bg: rgba(242, 247, 255, 0.96);
 	--toggle-hover: rgba(213, 228, 255, 0.95);
+
+	--tooltip-bg: linear-gradient(160deg, rgba(242, 247, 255, 0.99), rgba(230, 239, 255, 0.99));
+	--tooltip-border: rgba(113, 146, 226, 0.52);
+	--tooltip-text: rgba(25, 41, 84, 0.97);
+	--tooltip-shadow: 0 12px 24px rgba(47, 87, 174, 0.2);
 }
 
 .app-shell {
@@ -195,6 +205,7 @@ label {
 }
 
 .help-dot {
+	position: relative;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -209,6 +220,69 @@ label {
 	background: var(--control-bg);
 	cursor: help;
 	user-select: none;
+	transition: border-color 0.15s ease, color 0.15s ease, transform 0.08s ease;
+}
+
+.help-dot:hover,
+.help-dot:focus-visible {
+	border-color: var(--focus-border);
+	color: var(--metric-strong);
+	transform: translateY(-1px);
+}
+
+.help-dot:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+.help-dot::after {
+	content: attr(data-tooltip);
+	position: absolute;
+	left: 50%;
+	bottom: calc(100% + 0.45rem);
+	transform: translateX(-50%);
+	min-width: 180px;
+	max-width: min(320px, 78vw);
+	padding: 0.45rem 0.55rem;
+	border-radius: 10px;
+	border: 1px solid var(--tooltip-border);
+	background: var(--tooltip-bg);
+	color: var(--tooltip-text);
+	font-size: 0.75rem;
+	font-weight: 500;
+	line-height: 1.35;
+	text-align: left;
+	box-shadow: var(--tooltip-shadow);
+	white-space: normal;
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	z-index: 4;
+}
+
+.help-dot::before {
+	content: '';
+	position: absolute;
+	left: 50%;
+	bottom: calc(100% + 0.15rem);
+	transform: translateX(-50%) rotate(45deg);
+	width: 0.45rem;
+	height: 0.45rem;
+	border-right: 1px solid var(--tooltip-border);
+	border-bottom: 1px solid var(--tooltip-border);
+	background: var(--tooltip-bg);
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	z-index: 4;
+}
+
+.help-dot:hover::after,
+.help-dot:hover::before,
+.help-dot:focus-visible::after,
+.help-dot:focus-visible::before {
+	opacity: 1;
+	visibility: visible;
 }
 
 input,
