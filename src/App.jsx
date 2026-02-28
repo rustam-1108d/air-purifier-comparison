@@ -13,6 +13,8 @@ import './App.css'
 
 const DEFAULT_DECIMAL_PLACES = 4;
 const DEFAULT_INTEGER_DIGITS = 9;
+const MIN_ANNUAL_OPERATING_HOURS = 0;
+const MAX_ANNUAL_OPERATING_HOURS = 8784;
 
 const FORM_DECIMAL_PLACES_BY_FIELD = {
   indoorPm2_5AnnualAverageConcentrationLimit: 4,
@@ -174,6 +176,13 @@ function App() {
     ? (electricityPricesByCity[selectedCityId] ?? null)
     : (electricityPricesByCountry[selectedCountry] ?? null);
 
+  const annualOperatingHoursValidationMessage = form.annualOperatingHours === ''
+    ? 'Annual Operating Hours is required.'
+    : form.annualOperatingHours < MIN_ANNUAL_OPERATING_HOURS || form.annualOperatingHours > MAX_ANNUAL_OPERATING_HOURS
+      ? `Annual Operating Hours must be between ${MIN_ANNUAL_OPERATING_HOURS} and ${MAX_ANNUAL_OPERATING_HOURS}.`
+      : null;
+  const isAnnualOperatingHoursValid = annualOperatingHoursValidationMessage === null;
+
   const hasValidGroupInputs = Number.isFinite(minimumRequiredCADR)
     && Number.isFinite(form.maxAirPurifierCount)
     && Number.isFinite(form.maxCombinedNoiseDbA)
@@ -214,7 +223,9 @@ function App() {
   ]);
 
   const airPurifierGroupsWithCosts = useMemo(() => {
-    const ownershipPeriodHours = form.annualOperatingHours * form.ownershipYears;
+    const ownershipPeriodHours = isAnnualOperatingHoursValid
+      ? form.annualOperatingHours * form.ownershipYears
+      : null;
 
     return airPurifierGroups.map((group) => {
       const purifierUnitPrice = airPurifierPricesByCountry[group.purifierId]?.[selectedCountry] ?? null;
@@ -224,11 +235,11 @@ function App() {
         ? purifierUnitPrice * group.quantity
         : null;
 
-      const electricityCost = Number.isFinite(currentElectricityPrice)
+      const electricityCost = Number.isFinite(currentElectricityPrice) && Number.isFinite(ownershipPeriodHours)
         ? (group.totalPowerWatts / 1000) * ownershipPeriodHours * currentElectricityPrice
         : null;
 
-      const filterReplacements = Number.isFinite(group.filterLifeHours) && group.filterLifeHours > 0
+      const filterReplacements = Number.isFinite(group.filterLifeHours) && group.filterLifeHours > 0 && Number.isFinite(ownershipPeriodHours)
         ? Math.max(0, Math.ceil(ownershipPeriodHours / group.filterLifeHours) - 1)
         : null;
 
@@ -256,6 +267,7 @@ function App() {
     airPurifierGroups,
     form.annualOperatingHours,
     form.ownershipYears,
+    isAnnualOperatingHoursValid,
     airPurifierPricesByCountry,
     filterPricesByCountry,
     selectedCountry,
@@ -329,6 +341,13 @@ function App() {
     }
 
     const numericValue = value.replace(/\D/g, '');
+
+    if (name === 'annualOperatingHours' && numericValue !== '') {
+      const parsedHours = Number(numericValue);
+      if (parsedHours > MAX_ANNUAL_OPERATING_HOURS) {
+        return;
+      }
+    }
 
     setForm((prev) => ({
       ...prev,
@@ -643,7 +662,10 @@ function App() {
       </div>
       <div>
         <label htmlFor="annualOperatingHours">Annual Operating Hours</label>
-        <input type="text" id="annualOperatingHours" name="annualOperatingHours" maxLength={4} inputMode="numeric" pattern="\d*" value={form.annualOperatingHours} onChange={handleChange} onBlur={handleBlur} />
+        <input type="text" id="annualOperatingHours" name="annualOperatingHours" maxLength={4} inputMode="numeric" pattern="\d*" value={form.annualOperatingHours} onChange={handleChange} onBlur={handleBlur} placeholder="8760" />
+        {annualOperatingHoursValidationMessage && (
+          <p>{annualOperatingHoursValidationMessage}</p>
+        )}
       </div>
       <div>
         <label htmlFor="ownershipYears">Ownership Years</label>
@@ -703,9 +725,13 @@ function App() {
 
       <div>
         <h2>Air Purifier Groups</h2>
-        <p>
-          Cost period: {form.ownershipYears} years × {form.annualOperatingHours} hours/year = {form.ownershipYears * form.annualOperatingHours} hours
-        </p>
+        {isAnnualOperatingHoursValid ? (
+          <p>
+            Cost period: {form.ownershipYears} years × {form.annualOperatingHours} hours/year = {form.ownershipYears * form.annualOperatingHours} hours
+          </p>
+        ) : (
+          <p>Cost period unavailable until Annual Operating Hours is valid.</p>
+        )}
         {sortedAirPurifierGroupsWithCosts.length === 0 ? (
           <p>No matching groups for the current constraints.</p>
         ) : (
