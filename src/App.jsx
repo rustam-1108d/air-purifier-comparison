@@ -54,6 +54,9 @@ const LOCATION_INTEGER_DIGITS = {
   filterPrice: 7,
 };
 
+const FILTER_USAGE_LIMIT_DECIMAL_PLACES = 2;
+const FILTER_USAGE_LIMIT_INTEGER_DIGITS = 7;
+
 const normalizeDecimalInput = (value) => value.replace(/,/g, '.');
 
 const isValidDecimalInput = (
@@ -123,6 +126,10 @@ function App() {
         ),
       ])
     )
+  );
+  const [maxFilterUsageHoursGlobal, setMaxFilterUsageHoursGlobal] = useState(null);
+  const [maxFilterUsageHoursByPurifier, setMaxFilterUsageHoursByPurifier] = useState(
+    () => Object.fromEntries(airPurifiers.map((purifier) => [purifier.id, null]))
   );
   const [inputDrafts, setInputDrafts] = useState({});
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -240,6 +247,18 @@ function App() {
     return airPurifierGroups.map((group) => {
       const purifierUnitPrice = airPurifierPricesByCountry[group.purifierId]?.[selectedCountry] ?? null;
       const filterUnitPrice = filterPricesByCountry[group.purifierId]?.[selectedCountry] ?? null;
+      const purifierSpecificMaxFilterUsageHours = maxFilterUsageHoursByPurifier[group.purifierId] ?? null;
+      const applicableMaxFilterUsageHours = Number.isFinite(purifierSpecificMaxFilterUsageHours) && purifierSpecificMaxFilterUsageHours > 0
+        ? purifierSpecificMaxFilterUsageHours
+        : (Number.isFinite(maxFilterUsageHoursGlobal) && maxFilterUsageHoursGlobal > 0
+          ? maxFilterUsageHoursGlobal
+          : null);
+
+      const effectiveFilterLifeHours = Number.isFinite(group.filterLifeHours) && group.filterLifeHours > 0
+        ? (Number.isFinite(applicableMaxFilterUsageHours)
+          ? Math.min(group.filterLifeHours, applicableMaxFilterUsageHours)
+          : group.filterLifeHours)
+        : null;
 
       const purchaseCost = Number.isFinite(purifierUnitPrice)
         ? purifierUnitPrice * group.quantity
@@ -249,8 +268,8 @@ function App() {
         ? (group.totalPowerWatts / 1000) * ownershipPeriodHours * currentElectricityPrice
         : null;
 
-      const filterReplacements = Number.isFinite(group.filterLifeHours) && group.filterLifeHours > 0 && Number.isFinite(ownershipPeriodHours)
-        ? Math.max(0, Math.ceil(ownershipPeriodHours / group.filterLifeHours) - 1)
+      const filterReplacements = Number.isFinite(effectiveFilterLifeHours) && effectiveFilterLifeHours > 0 && Number.isFinite(ownershipPeriodHours)
+        ? Math.max(0, Math.ceil(ownershipPeriodHours / effectiveFilterLifeHours) - 1)
         : null;
 
       const filterCost = Number.isFinite(filterUnitPrice) && Number.isFinite(filterReplacements)
@@ -266,6 +285,8 @@ function App() {
       return {
         ...group,
         ownershipPeriodHours,
+        appliedMaxFilterUsageHours: applicableMaxFilterUsageHours,
+        effectiveFilterLifeHours,
         purchaseCost,
         electricityCost,
         filterReplacements,
@@ -280,6 +301,8 @@ function App() {
     isCostPeriodValid,
     airPurifierPricesByCountry,
     filterPricesByCountry,
+    maxFilterUsageHoursGlobal,
+    maxFilterUsageHoursByPurifier,
     selectedCountry,
     currentElectricityPrice,
   ]);
@@ -545,6 +568,41 @@ function App() {
     });
   };
 
+  const handleMaxFilterUsageGlobalChange = (e) => {
+    const draftKey = 'max-filter-usage-global';
+    const normalizedValue = normalizeDecimalInput(e.target.value);
+
+    if (!isValidDecimalInput(normalizedValue, FILTER_USAGE_LIMIT_DECIMAL_PLACES, FILTER_USAGE_LIMIT_INTEGER_DIGITS)) {
+      return;
+    }
+
+    setInputDrafts((prev) => ({
+      ...prev,
+      [draftKey]: normalizedValue,
+    }));
+
+    setMaxFilterUsageHoursGlobal(parseDecimalForNullable(normalizedValue));
+  };
+
+  const handleMaxFilterUsageByPurifierChange = (purifierId, value) => {
+    const draftKey = `max-filter-usage-${purifierId}`;
+    const normalizedValue = normalizeDecimalInput(value);
+
+    if (!isValidDecimalInput(normalizedValue, FILTER_USAGE_LIMIT_DECIMAL_PLACES, FILTER_USAGE_LIMIT_INTEGER_DIGITS)) {
+      return;
+    }
+
+    setInputDrafts((prev) => ({
+      ...prev,
+      [draftKey]: normalizedValue,
+    }));
+
+    setMaxFilterUsageHoursByPurifier((prev) => ({
+      ...prev,
+      [purifierId]: parseDecimalForNullable(normalizedValue),
+    }));
+  };
+
   const handleDraftInputBlur = (draftKey) => {
     setInputDrafts((prev) => {
       if (!(draftKey in prev)) return prev;
@@ -691,6 +749,18 @@ function App() {
           <p>{ownershipYearsValidationMessage}</p>
         )}
       </div>
+      <div>
+        <label htmlFor="maxFilterUsageHoursGlobal">Max Filter Usage Period (hours, global, optional)</label>
+        <input
+          type="text"
+          id="maxFilterUsageHoursGlobal"
+          inputMode="decimal"
+          value={inputDrafts['max-filter-usage-global'] ?? (maxFilterUsageHoursGlobal ?? '')}
+          onChange={handleMaxFilterUsageGlobalChange}
+          onBlur={() => handleDraftInputBlur('max-filter-usage-global')}
+          placeholder="Optional"
+        />
+      </div>
 
       <div>
         {requiredPm2_5CADR === null ? <p>Indoor PM2.5 Concentration Limit must be greater than zero</p> : <p>Required CADR for PM2.5: {requiredPm2_5CADR.toFixed(2)} m³/h</p>}
@@ -736,6 +806,23 @@ function App() {
                   onChange={(e) => handleFilterPriceChange(purifier.id, e.target.value)}
                   onBlur={() => handleDraftInputBlur(`filter-${purifier.id}-${selectedCountry}`)}
                   placeholder="0.0000"
+                />
+              </div>
+              <div>
+                <label htmlFor={`max-filter-usage-${purifier.id}`}>
+                  Max Filter Usage Period (hours, optional override)
+                </label>
+                <input
+                  type="text"
+                  id={`max-filter-usage-${purifier.id}`}
+                  inputMode="decimal"
+                  value={
+                    inputDrafts[`max-filter-usage-${purifier.id}`]
+                    ?? (maxFilterUsageHoursByPurifier[purifier.id] ?? '')
+                  }
+                  onChange={(e) => handleMaxFilterUsageByPurifierChange(purifier.id, e.target.value)}
+                  onBlur={() => handleDraftInputBlur(`max-filter-usage-${purifier.id}`)}
+                  placeholder="Optional override"
                 />
               </div>
             </div>
@@ -788,10 +875,12 @@ function App() {
                   <td title={`Combined noise from ${group.quantity} units: ${group.combinedNoiseDbA.toFixed(1)} dBA`}>
                     {group.combinedNoiseDbA.toFixed(1)}
                   </td>
-                  <td title={group.filterLifeHours === null
+                  <td title={group.effectiveFilterLifeHours === null
                     ? 'Filter life unavailable for this configuration'
-                    : `Estimated from CADR decay model. Stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`}>
-                    {group.filterLifeHours === null ? 'N/A' : group.filterLifeHours.toFixed(0)}
+                    : Number.isFinite(group.appliedMaxFilterUsageHours)
+                      ? `Capped at ${group.appliedMaxFilterUsageHours.toFixed(2)} h by usage limit. Estimated stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`
+                      : `Estimated from CADR decay model. Stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`}>
+                    {group.effectiveFilterLifeHours === null ? 'N/A' : group.effectiveFilterLifeHours.toFixed(0)}
                   </td>
                   <td title={group.purchaseCost === null
                     ? 'Purchase cost unavailable: purifier price missing'
