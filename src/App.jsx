@@ -72,6 +72,14 @@ const parseDecimalForForm = (value) => (value === '' || value === '.' ? '' : Num
 
 const parseDecimalForNullable = (value) => (value === '' || value === '.' ? null : Number(value));
 
+const getFilterUsageLimitValidationMessage = (value) => {
+  if (!Number.isFinite(value)) {
+    return null;
+  }
+
+  return value <= 0 ? 'Max filter usage period must be greater than 0 hours.' : null;
+};
+
 function App() {
   const [selectedCountry, setSelectedCountry] = useState(countries[0].code);
   const [selectedCityId, setSelectedCityId] = useState('');
@@ -197,6 +205,7 @@ function App() {
     : form.ownershipYears < MIN_OWNERSHIP_YEARS || form.ownershipYears > MAX_OWNERSHIP_YEARS
       ? `Ownership Years must be between ${MIN_OWNERSHIP_YEARS} and ${MAX_OWNERSHIP_YEARS}.`
       : null;
+  const maxFilterUsageHoursGlobalValidationMessage = getFilterUsageLimitValidationMessage(maxFilterUsageHoursGlobal);
   const isOwnershipYearsValid = ownershipYearsValidationMessage === null;
   const isCostPeriodValid = isAnnualOperatingHoursValid && isOwnershipYearsValid;
 
@@ -760,6 +769,9 @@ function App() {
           onBlur={() => handleDraftInputBlur('max-filter-usage-global')}
           placeholder="Optional"
         />
+        {maxFilterUsageHoursGlobalValidationMessage && (
+          <p>{maxFilterUsageHoursGlobalValidationMessage}</p>
+        )}
       </div>
 
       <div>
@@ -771,6 +783,8 @@ function App() {
       <div>
         <h2>Air Purifier Prices ({selectedCountry})</h2>
         {airPurifiers.map((purifier) => {
+          const purifierMaxFilterUsageValidationMessage = getFilterUsageLimitValidationMessage(maxFilterUsageHoursByPurifier[purifier.id]);
+
           return (
             <div key={purifier.id}>
               <h3>{purifier.brand} {purifier.model}</h3>
@@ -824,6 +838,9 @@ function App() {
                   onBlur={() => handleDraftInputBlur(`max-filter-usage-${purifier.id}`)}
                   placeholder="Optional override"
                 />
+                {purifierMaxFilterUsageValidationMessage && (
+                  <p>{purifierMaxFilterUsageValidationMessage}</p>
+                )}
               </div>
             </div>
           );
