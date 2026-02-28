@@ -1087,38 +1087,38 @@ function App() {
                     <td>{group.model}</td>
                     <td>{group.speedName}</td>
                     <td>{group.quantity}</td>
-                    <td title={`Total CADR = ${group.totalCadrM3PerHour.toFixed(2)} m³/h (single unit ${(group.totalCadrM3PerHour / group.quantity).toFixed(2)} × quantity ${group.quantity})`}>
+                    <td className="cell-tooltip" data-tooltip={`Total CADR = ${group.totalCadrM3PerHour.toFixed(2)} m³/h (single unit ${(group.totalCadrM3PerHour / group.quantity).toFixed(2)} × quantity ${group.quantity})`}>
                       {group.totalCadrM3PerHour.toFixed(2)}
                     </td>
-                    <td title={`Total power = ${group.totalPowerWatts.toFixed(2)} W (single unit ${(group.totalPowerWatts / group.quantity).toFixed(2)} × quantity ${group.quantity})`}>
+                    <td className="cell-tooltip" data-tooltip={`Total power = ${group.totalPowerWatts.toFixed(2)} W (single unit ${(group.totalPowerWatts / group.quantity).toFixed(2)} × quantity ${group.quantity})`}>
                       {group.totalPowerWatts.toFixed(2)}
                     </td>
-                    <td title={`Combined noise from ${group.quantity} units: ${group.combinedNoiseDbA.toFixed(1)} dBA`}>
+                    <td className="cell-tooltip" data-tooltip={`Combined noise from ${group.quantity} units: ${group.combinedNoiseDbA.toFixed(1)} dBA`}>
                       {group.combinedNoiseDbA.toFixed(1)}
                     </td>
-                    <td title={group.effectiveFilterLifeHours === null
+                    <td className="cell-tooltip" data-tooltip={group.effectiveFilterLifeHours === null
                       ? 'Filter life unavailable for this configuration'
                       : Number.isFinite(group.appliedMaxFilterUsageHours)
                         ? `Capped at ${group.appliedMaxFilterUsageHours.toFixed(2)} h by usage limit. Estimated stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`
                         : `Estimated from CADR decay model. Stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`}>
                       {group.effectiveFilterLifeHours === null ? 'N/A' : group.effectiveFilterLifeHours.toFixed(0)}
                     </td>
-                    <td title={group.purchaseCost === null
+                    <td className="cell-tooltip" data-tooltip={group.purchaseCost === null
                       ? 'Purchase cost unavailable: purifier price missing'
                       : `Purchase = unit price × quantity = ${(group.purchaseCost / group.quantity).toFixed(2)} × ${group.quantity}`}>
                       {group.purchaseCost === null ? 'N/A' : group.purchaseCost.toFixed(2)}
                     </td>
-                    <td title={group.electricityCost === null
+                    <td className="cell-tooltip" data-tooltip={group.electricityCost === null
                       ? 'Electricity cost unavailable: electricity price missing'
                       : `Electricity = (power W / 1000) × ${group.ownershipPeriodHours} h × ${(currentElectricityPrice ?? 0).toFixed(4)} ${selectedCountryCurrency}/kWh`}>
                       {group.electricityCost === null ? 'N/A' : group.electricityCost.toFixed(2)}
                     </td>
-                    <td title={group.filterCost === null
+                    <td className="cell-tooltip" data-tooltip={group.filterCost === null
                       ? 'Filter cost unavailable: filter price or filter life missing'
                       : `Filters = unit filter price × quantity × replacements = ${(group.filterCost / (group.quantity * (group.filterReplacements || 1))).toFixed(2)} × ${group.quantity} × ${group.filterReplacements}`}>
                       {group.filterCost === null ? 'N/A' : group.filterCost.toFixed(2)}
                     </td>
-                    <td title={group.totalCostOfOwnership === null
+                    <td className="cell-tooltip" data-tooltip={group.totalCostOfOwnership === null
                       ? 'TCO unavailable: one or more cost components missing'
                       : `TCO = Purchase + Electricity + Filters = ${group.purchaseCost?.toFixed(2)} + ${group.electricityCost?.toFixed(2)} + ${group.filterCost?.toFixed(2)}`}>
                       {group.totalCostOfOwnership === null ? 'N/A' : group.totalCostOfOwnership.toFixed(2)}

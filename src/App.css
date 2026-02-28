@@ -285,6 +285,59 @@ label {
 	visibility: visible;
 }
 
+.cell-tooltip {
+	position: relative;
+	cursor: help;
+}
+
+.cell-tooltip::after {
+	content: attr(data-tooltip);
+	position: absolute;
+	left: 50%;
+	bottom: calc(100% + 0.45rem);
+	transform: translateX(-50%);
+	min-width: 200px;
+	max-width: min(360px, 72vw);
+	padding: 0.45rem 0.55rem;
+	border-radius: 10px;
+	border: 1px solid var(--tooltip-border);
+	background: var(--tooltip-bg);
+	color: var(--tooltip-text);
+	font-size: 0.75rem;
+	font-weight: 500;
+	line-height: 1.35;
+	text-align: left;
+	box-shadow: var(--tooltip-shadow);
+	white-space: normal;
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	z-index: 4;
+}
+
+.cell-tooltip::before {
+	content: '';
+	position: absolute;
+	left: 50%;
+	bottom: calc(100% + 0.15rem);
+	transform: translateX(-50%) rotate(45deg);
+	width: 0.45rem;
+	height: 0.45rem;
+	border-right: 1px solid var(--tooltip-border);
+	border-bottom: 1px solid var(--tooltip-border);
+	background: var(--tooltip-bg);
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	z-index: 4;
+}
+
+.cell-tooltip:hover::after,
+.cell-tooltip:hover::before {
+	opacity: 1;
+	visibility: visible;
+}
+
 input,
 select,
 th button {
