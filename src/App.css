@@ -285,6 +285,48 @@ label {
 	visibility: visible;
 }
 
+.help-dot[data-tooltip-align='start']::after,
+.cell-tooltip[data-tooltip-align='start']::after {
+	left: 0;
+	transform: none;
+}
+
+.help-dot[data-tooltip-align='start']::before,
+.cell-tooltip[data-tooltip-align='start']::before {
+	left: 0.5rem;
+	transform: rotate(45deg);
+}
+
+.help-dot[data-tooltip-align='end']::after,
+.cell-tooltip[data-tooltip-align='end']::after {
+	left: auto;
+	right: 0;
+	transform: none;
+}
+
+.help-dot[data-tooltip-align='end']::before,
+.cell-tooltip[data-tooltip-align='end']::before {
+	left: auto;
+	right: 0.5rem;
+	transform: rotate(45deg);
+}
+
+.help-dot[data-tooltip-vertical='bottom']::after,
+.cell-tooltip[data-tooltip-vertical='bottom']::after {
+	top: calc(100% + 0.45rem);
+	bottom: auto;
+}
+
+.help-dot[data-tooltip-vertical='bottom']::before,
+.cell-tooltip[data-tooltip-vertical='bottom']::before {
+	top: calc(100% + 0.15rem);
+	bottom: auto;
+	border-right: 0;
+	border-bottom: 0;
+	border-left: 1px solid var(--tooltip-border);
+	border-top: 1px solid var(--tooltip-border);
+}
+
 .cell-tooltip {
 	position: relative;
 	cursor: help;
