@@ -130,6 +130,33 @@ export const airPurifiers = [
     },
   },
   {
+    id: 'xiaomi-smart-air-purifier-4',
+    brand: 'Xiaomi',
+    model: 'Smart Air Purifier 4',
+    speedSettings: [
+      { id: 1, modeName: 'Night Mode (Manual mode m2)', cadrM3PerHour: null, powerWatts: null, soundPressureLevelDbA: null },
+      { id: 2, modeName: 'Level 1 (Manual mode m2)', cadrM3PerHour: null, powerWatts: null, soundPressureLevelDbA: null },
+      { id: 3, modeName: 'Level 2 (Manual mode m2)', cadrM3PerHour: null, powerWatts: null, soundPressureLevelDbA: null },
+      { id: 4, modeName: 'Level 3 (Manual mode m2)', cadrM3PerHour: null, powerWatts: null, soundPressureLevelDbA: null },
+      { id: 5, modeName: 'Manual mode m2', cadrM3PerHour: null, powerWatts: null, soundPressureLevelDbA: null },
+    ],
+    ccmMg: 17285,
+    purifierPrices: {
+      CN: { amount: 899, currency: 'CNY' },
+      KZ: { amount: 89_990, currency: 'KZT' },
+      RU: { amount: 22_490, currency: 'RUB' },
+      UK: { amount: 139.99, currency: 'GBP' },
+      US: { amount: null, currency: 'USD' },
+    },
+    filterPrices: {
+      CN: { amount: 199, currency: 'CNY' },
+      KZ: { amount: 24_990, currency: 'KZT' },
+      RU: { amount: 4_790, currency: 'RUB' },
+      UK: { amount: 34.99, currency: 'GBP' },
+      US: { amount: null, currency: 'USD' },
+    },
+  },
+  {
     id: 'xiaomi-smart-air-purifier-4-pro',
     brand: 'Xiaomi',
     model: 'Smart Air Purifier 4 Pro',
