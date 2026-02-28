@@ -782,69 +782,77 @@ function App() {
 
       <div>
         <h2>Air Purifier Prices ({selectedCountry})</h2>
-        {airPurifiers.map((purifier) => {
-          const purifierMaxFilterUsageValidationMessage = getFilterUsageLimitValidationMessage(maxFilterUsageHoursByPurifier[purifier.id]);
+        <table>
+          <thead>
+            <tr>
+              <th>Brand</th>
+              <th>Model</th>
+              <th>Purifier Price ({selectedCountryCurrency})</th>
+              <th>Filter Price ({selectedCountryCurrency})</th>
+              <th>Max Filter Usage Period (hours, optional override)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {airPurifiers.map((purifier) => {
+              const purifierMaxFilterUsageValidationMessage = getFilterUsageLimitValidationMessage(maxFilterUsageHoursByPurifier[purifier.id]);
 
-          return (
-            <div key={purifier.id}>
-              <h3>{purifier.brand} {purifier.model}</h3>
-              <div>
-                <label htmlFor={`purifier-price-${purifier.id}`}>
-                  Purifier Price ({selectedCountryCurrency})
-                </label>
-                <input
-                  type="text"
-                  id={`purifier-price-${purifier.id}`}
-                  inputMode="decimal"
-                  value={
-                    inputDrafts[`purifier-${purifier.id}-${selectedCountry}`]
-                    ?? (airPurifierPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
-                  }
-                  onChange={(e) => handleAirPurifierPriceChange(purifier.id, e.target.value)}
-                  onBlur={() => handleDraftInputBlur(`purifier-${purifier.id}-${selectedCountry}`)}
-                  placeholder="0.0000"
-                />
-              </div>
-              <div>
-                <label htmlFor={`filter-price-${purifier.id}`}>
-                  Filter Price ({selectedCountryCurrency})
-                </label>
-                <input
-                  type="text"
-                  id={`filter-price-${purifier.id}`}
-                  inputMode="decimal"
-                  value={
-                    inputDrafts[`filter-${purifier.id}-${selectedCountry}`]
-                    ?? (filterPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
-                  }
-                  onChange={(e) => handleFilterPriceChange(purifier.id, e.target.value)}
-                  onBlur={() => handleDraftInputBlur(`filter-${purifier.id}-${selectedCountry}`)}
-                  placeholder="0.0000"
-                />
-              </div>
-              <div>
-                <label htmlFor={`max-filter-usage-${purifier.id}`}>
-                  Max Filter Usage Period (hours, optional override)
-                </label>
-                <input
-                  type="text"
-                  id={`max-filter-usage-${purifier.id}`}
-                  inputMode="decimal"
-                  value={
-                    inputDrafts[`max-filter-usage-${purifier.id}`]
-                    ?? (maxFilterUsageHoursByPurifier[purifier.id] ?? '')
-                  }
-                  onChange={(e) => handleMaxFilterUsageByPurifierChange(purifier.id, e.target.value)}
-                  onBlur={() => handleDraftInputBlur(`max-filter-usage-${purifier.id}`)}
-                  placeholder="Optional override"
-                />
-                {purifierMaxFilterUsageValidationMessage && (
-                  <p>{purifierMaxFilterUsageValidationMessage}</p>
-                )}
-              </div>
-            </div>
-          );
-        })}
+              return (
+                <tr key={purifier.id}>
+                  <td>{purifier.brand}</td>
+                  <td>{purifier.model}</td>
+                  <td>
+                    <input
+                      type="text"
+                      id={`purifier-price-${purifier.id}`}
+                      inputMode="decimal"
+                      value={
+                        inputDrafts[`purifier-${purifier.id}-${selectedCountry}`]
+                        ?? (airPurifierPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
+                      }
+                      onChange={(e) => handleAirPurifierPriceChange(purifier.id, e.target.value)}
+                      onBlur={() => handleDraftInputBlur(`purifier-${purifier.id}-${selectedCountry}`)}
+                      placeholder="0.0000"
+                      aria-label={`${purifier.brand} ${purifier.model} purifier price (${selectedCountryCurrency})`}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      id={`filter-price-${purifier.id}`}
+                      inputMode="decimal"
+                      value={
+                        inputDrafts[`filter-${purifier.id}-${selectedCountry}`]
+                        ?? (filterPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
+                      }
+                      onChange={(e) => handleFilterPriceChange(purifier.id, e.target.value)}
+                      onBlur={() => handleDraftInputBlur(`filter-${purifier.id}-${selectedCountry}`)}
+                      placeholder="0.0000"
+                      aria-label={`${purifier.brand} ${purifier.model} filter price (${selectedCountryCurrency})`}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      id={`max-filter-usage-${purifier.id}`}
+                      inputMode="decimal"
+                      value={
+                        inputDrafts[`max-filter-usage-${purifier.id}`]
+                        ?? (maxFilterUsageHoursByPurifier[purifier.id] ?? '')
+                      }
+                      onChange={(e) => handleMaxFilterUsageByPurifierChange(purifier.id, e.target.value)}
+                      onBlur={() => handleDraftInputBlur(`max-filter-usage-${purifier.id}`)}
+                      placeholder="Optional override"
+                      aria-label={`${purifier.brand} ${purifier.model} max filter usage override`}
+                    />
+                    {purifierMaxFilterUsageValidationMessage && (
+                      <p>{purifierMaxFilterUsageValidationMessage}</p>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
 
       <div>
