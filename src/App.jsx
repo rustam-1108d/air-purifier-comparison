@@ -348,6 +348,9 @@ function App() {
 
   const selectedCountryData = countries.find((country) => country.code === selectedCountry);
   const selectedCountryCurrency = selectedCountryData?.currency;
+  const selectedCountryDisplayName = selectedCountryData
+    ? getLocalizedCountryName(selectedCountryData)
+    : selectedCountry;
   const availableCities = cities.filter((city) => city.countryCode === selectedCountry);
 
   const currentElectricityPrice = selectedCityId
@@ -1314,7 +1317,7 @@ function App() {
       </section>
 
       <section className="card table-card">
-        <h2>{copy.purifierPricesTitle(selectedCountry)}</h2>
+        <h2>{copy.purifierPricesTitle(selectedCountryDisplayName)}</h2>
         <div className="table-wrap">
           <table>
             <thead>

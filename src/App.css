@@ -240,11 +240,9 @@ label {
 }
 
 .label-with-help {
-	display: inline-grid;
-	grid-template-columns: minmax(0, 1fr) auto;
-	align-items: start;
+	display: inline-flex;
+	align-items: center;
 	gap: 0.35rem;
-	min-width: 0;
 }
 
 .table-header-with-help {
@@ -252,8 +250,6 @@ label {
 	display: block;
 	padding-right: 1.35rem;
 	line-height: 1.2;
-	white-space: normal;
-	overflow-wrap: anywhere;
 }
 
 .table-header-with-help .help-dot {
@@ -372,13 +368,6 @@ th button {
 	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.08s ease;
 }
 
-th button {
-	white-space: normal;
-	overflow-wrap: anywhere;
-	word-break: break-word;
-	line-height: 1.2;
-}
-
 input::placeholder {
 	color: var(--placeholder);
 }
@@ -454,7 +443,7 @@ th button:focus-visible {
 table {
 	width: 100%;
 	border-collapse: collapse;
-	min-width: 900px;
+	min-width: 980px;
 	font-size: 0.85rem;
 	background: var(--table-bg);
 	border: 1px solid var(--table-border);
@@ -519,30 +508,6 @@ tbody tr:hover {
 .air-purifier-groups-table th:nth-child(3),
 .air-purifier-groups-table td:nth-child(3) {
 	min-width: 8.5rem;
-}
-
-:root[lang='ru'] .air-purifier-groups-table {
-	font-size: 0.8rem;
-}
-
-:root[lang='ru'] .air-purifier-groups-table th,
-:root[lang='ru'] .air-purifier-groups-table td {
-	padding: 0.45rem 0.5rem;
-}
-
-:root[lang='ru'] .air-purifier-groups-table th:nth-child(1),
-:root[lang='ru'] .air-purifier-groups-table td:nth-child(1) {
-	min-width: 4.5rem;
-}
-
-:root[lang='ru'] .air-purifier-groups-table th:nth-child(2),
-:root[lang='ru'] .air-purifier-groups-table td:nth-child(2) {
-	min-width: 8.5rem;
-}
-
-:root[lang='ru'] .air-purifier-groups-table th:nth-child(3),
-:root[lang='ru'] .air-purifier-groups-table td:nth-child(3) {
-	min-width: 7rem;
 }
 
 @media (max-width: 760px) {
