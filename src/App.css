@@ -214,9 +214,16 @@ label {
 }
 
 .table-header-with-help {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.35rem;
+	position: relative;
+	display: block;
+	padding-right: 1.35rem;
+	line-height: 1.2;
+}
+
+.table-header-with-help .help-dot {
+	position: absolute;
+	top: 0;
+	right: 0;
 }
 
 .help-dot {
