@@ -112,6 +112,38 @@
 	color: var(--text-secondary);
 }
 
+.app-instructions {
+	margin-top: 0.9rem;
+	padding: 0.85rem;
+	border: 1px solid var(--metric-border);
+	border-radius: 12px;
+	background: var(--metric-bg);
+	display: grid;
+	gap: 0.5rem;
+}
+
+.app-instructions-description {
+	margin: 0;
+	color: var(--text-secondary);
+	font-size: 0.9rem;
+	line-height: 1.45;
+}
+
+.app-instructions h2 {
+	margin: 0;
+	font-size: 0.95rem;
+}
+
+.app-instructions ol {
+	margin: 0;
+	padding-left: 1.2rem;
+	display: grid;
+	gap: 0.35rem;
+	color: var(--text-primary);
+	font-size: 0.88rem;
+	line-height: 1.4;
+}
+
 h2 {
 	margin: 0 0 0.8rem;
 	font-size: 1.05rem;

@@ -1042,7 +1042,19 @@ function App() {
             </button>
           </div>
         </div>
-        <p>Compare purifier setups by air quality targets, noise constraints, and long-term ownership cost.</p>
+        <p>Compare air purifier setups by air quality targets, noise constraints, and long-term ownership cost.</p>
+        <section className="app-instructions" aria-label="App description and usage instructions">
+          <p className="app-instructions-description">
+            This app estimates required air cleaning performance and ranks air purifier combinations by total ownership cost while following your air quality targets and noise limits.
+          </p>
+          <h2>How to use</h2>
+          <ol>
+            <li>Set your country/city and confirm outdoor PM2.5 and PM10 values.</li>
+            <li>Enter indoor targets, room details, and operating assumptions.</li>
+            <li>Adjust air purifier and filter prices if your local prices differ from defaults.</li>
+            <li>Review the results table and choose the best setup for your constraints.</li>
+          </ol>
+        </section>
       </header>
 
       <section className="card">
