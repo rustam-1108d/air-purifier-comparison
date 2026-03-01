@@ -8,6 +8,15 @@ import InputsPanel from './components/InputsPanel';
 import RequiredCadrPanel from './components/RequiredCadrPanel';
 import PurifierPricesTable from './components/PurifierPricesTable';
 import PurifierGroupsTable from './components/PurifierGroupsTable';
+import {
+  buildInitialElectricityPricesByCountry,
+  buildInitialAirQualityByCountry,
+  buildInitialAirPurifierPricesByCountry,
+  buildInitialFilterPricesByCountry,
+  buildInitialMaxFilterUsageHoursByPurifier,
+  getInitialTheme,
+  getInitialLanguage,
+} from './state/initializers.js';
 
 import {
   THEME_STORAGE_KEY,
@@ -22,88 +31,15 @@ import {
 } from './utils/numberInput.js';
 
 import countries from './data/countries.js';
-import { getInitialElectricityPriceByCountry, getInitialElectricityPriceByCity } from './data/electricityPrices.js';
-import { getInitialAirQualityByCountry, getInitialAirQualityByCity } from './data/airQuality.js';
-import { airPurifiers } from './data/airPurifiers.js';
+import { getInitialElectricityPriceByCity } from './data/electricityPrices.js';
+import { getInitialAirQualityByCity } from './data/airQuality.js';
 import { translations } from './i18n/translations.js';
 
 import './App.css'
 
-const buildInitialElectricityPricesByCountry = () => {
-  const initialElectricityPrices = getInitialElectricityPriceByCountry();
-  return Object.fromEntries(countries.map((country) => [country.code, initialElectricityPrices[country.code] ?? null]));
-};
-
-const buildInitialAirQualityByCountry = () => {
-  const initialAirQuality = getInitialAirQualityByCountry();
-  return Object.fromEntries(
-    countries.map((country) => [
-      country.code,
-      initialAirQuality[country.code] ?? {
-        outdoorPm2_5Concentration: null,
-        outdoorPm10Concentration: null,
-      },
-    ])
-  );
-};
-
-const buildInitialAirPurifierPricesByCountry = () => Object.fromEntries(
-  airPurifiers.map((purifier) => [
-    purifier.id,
-    Object.fromEntries(
-      countries.map((country) => [
-        country.code,
-        purifier.purifierPrices?.[country.code]?.amount ?? null,
-      ])
-    ),
-  ])
-);
-
-const buildInitialFilterPricesByCountry = () => Object.fromEntries(
-  airPurifiers.map((purifier) => [
-    purifier.id,
-    Object.fromEntries(
-      countries.map((country) => [
-        country.code,
-        purifier.filterPrices?.[country.code]?.amount ?? null,
-      ])
-    ),
-  ])
-);
-
-const buildInitialMaxFilterUsageHoursByPurifier = () => (
-  Object.fromEntries(airPurifiers.map((purifier) => [purifier.id, null]))
-);
-
-const getInitialTheme = () => {
-  if (typeof window === 'undefined') {
-    return 'dark';
-  }
-
-  const savedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
-  if (savedTheme === 'light' || savedTheme === 'dark') {
-    return savedTheme;
-  }
-
-  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-};
-
-const getInitialLanguage = () => {
-  if (typeof window === 'undefined') {
-    return 'en';
-  }
-
-  const savedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
-  if (savedLanguage === 'en' || savedLanguage === 'ru') {
-    return savedLanguage;
-  }
-
-  return navigator.language?.toLowerCase().startsWith('ru') ? 'ru' : 'en';
-};
-
 function App() {
-  const [theme, setTheme] = useState(getInitialTheme);
-  const [language, setLanguage] = useState(getInitialLanguage);
+  const [theme, setTheme] = useState(() => getInitialTheme(THEME_STORAGE_KEY));
+  const [language, setLanguage] = useState(() => getInitialLanguage(LANGUAGE_STORAGE_KEY));
   const [selectedCountry, setSelectedCountry] = useState(countries[0].code);
   const [selectedCityId, setSelectedCityId] = useState('');
   const [electricityPricesByCountry, setElectricityPricesByCountry] = useState(
