@@ -313,6 +313,10 @@ function App() {
   const [form, setForm] = useState(INITIAL_FORM);
   const copy = translations[language];
   const numberLocale = language === 'ru' ? 'ru-RU' : 'en-US';
+  const localizedCountryNames = copy.countryNames ?? {};
+  const localizedCityNames = copy.cityNames ?? {};
+  const getLocalizedCountryName = (country) => localizedCountryNames[country.code] ?? country.name;
+  const getLocalizedCityName = (city) => localizedCityNames[city.id] ?? city.name;
   const formatNumber = (value, options) => (
     Number.isFinite(value) ? formatGroupedNumber(value, options, numberLocale) : copy.notAvailable
   );
@@ -1113,7 +1117,7 @@ function App() {
                 >
                   {countries.map((country) => (
                     <option key={country.code} value={country.code}>
-                      {country.name}
+                      {getLocalizedCountryName(country)}
                     </option>
                   ))}
                 </select>
@@ -1127,7 +1131,7 @@ function App() {
                   <option value="">{copy.countryAverage}</option>
                   {availableCities.map((city) => (
                     <option key={city.id} value={city.id}>
-                      {city.name}
+                      {getLocalizedCityName(city)}
                     </option>
                   ))}
                 </select>
