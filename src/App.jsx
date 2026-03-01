@@ -3,6 +3,11 @@ import { useEffect, useMemo, useState } from 'react'
 import calculateRequiredParticulateCADR from './utils/calculateRequiredParticulateCADR';
 import buildAirPurifierGroups from './utils/buildAirPurifierGroups';
 import useFloatingTooltip from './hooks/useFloatingTooltip';
+import AppHeader from './components/AppHeader';
+import InputsPanel from './components/InputsPanel';
+import RequiredCadrPanel from './components/RequiredCadrPanel';
+import PurifierPricesTable from './components/PurifierPricesTable';
+import PurifierGroupsTable from './components/PurifierGroupsTable';
 
 import {
   DEFAULT_DECIMAL_PLACES,
@@ -848,467 +853,94 @@ function App() {
 
   return (
     <main className="app-shell">
-      <header className="app-header card">
-        <div className="header-row">
-          <h1>{copy.appTitle}</h1>
-          <div className="header-actions">
-            <button type="button" className="theme-toggle" onClick={handleResetAllInputs}>
-              {copy.resetAllInputs}
-            </button>
-            <button
-              type="button"
-              className="theme-toggle"
-              onClick={() => setLanguage((prev) => (prev === 'en' ? 'ru' : 'en'))}
-            >
-              {language === 'en' ? copy.switchToRussian : copy.switchToEnglish}
-            </button>
-            <button
-              type="button"
-              className="theme-toggle"
-              onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
-            >
-              {theme === 'dark' ? copy.switchToLight : copy.switchToDark}
-            </button>
-          </div>
-        </div>
-        <p>{copy.appSubtitle}</p>
-        <section className="app-instructions" aria-label={copy.instructionsAria}>
-          <p className="app-instructions-description">
-            {copy.instructionsDescription}
-          </p>
-          <h2>{copy.howToUse}</h2>
-          <ol>
-            {copy.howToUseSteps.map((step) => (
-              <li key={step}>{step}</li>
-            ))}
-          </ol>
-        </section>
-      </header>
+      <AppHeader
+        copy={copy}
+        language={language}
+        theme={theme}
+        onResetAllInputs={handleResetAllInputs}
+        onToggleLanguage={() => setLanguage((prev) => (prev === 'en' ? 'ru' : 'en'))}
+        onToggleTheme={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
+      />
 
-      <section className="card">
-        <h2>{copy.inputsTitle}</h2>
-        <p className="section-intro">{copy.inputsIntro}</p>
-        <div className="input-groups">
-          <div className="input-group">
-            <h3>{copy.section1Title}</h3>
-            <div className="form-grid">
-              <div className="field">
-                <label htmlFor="country">
-                  {renderHelpLabel(copy.country, copy.countryHelp)}
-                </label>
-                <select
-                  id="country"
-                  name="country"
-                  value={selectedCountry}
-                  onChange={(e) => {
-                    setSelectedCountry(e.target.value);
-                    setSelectedCityId('');
-                  }}
-                >
-                  {countries.map((country) => (
-                    <option key={country.code} value={country.code}>
-                      {getLocalizedCountryName(country)}
-                    </option>
-                  ))}
-                </select>
-              </div>
+      <InputsPanel
+        copy={copy}
+        selectedCountry={selectedCountry}
+        selectedCityId={selectedCityId}
+        setSelectedCountry={setSelectedCountry}
+        setSelectedCityId={setSelectedCityId}
+        getLocalizedCountryName={getLocalizedCountryName}
+        availableCities={availableCities}
+        getLocalizedCityName={getLocalizedCityName}
+        renderHelpLabel={renderHelpLabel}
+        formatDecimalInputString={formatDecimalInputString}
+        formatIntegerInputString={formatIntegerInputString}
+        inputDrafts={inputDrafts}
+        pm2_5DraftKey={pm2_5DraftKey}
+        pm10DraftKey={pm10DraftKey}
+        outdoorPm2_5AnnualAverageConcentration={outdoorPm2_5AnnualAverageConcentration}
+        outdoorPm10AnnualAverageConcentration={outdoorPm10AnnualAverageConcentration}
+        handleOutdoorPm2_5Change={handleOutdoorPm2_5Change}
+        handleOutdoorPm10Change={handleOutdoorPm10Change}
+        handleDraftInputBlur={handleDraftInputBlur}
+        outdoorPmHierarchyValidationMessage={outdoorPmHierarchyValidationMessage}
+        form={form}
+        handleChange={handleChange}
+        handleBlur={handleBlur}
+        indoorLimitPmHierarchyValidationMessage={indoorLimitPmHierarchyValidationMessage}
+        indoorGenerationPmHierarchyValidationMessage={indoorGenerationPmHierarchyValidationMessage}
+        selectedCountryCurrency={selectedCountryCurrency}
+        electricityDraftKey={electricityDraftKey}
+        currentElectricityPrice={currentElectricityPrice}
+        handleElectricityPriceChange={handleElectricityPriceChange}
+        annualOperatingHoursValidationMessage={annualOperatingHoursValidationMessage}
+        ownershipYearsValidationMessage={ownershipYearsValidationMessage}
+        maxFilterUsageHoursGlobal={maxFilterUsageHoursGlobal}
+        handleMaxFilterUsageGlobalChange={handleMaxFilterUsageGlobalChange}
+        maxFilterUsageHoursGlobalValidationMessage={maxFilterUsageHoursGlobalValidationMessage}
+      />
 
-              <div className="field">
-                <label htmlFor="city">
-                  {renderHelpLabel(copy.cityOptional, copy.cityOptionalHelp)}
-                </label>
-                <select id="city" name="city" value={selectedCityId} onChange={(e) => setSelectedCityId(e.target.value)}>
-                  <option value="">{copy.countryAverage}</option>
-                  {availableCities.map((city) => (
-                    <option key={city.id} value={city.id}>
-                      {getLocalizedCityName(city)}
-                    </option>
-                  ))}
-                </select>
-              </div>
+      <RequiredCadrPanel
+        copy={copy}
+        requiredPm2_5CADR={requiredPm2_5CADR}
+        requiredPm10CADR={requiredPm10CADR}
+        minimumRequiredCADR={minimumRequiredCADR}
+        formatNumber={formatNumber}
+      />
 
-              <div className="field">
-                <label htmlFor="outdoorPm2_5AnnualAverageConcentration">
-                  {renderHelpLabel(copy.outdoorPm25Label, copy.outdoorPm25Help)}
-                </label>
-                <input
-                  type="text"
-                  id="outdoorPm2_5AnnualAverageConcentration"
-                  inputMode="decimal"
-                  value={formatDecimalInputString(inputDrafts[pm2_5DraftKey] ?? (outdoorPm2_5AnnualAverageConcentration ?? ''))}
-                  onChange={handleOutdoorPm2_5Change}
-                  onBlur={() => handleDraftInputBlur(pm2_5DraftKey)}
-                  placeholder="0.0000"
-                />
-              </div>
+      <PurifierPricesTable
+        copy={copy}
+        selectedCountryDisplayName={selectedCountryDisplayName}
+        selectedCountryCurrency={selectedCountryCurrency}
+        renderHeaderWithHelp={renderHeaderWithHelp}
+        getFilterUsageLimitValidationMessage={getFilterUsageLimitValidationMessage}
+        maxFilterUsageHoursByPurifier={maxFilterUsageHoursByPurifier}
+        inputDrafts={inputDrafts}
+        selectedCountry={selectedCountry}
+        airPurifierPricesByCountry={airPurifierPricesByCountry}
+        filterPricesByCountry={filterPricesByCountry}
+        formatDecimalInputString={formatDecimalInputString}
+        handleAirPurifierPriceChange={handleAirPurifierPriceChange}
+        handleFilterPriceChange={handleFilterPriceChange}
+        handleMaxFilterUsageByPurifierChange={handleMaxFilterUsageByPurifierChange}
+        handleDraftInputBlur={handleDraftInputBlur}
+      />
 
-              <div className="field">
-                <label htmlFor="outdoorPm10AnnualAverageConcentration">
-                  {renderHelpLabel(copy.outdoorPm10Label, copy.outdoorPm10Help)}
-                </label>
-                <input
-                  type="text"
-                  id="outdoorPm10AnnualAverageConcentration"
-                  inputMode="decimal"
-                  value={formatDecimalInputString(inputDrafts[pm10DraftKey] ?? (outdoorPm10AnnualAverageConcentration ?? ''))}
-                  onChange={handleOutdoorPm10Change}
-                  onBlur={() => handleDraftInputBlur(pm10DraftKey)}
-                  placeholder="0.0000"
-                />
-                {outdoorPmHierarchyValidationMessage && (
-                  <p className="message error">{outdoorPmHierarchyValidationMessage}</p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="input-group">
-            <h3>{copy.section2Title}</h3>
-            <div className="form-grid">
-              <div className="field">
-                <label htmlFor="indoorPm2_5AnnualAverageConcentrationLimit">
-                  {renderHelpLabel(copy.indoorPm25LimitLabel, copy.indoorPm25LimitHelp)}
-                </label>
-                <input type="text" id="indoorPm2_5AnnualAverageConcentrationLimit" name="indoorPm2_5AnnualAverageConcentrationLimit" inputMode="decimal" value={formatDecimalInputString(inputDrafts.indoorPm2_5AnnualAverageConcentrationLimit ?? form.indoorPm2_5AnnualAverageConcentrationLimit)} onChange={handleChange} onBlur={handleBlur} />
-              </div>
-
-              <div className="field">
-                <label htmlFor="indoorPm10AnnualAverageConcentrationLimit">
-                  {renderHelpLabel(copy.indoorPm10LimitLabel, copy.indoorPm10LimitHelp)}
-                </label>
-                <input type="text" id="indoorPm10AnnualAverageConcentrationLimit" name="indoorPm10AnnualAverageConcentrationLimit" inputMode="decimal" value={formatDecimalInputString(inputDrafts.indoorPm10AnnualAverageConcentrationLimit ?? form.indoorPm10AnnualAverageConcentrationLimit)} onChange={handleChange} onBlur={handleBlur} />
-                {indoorLimitPmHierarchyValidationMessage && (
-                  <p className="message error">{indoorLimitPmHierarchyValidationMessage}</p>
-                )}
-              </div>
-
-              <div className="field">
-                <label htmlFor="indoorPm2_5GenerationRate">
-                  {renderHelpLabel(copy.indoorPm25GenerationLabel, copy.indoorPm25GenerationHelp)}
-                </label>
-                <input type="text" id="indoorPm2_5GenerationRate" name="indoorPm2_5GenerationRate" inputMode="decimal" value={formatDecimalInputString(inputDrafts.indoorPm2_5GenerationRate ?? form.indoorPm2_5GenerationRate)} onChange={handleChange} onBlur={handleBlur} />
-              </div>
-
-              <div className="field">
-                <label htmlFor="indoorPm10GenerationRate">
-                  {renderHelpLabel(copy.indoorPm10GenerationLabel, copy.indoorPm10GenerationHelp)}
-                </label>
-                <input type="text" id="indoorPm10GenerationRate" name="indoorPm10GenerationRate" inputMode="decimal" value={formatDecimalInputString(inputDrafts.indoorPm10GenerationRate ?? form.indoorPm10GenerationRate)} onChange={handleChange} onBlur={handleBlur} />
-                {indoorGenerationPmHierarchyValidationMessage && (
-                  <p className="message error">{indoorGenerationPmHierarchyValidationMessage}</p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="input-group">
-            <h3>{copy.section3Title}</h3>
-            <div className="form-grid">
-              <div className="field">
-                <label htmlFor="roomVolume">
-                  {renderHelpLabel(copy.roomVolumeLabel, copy.roomVolumeHelp)}
-                </label>
-                <input type="text" id="roomVolume" name="roomVolume" inputMode="decimal" value={formatDecimalInputString(inputDrafts.roomVolume ?? form.roomVolume)} onChange={handleChange} onBlur={handleBlur} />
-              </div>
-
-              <div className="field">
-                <label htmlFor="ventilationRate">
-                  {renderHelpLabel(copy.ventilationRateLabel, copy.ventilationRateHelp)}
-                </label>
-                <input type="text" id="ventilationRate" name="ventilationRate" inputMode="decimal" value={formatDecimalInputString(inputDrafts.ventilationRate ?? form.ventilationRate)} onChange={handleChange} onBlur={handleBlur} />
-              </div>
-
-              <div className="field">
-                <label htmlFor="maxAirPurifierCount">
-                  {renderHelpLabel(copy.maxPurifierCountLabel, copy.maxPurifierCountHelp)}
-                </label>
-                <input type="text" id="maxAirPurifierCount" name="maxAirPurifierCount" maxLength={2} inputMode="numeric" pattern="\d*" value={formatIntegerInputString(form.maxAirPurifierCount)} onChange={handleChange} onBlur={handleBlur} />
-              </div>
-
-              <div className="field">
-                <label htmlFor="maxCombinedNoiseDbA">
-                  {renderHelpLabel(copy.maxNoiseLabel, copy.maxNoiseHelp)}
-                </label>
-                <input type="text" id="maxCombinedNoiseDbA" name="maxCombinedNoiseDbA" inputMode="decimal" value={formatDecimalInputString(inputDrafts.maxCombinedNoiseDbA ?? form.maxCombinedNoiseDbA)} onChange={handleChange} onBlur={handleBlur} />
-              </div>
-            </div>
-          </div>
-
-          <div className="input-group">
-            <h3>{copy.section4Title}</h3>
-            <div className="form-grid">
-              <div className="field">
-                <label htmlFor="electricityPrice">
-                  {renderHelpLabel(copy.electricityPriceLabel(selectedCountryCurrency), copy.electricityPriceHelp)}
-                </label>
-                <input
-                  type="text"
-                  id="electricityPrice"
-                  inputMode="decimal"
-                  value={formatDecimalInputString(inputDrafts[electricityDraftKey] ?? (currentElectricityPrice ?? ''))}
-                  onChange={handleElectricityPriceChange}
-                  onBlur={() => handleDraftInputBlur(electricityDraftKey)}
-                  placeholder="0.0000"
-                />
-              </div>
-
-              <div className="field">
-                <label htmlFor="annualOperatingHours">
-                  {renderHelpLabel(copy.annualOperatingHoursLabel, copy.annualOperatingHoursHelp)}
-                </label>
-                <input type="text" id="annualOperatingHours" name="annualOperatingHours" maxLength={4} inputMode="numeric" pattern="\d*" value={formatIntegerInputString(form.annualOperatingHours)} onChange={handleChange} onBlur={handleBlur} placeholder="8760" />
-                {annualOperatingHoursValidationMessage && (
-                  <p className="message error">{annualOperatingHoursValidationMessage}</p>
-                )}
-              </div>
-
-              <div className="field">
-                <label htmlFor="ownershipYears">
-                  {renderHelpLabel(copy.ownershipYearsLabel, copy.ownershipYearsHelp)}
-                </label>
-                <input type="text" id="ownershipYears" name="ownershipYears" maxLength={2} inputMode="numeric" pattern="\d*" value={formatIntegerInputString(form.ownershipYears)} onChange={handleChange} onBlur={handleBlur} />
-                {ownershipYearsValidationMessage && (
-                  <p className="message error">{ownershipYearsValidationMessage}</p>
-                )}
-              </div>
-
-              <div className="field">
-                <label htmlFor="maxFilterUsageHoursGlobal">
-                  {renderHelpLabel(copy.maxFilterUsageGlobalLabel, copy.maxFilterUsageGlobalHelp)}
-                </label>
-                <input
-                  type="text"
-                  id="maxFilterUsageHoursGlobal"
-                  inputMode="decimal"
-                  value={formatDecimalInputString(inputDrafts['max-filter-usage-global'] ?? (maxFilterUsageHoursGlobal ?? ''))}
-                  onChange={handleMaxFilterUsageGlobalChange}
-                  onBlur={() => handleDraftInputBlur('max-filter-usage-global')}
-                  placeholder={copy.optional}
-                />
-                {maxFilterUsageHoursGlobalValidationMessage && (
-                  <p className="message error">{maxFilterUsageHoursGlobalValidationMessage}</p>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="card metric-panel">
-        <h2>{copy.requiredCadrTitle}</h2>
-        <div className="metrics-grid">
-          {requiredPm2_5CADR === null ? <p className="metric-item">{copy.pm25LimitPositive}</p> : <p className="metric-item">{copy.requiredCadrPm25} <strong>{formatNumber(requiredPm2_5CADR, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³/h</strong></p>}
-          {requiredPm10CADR === null ? <p className="metric-item">{copy.pm10LimitPositive}</p> : <p className="metric-item">{copy.requiredCadrPm10} <strong>{formatNumber(requiredPm10CADR, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³/h</strong></p>}
-          {minimumRequiredCADR === 0 ? <p className="metric-item">{copy.oneCadrPositive}</p> : <p className="metric-item">{copy.minimumRequiredCadr} <strong>{formatNumber(minimumRequiredCADR, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³/h</strong></p>}
-        </div>
-      </section>
-
-      <section className="card table-card">
-        <h2>{copy.purifierPricesTitle(selectedCountryDisplayName)}</h2>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>{copy.brand}</th>
-                <th>{copy.model}</th>
-                <th>{renderHeaderWithHelp(copy.purifierPriceHeader(selectedCountryCurrency), copy.purifierPriceHelpHeader)}</th>
-                <th>{renderHeaderWithHelp(copy.filterPriceHeader(selectedCountryCurrency), copy.filterPriceHelpHeader)}</th>
-                <th>{renderHeaderWithHelp(copy.maxFilterUsageHeader, copy.maxFilterUsageHelpHeader)}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {airPurifiers.map((purifier) => {
-                const purifierMaxFilterUsageValidationMessage = getFilterUsageLimitValidationMessage(maxFilterUsageHoursByPurifier[purifier.id], copy.filterUsageLimitPositive);
-
-                return (
-                  <tr key={purifier.id}>
-                    <td>{purifier.brand}</td>
-                    <td>{purifier.model}</td>
-                    <td>
-                      <input
-                        type="text"
-                        id={`purifier-price-${purifier.id}`}
-                        inputMode="decimal"
-                        value={
-                          formatDecimalInputString(
-                            inputDrafts[`purifier-${purifier.id}-${selectedCountry}`]
-                            ?? (airPurifierPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
-                          )
-                        }
-                        onChange={(e) => handleAirPurifierPriceChange(purifier.id, e)}
-                        onBlur={() => handleDraftInputBlur(`purifier-${purifier.id}-${selectedCountry}`)}
-                        placeholder="0.0000"
-                        aria-label={copy.purifierPriceAria(purifier.brand, purifier.model, selectedCountryCurrency)}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        id={`filter-price-${purifier.id}`}
-                        inputMode="decimal"
-                        value={
-                          formatDecimalInputString(
-                            inputDrafts[`filter-${purifier.id}-${selectedCountry}`]
-                            ?? (filterPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
-                          )
-                        }
-                        onChange={(e) => handleFilterPriceChange(purifier.id, e)}
-                        onBlur={() => handleDraftInputBlur(`filter-${purifier.id}-${selectedCountry}`)}
-                        placeholder="0.0000"
-                        aria-label={copy.filterPriceAria(purifier.brand, purifier.model, selectedCountryCurrency)}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        id={`max-filter-usage-${purifier.id}`}
-                        inputMode="decimal"
-                        value={
-                          formatDecimalInputString(
-                            inputDrafts[`max-filter-usage-${purifier.id}`]
-                            ?? (maxFilterUsageHoursByPurifier[purifier.id] ?? '')
-                          )
-                        }
-                        onChange={(e) => handleMaxFilterUsageByPurifierChange(purifier.id, e)}
-                        onBlur={() => handleDraftInputBlur(`max-filter-usage-${purifier.id}`)}
-                        placeholder={copy.optionalOverride}
-                        aria-label={copy.maxFilterUsageOverrideAria(purifier.brand, purifier.model)}
-                      />
-                      {purifierMaxFilterUsageValidationMessage && (
-                        <p className="message error">{purifierMaxFilterUsageValidationMessage}</p>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="card table-card">
-        <h2>{copy.purifierGroupsTitle}</h2>
-        {bestValueGroup && (
-          <div className="summary-card" role="status" aria-live="polite">
-            <p className="summary-title">
-              {copy.bestValueOption} <strong>{bestValueGroup.brand} {bestValueGroup.model}</strong> ({bestValueGroup.quantity} {bestValueGroup.quantity > 1 ? copy.units : copy.unit}, {bestValueGroup.speedName})
-            </p>
-            <p className="summary-metrics">
-              {copy.tcoLabel} <strong>{formatNumber(bestValueGroup.totalCostOfOwnership, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {selectedCountryCurrency}</strong> · {copy.startingCadrLabel} <strong>{formatNumber(bestValueGroup.totalCadrM3PerHour, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³/h</strong> · {copy.noiseLabel} <strong>{formatNumber(bestValueGroup.combinedNoiseDbA, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} dBA</strong>
-            </p>
-          </div>
-        )}
-        {isCostPeriodValid ? (
-          <p className="message info">
-            {copy.ownershipPeriodMessage(
-              formatNumber(form.ownershipYears),
-              formatNumber(form.annualOperatingHours),
-              formatNumber(form.ownershipYears * form.annualOperatingHours),
-            )}
-          </p>
-        ) : (
-          <p className="message error">{copy.ownershipPeriodUnavailable}</p>
-        )}
-        {sortedAirPurifierGroupsWithCosts.length === 0 ? (
-          <p className="message info">{copy.noMatchingGroups}</p>
-        ) : (
-          <div className="table-wrap">
-            <table className="air-purifier-groups-table">
-              <thead>
-                <tr>
-                  <th><button type="button" className={getSortButtonClassName('brand')} onClick={() => handleSort('brand')}>{copy.brand} {getSortIndicator('brand')}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('model')} onClick={() => handleSort('model')}>{copy.model} {getSortIndicator('model')}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('speedName')} onClick={() => handleSort('speedName')}>{copy.speedSetting} {getSortIndicator('speedName')}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('quantity')} onClick={() => handleSort('quantity')}>{renderSortableHeaderWithHelp('quantity', copy.quantity, copy.quantityHelp)}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('totalCadrM3PerHour')} onClick={() => handleSort('totalCadrM3PerHour')}>{renderSortableHeaderWithHelp('totalCadrM3PerHour', copy.totalStartingCadr, copy.totalStartingCadrHelp)}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('totalPowerWatts')} onClick={() => handleSort('totalPowerWatts')}>{copy.totalPower} {getSortIndicator('totalPowerWatts')}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('combinedNoiseDbA')} onClick={() => handleSort('combinedNoiseDbA')}>{copy.combinedNoise} {getSortIndicator('combinedNoiseDbA')}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('filterLifeHours')} onClick={() => handleSort('filterLifeHours')}>{renderSortableHeaderWithHelp('filterLifeHours', copy.estimatedFilterLife, copy.estimatedFilterLifeHelp)}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('purchaseCost')} onClick={() => handleSort('purchaseCost')}>{copy.initialPurchaseCost(selectedCountryCurrency)} {getSortIndicator('purchaseCost')}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('electricityCost')} onClick={() => handleSort('electricityCost')}>{renderSortableHeaderWithHelp('electricityCost', copy.totalElectricityCost(selectedCountryCurrency), copy.totalElectricityCostHelp)}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('filterCost')} onClick={() => handleSort('filterCost')}>{renderSortableHeaderWithHelp('filterCost', copy.totalFilterReplacementCost(selectedCountryCurrency), copy.totalFilterReplacementCostHelp)}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('totalCostOfOwnership')} onClick={() => handleSort('totalCostOfOwnership')}>{renderSortableHeaderWithHelp('totalCostOfOwnership', copy.totalCostOfOwnership(selectedCountryCurrency), copy.totalCostOfOwnershipHelp)}</button></th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedAirPurifierGroupsWithCosts.map((group) => (
-                  <tr key={`${group.purifierId}-${group.speedId}-${group.quantity}`}>
-                    <td>{group.brand}</td>
-                    <td>{group.model}</td>
-                    <td>{group.speedName}</td>
-                    <td>{group.quantity}</td>
-                    <td className="cell-tooltip" data-tooltip={copy.totalCadrTooltip(
-                      `${formatNumber(group.totalCadrM3PerHour, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                      `${formatNumber(group.totalCadrM3PerHour / group.quantity, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                      group.quantity,
-                    )} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{formatNumber(group.totalCadrM3PerHour, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                    </td>
-                    <td className="cell-tooltip" data-tooltip={copy.totalPowerTooltip(
-                      `${formatNumber(group.totalPowerWatts, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                      `${formatNumber(group.totalPowerWatts / group.quantity, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                      group.quantity,
-                    )} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{formatNumber(group.totalPowerWatts, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                    </td>
-                    <td className="cell-tooltip" data-tooltip={copy.noiseTooltip(
-                      group.quantity,
-                      `${formatNumber(group.combinedNoiseDbA, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`,
-                    )} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{formatNumber(group.combinedNoiseDbA, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span>
-                    </td>
-                    <td className="cell-tooltip" data-tooltip={group.effectiveFilterLifeHours === null
-                      ? copy.filterLifeUnavailable
-                      : Number.isFinite(group.appliedMaxFilterUsageHours)
-                        ? copy.cappedByUsageLimit(
-                          formatNumber(group.appliedMaxFilterUsageHours, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-                          group.filterLifeEstimate?.stopReason ?? copy.stopReasonFallback,
-                        )
-                        : copy.estimatedFromModel(group.filterLifeEstimate?.stopReason ?? copy.stopReasonFallback)} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{group.effectiveFilterLifeHours === null ? copy.notAvailable : formatNumber(group.effectiveFilterLifeHours)}</span>
-                    </td>
-                    <td className="cell-tooltip" data-tooltip={group.purchaseCost === null
-                      ? copy.purchaseUnavailable
-                      : copy.purchaseTooltip(
-                        formatNumber(group.purchaseCost / group.quantity, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-                        group.quantity,
-                      )} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{group.purchaseCost === null ? copy.notAvailable : formatNumber(group.purchaseCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                    </td>
-                    <td className="cell-tooltip" data-tooltip={group.electricityCost === null
-                      ? copy.electricityUnavailable
-                      : copy.electricityTooltip(
-                        formatNumber(group.ownershipPeriodHours),
-                        formatNumber(currentElectricityPrice ?? 0, { minimumFractionDigits: 4, maximumFractionDigits: 4 }),
-                        selectedCountryCurrency,
-                      )} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{group.electricityCost === null ? copy.notAvailable : formatNumber(group.electricityCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                    </td>
-                    <td className="cell-tooltip" data-tooltip={group.filterCost === null
-                      ? copy.filterCostUnavailable
-                      : copy.filterTooltip(
-                        formatNumber(group.filterCost / (group.quantity * (group.filterReplacements || 1)), { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-                        group.quantity,
-                        group.filterReplacements,
-                      )} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{group.filterCost === null ? copy.notAvailable : formatNumber(group.filterCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                    </td>
-                    <td className="cell-tooltip" data-tooltip={group.totalCostOfOwnership === null
-                      ? copy.tcoUnavailable
-                      : copy.tcoTooltip(
-                        formatNumber(group.purchaseCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-                        formatNumber(group.electricityCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-                        formatNumber(group.filterCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-                      )} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{group.totalCostOfOwnership === null ? copy.notAvailable : formatNumber(group.totalCostOfOwnership, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+      <PurifierGroupsTable
+        copy={copy}
+        bestValueGroup={bestValueGroup}
+        selectedCountryCurrency={selectedCountryCurrency}
+        formatNumber={formatNumber}
+        isCostPeriodValid={isCostPeriodValid}
+        form={form}
+        sortedAirPurifierGroupsWithCosts={sortedAirPurifierGroupsWithCosts}
+        getSortButtonClassName={getSortButtonClassName}
+        handleSort={handleSort}
+        getSortIndicator={getSortIndicator}
+        renderSortableHeaderWithHelp={renderSortableHeaderWithHelp}
+        currentElectricityPrice={currentElectricityPrice}
+        showTooltip={showTooltip}
+        hideTooltip={hideTooltip}
+      />
       {activeTooltip && (
         <div
           className={`floating-tooltip floating-tooltip--${activeTooltip.vertical}`}
