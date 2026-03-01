@@ -196,7 +196,7 @@ const INITIAL_FORM = {
   indoorPm10GenerationRate: 0,
   roomVolume: 50,
   maxAirPurifierCount: 2,
-  maxCombinedNoiseDbA: 37,
+  maxCombinedNoiseDbA: 40,
   annualOperatingHours: 8760,
   ownershipYears: 5,
 };
