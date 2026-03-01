@@ -1101,7 +1101,7 @@ function App() {
 
               <div className="field">
                 <label htmlFor="outdoorPm2_5AnnualAverageConcentration">
-                  {renderHelpLabel('Outdoor PM2.5 Concentration (annual average, µg/m³)', 'Enter your local annual PM2.5 average (fine particles, µg/m³). Used to estimate required Clean Air Delivery Rate (CADR). Good sources include city dashboards, national air-quality agencies, WHO data, IQAir, and OpenAQ.')}
+                  {renderHelpLabel('Outdoor PM2.5 Concentration (annual average, µg/m³)', 'Enter your local annual average PM2.5 (fine particles ≤2.5 µm, µg/m³). PM2.5 mainly comes from vehicle exhaust, industry, and smoke. Find your local value from city/state air dashboards, national air-quality agencies, WHO, IQAir, or OpenAQ.')}
                 </label>
                 <input
                   type="text"
@@ -1116,7 +1116,7 @@ function App() {
 
               <div className="field">
                 <label htmlFor="outdoorPm10AnnualAverageConcentration">
-                  {renderHelpLabel('Outdoor PM10 Concentration (annual average, µg/m³)', 'Enter your local annual PM10 average (includes PM2.5 + coarser particles, µg/m³). Used to estimate required CADR and filter life time. Sources are typically city dashboards, national agencies, WHO data, IQAir, and OpenAQ.')}
+                  {renderHelpLabel('Outdoor PM10 Concentration (annual average, µg/m³)', 'Enter your local annual average PM10 (includes PM2.5 + coarser particles, µg/m³). PM10 mainly comes from dust, pollen, and other coarse particles. Find your local value from city/state air dashboards, national air-quality agencies, WHO, IQAir, or OpenAQ.')}
                 </label>
                 <input
                   type="text"
