@@ -528,21 +528,33 @@ tbody tr:hover {
 :root[lang='ru'] .air-purifier-groups-table th,
 :root[lang='ru'] .air-purifier-groups-table td {
 	padding: 0.45rem 0.5rem;
+	min-width: 0;
 }
 
-:root[lang='ru'] .air-purifier-groups-table th:nth-child(1),
-:root[lang='ru'] .air-purifier-groups-table td:nth-child(1) {
-	min-width: 4.5rem;
+:root[lang='ru'] table {
+	min-width: 100%;
 }
 
-:root[lang='ru'] .air-purifier-groups-table th:nth-child(2),
-:root[lang='ru'] .air-purifier-groups-table td:nth-child(2) {
-	min-width: 8.5rem;
-}
+@media (max-width: 1280px) {
+	.table-header-with-help {
+		display: grid;
+		grid-template-columns: 1fr;
+		grid-template-rows: auto auto;
+		padding-right: 0;
+		gap: 0.2rem;
+	}
 
-:root[lang='ru'] .air-purifier-groups-table th:nth-child(3),
-:root[lang='ru'] .air-purifier-groups-table td:nth-child(3) {
-	min-width: 7rem;
+	.table-header-with-help .help-dot {
+		position: static;
+		justify-self: end;
+		grid-row: 1;
+	}
+
+	.table-header-with-help > span:first-child {
+		grid-row: 2;
+		white-space: normal;
+		overflow-wrap: anywhere;
+	}
 }
 
 @media (max-width: 760px) {
