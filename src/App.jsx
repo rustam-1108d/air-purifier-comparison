@@ -29,6 +29,11 @@ import {
   formatDecimalInputString,
   formatGroupedNumber,
 } from './utils/numberInput.js';
+import {
+  getNextSortConfig,
+  getSortIndicator,
+  getSortButtonClassName,
+} from './utils/sortControls.js';
 
 import countries from './data/countries.js';
 import { getInitialElectricityPriceByCity } from './data/electricityPrices.js';
@@ -149,29 +154,8 @@ function App() {
   });
 
   const handleSort = (key) => {
-    setSortConfig((prev) => {
-      if (prev.key === key) {
-        return {
-          key,
-          direction: prev.direction === 'asc' ? 'desc' : 'asc',
-        };
-      }
-
-      return {
-        key,
-        direction: 'asc',
-      };
-    });
+    setSortConfig((previousSortConfig) => getNextSortConfig(previousSortConfig, key));
   };
-
-  const getSortIndicator = (key) => {
-    if (sortConfig.key !== key) return '↕';
-    return sortConfig.direction === 'asc' ? '▲' : '▼';
-  };
-
-  const getSortButtonClassName = (key) => (
-    sortConfig.key === key ? 'sort-button is-active' : 'sort-button'
-  );
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -281,9 +265,9 @@ function App() {
     isCostPeriodValid,
     form,
     sortedAirPurifierGroupsWithCosts,
-    getSortButtonClassName,
+    getSortButtonClassName: (key) => getSortButtonClassName(sortConfig, key),
     handleSort,
-    getSortIndicator,
+    getSortIndicator: (key) => getSortIndicator(sortConfig, key),
     currentElectricityPrice,
     showTooltip,
     hideTooltip,
