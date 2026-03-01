@@ -243,6 +243,8 @@ const buildInitialMaxFilterUsageHoursByPurifier = () => (
   Object.fromEntries(airPurifiers.map((purifier) => [purifier.id, null]))
 );
 
+const DEFAULT_SORT_CONFIG = { key: 'totalCostOfOwnership', direction: 'asc' };
+
 const getInitialTheme = () => {
   if (typeof window === 'undefined') {
     return 'dark';
@@ -283,7 +285,7 @@ function App() {
     () => buildInitialMaxFilterUsageHoursByPurifier()
   );
   const [inputDrafts, setInputDrafts] = useState({});
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState(DEFAULT_SORT_CONFIG);
   const [activeTooltip, setActiveTooltip] = useState(null);
   // console.log('Electricity Prices by Country:', electricityPricesByCountry);
   // console.log('Electricity Prices by City:', electricityPricesByCity);
@@ -948,7 +950,7 @@ function App() {
     setMaxFilterUsageHoursGlobal(null);
     setMaxFilterUsageHoursByPurifier(buildInitialMaxFilterUsageHoursByPurifier());
     setInputDrafts({});
-    setSortConfig({ key: null, direction: 'asc' });
+    setSortConfig(DEFAULT_SORT_CONFIG);
     setForm(INITIAL_FORM);
   };
 
