@@ -172,6 +172,16 @@ const getFilterUsageLimitValidationMessage = (value) => {
   return value <= 0 ? 'Max filter usage period must be greater than 0 hours.' : null;
 };
 
+const getPm10IncludesPm2_5ValidationMessage = (pm2_5Value, pm10Value, contextLabel) => {
+  if (!Number.isFinite(pm2_5Value) || !Number.isFinite(pm10Value)) {
+    return null;
+  }
+
+  return pm10Value < pm2_5Value
+    ? `${contextLabel}: PM10 must be greater than or equal to PM2.5.`
+    : null;
+};
+
 const THEME_STORAGE_KEY = 'app-theme';
 
 const INITIAL_FORM = {
@@ -327,6 +337,21 @@ function App() {
     : form.ownershipYears < MIN_OWNERSHIP_YEARS || form.ownershipYears > MAX_OWNERSHIP_YEARS
       ? `Ownership Years must be between ${MIN_OWNERSHIP_YEARS} and ${MAX_OWNERSHIP_YEARS}.`
       : null;
+  const outdoorPmHierarchyValidationMessage = getPm10IncludesPm2_5ValidationMessage(
+    outdoorPm2_5AnnualAverageConcentration,
+    outdoorPm10AnnualAverageConcentration,
+    'Outdoor annual concentration'
+  );
+  const indoorLimitPmHierarchyValidationMessage = getPm10IncludesPm2_5ValidationMessage(
+    form.indoorPm2_5AnnualAverageConcentrationLimit,
+    form.indoorPm10AnnualAverageConcentrationLimit,
+    'Indoor concentration limit'
+  );
+  const indoorGenerationPmHierarchyValidationMessage = getPm10IncludesPm2_5ValidationMessage(
+    form.indoorPm2_5GenerationRate,
+    form.indoorPm10GenerationRate,
+    'Indoor generation rate'
+  );
   const maxFilterUsageHoursGlobalValidationMessage = getFilterUsageLimitValidationMessage(maxFilterUsageHoursGlobal);
   const isOwnershipYearsValid = ownershipYearsValidationMessage === null;
   const isCostPeriodValid = isAnnualOperatingHoursValid && isOwnershipYearsValid;
@@ -343,7 +368,10 @@ function App() {
     && form.ventilationRate >= 0
     && outdoorPm10AnnualAverageConcentration >= 0
     && form.indoorPm10GenerationRate >= 0
-    && form.roomVolume > 0;
+    && form.roomVolume > 0
+    && outdoorPmHierarchyValidationMessage === null
+    && indoorLimitPmHierarchyValidationMessage === null
+    && indoorGenerationPmHierarchyValidationMessage === null;
 
   const airPurifierGroups = useMemo(() => {
     if (!hasValidGroupInputs || minimumRequiredCADR <= 0) {
@@ -1081,6 +1109,9 @@ function App() {
                   onBlur={() => handleDraftInputBlur(pm10DraftKey)}
                   placeholder="0.0000"
                 />
+                {outdoorPmHierarchyValidationMessage && (
+                  <p className="message error">{outdoorPmHierarchyValidationMessage}</p>
+                )}
               </div>
             </div>
           </div>
@@ -1100,6 +1131,9 @@ function App() {
                   {renderHelpLabel('Indoor PM10 Concentration Limit (annual average, µg/m³)', 'Set the indoor PM10 target for annual average conditions (µg/m³). Use WHO or local indoor-air recommendations, then choose the level you want the model to satisfy.')}
                 </label>
                 <input type="text" id="indoorPm10AnnualAverageConcentrationLimit" name="indoorPm10AnnualAverageConcentrationLimit" inputMode="decimal" value={formatDecimalInputString(inputDrafts.indoorPm10AnnualAverageConcentrationLimit ?? form.indoorPm10AnnualAverageConcentrationLimit)} onChange={handleChange} onBlur={handleBlur} />
+                {indoorLimitPmHierarchyValidationMessage && (
+                  <p className="message error">{indoorLimitPmHierarchyValidationMessage}</p>
+                )}
               </div>
 
               <div className="field">
@@ -1114,6 +1148,9 @@ function App() {
                   {renderHelpLabel('Indoor PM10 Generation Rate (µg/h)', 'Estimate hourly indoor PM10 generation (µg/h), from sources like resuspended dust, tracked-in dirt, and indoor materials. You can infer this from sensor trends, and use 0 if you do not have a reliable estimate.')}
                 </label>
                 <input type="text" id="indoorPm10GenerationRate" name="indoorPm10GenerationRate" inputMode="decimal" value={formatDecimalInputString(inputDrafts.indoorPm10GenerationRate ?? form.indoorPm10GenerationRate)} onChange={handleChange} onBlur={handleBlur} />
+                {indoorGenerationPmHierarchyValidationMessage && (
+                  <p className="message error">{indoorGenerationPmHierarchyValidationMessage}</p>
+                )}
               </div>
             </div>
           </div>
