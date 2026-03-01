@@ -465,12 +465,12 @@ tbody tr:hover {
 
 .air-purifier-groups-table th:nth-child(1),
 .air-purifier-groups-table td:nth-child(1) {
-	min-width: 5.5rem;
+	min-width: 5rem;
 }
 
 .air-purifier-groups-table th:nth-child(2),
 .air-purifier-groups-table td:nth-child(2) {
-	min-width: 11rem;
+	min-width: 10rem;
 }
 
 .air-purifier-groups-table th:nth-child(3),
