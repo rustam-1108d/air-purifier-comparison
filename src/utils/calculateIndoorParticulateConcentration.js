@@ -41,24 +41,3 @@ const calculateIndoorParticulateConcentration = ({
 };
 
 export default calculateIndoorParticulateConcentration;
-
-// // Example usage:
-// const cadr = 730; // m³/h
-// const outdoorPm2_5Concentration = 100; // µg/m³
-// const ventilationRate = 70; // m³/h
-// const indoorParticulateGeneration = 1000; // µg per hour
-// const roomVolume = 50; // m³
-// const depositionRate = 0; // 1/h
-// const penetrationFactor = 1; // dimensionless
-
-// const indoorPm2_5Concentration = calculateIndoorParticulateConcentration({
-//   cadr,
-//   outdoorParticulateConcentration: outdoorPm2_5Concentration,
-//   ventilationRate,
-//   indoorParticulateGeneration,
-//   roomVolume,
-//   depositionRate,
-//   penetrationFactor,
-// });
-
-// console.log(`Indoor PM2.5 concentration: ${indoorPm2_5Concentration.toFixed(2)} µg/m³`);

@@ -305,10 +305,6 @@ function App() {
   const [inputDrafts, setInputDrafts] = useState({});
   const [sortConfig, setSortConfig] = useState(DEFAULT_SORT_CONFIG);
   const [activeTooltip, setActiveTooltip] = useState(null);
-  // console.log('Electricity Prices by Country:', electricityPricesByCountry);
-  // console.log('Electricity Prices by City:', electricityPricesByCity);
-  // console.log('Air Purifier Prices by Country:', airPurifierPricesByCountry);
-  // console.log('Filter Prices by Country:', filterPricesByCountry);
 
   const [form, setForm] = useState(INITIAL_FORM);
   const copy = translations[language];
@@ -545,11 +541,6 @@ function App() {
     ? `pm10-city-${selectedCityId}`
     : `pm10-country-${selectedCountry}`;
 
-  // console.log(form);
-  // console.log('availableCities:', availableCities);
-  // console.log('selectedCountryData:', selectedCountryData);
-  // console.log('Current Electricity Price:', currentElectricityPrice);
-
   const decimalFormFieldNames = new Set(Object.keys(FORM_DECIMAL_PLACES_BY_FIELD));
 
   const handleChange = (e) => {
@@ -638,7 +629,6 @@ function App() {
       return;
     }
 
-    // If the input is empty, set it to 0 on blur
     if (value === "") {
       setForm((prev) => ({
         ...prev,

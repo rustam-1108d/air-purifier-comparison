@@ -184,14 +184,3 @@ export const airPurifiers = [
     },
   },
 ];
-
-// console.log(airPurifiers);
-
-// const getAirPurifierPrices = () => Object.fromEntries(airPurifiers.map(purifier => [purifier.id, purifier.purifierPrices]));
-// const pricesState = getAirPurifierPrices();
-
-// console.log(pricesState);
-
-// const selectedCountry = 'KZ';
-// const selectedPurifierId = 'iqair-healthpro-100';
-// console.log(`Price for ${selectedPurifierId} in ${selectedCountry}: ${pricesState[selectedPurifierId][selectedCountry].amount} ${pricesState[selectedPurifierId][selectedCountry].currency}`);
