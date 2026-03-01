@@ -329,96 +329,106 @@ function App() {
     </span>
   );
 
+  const appHeaderProps = {
+    copy,
+    language,
+    theme,
+    onResetAllInputs: handleResetAllInputs,
+    onToggleLanguage: () => setLanguage((prev) => (prev === 'en' ? 'ru' : 'en')),
+    onToggleTheme: () => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark')),
+  };
+
+  const inputsPanelProps = {
+    copy,
+    selectedCountry,
+    selectedCityId,
+    setSelectedCountry,
+    setSelectedCityId,
+    getLocalizedCountryName,
+    availableCities,
+    getLocalizedCityName,
+    renderHelpLabel,
+    formatDecimalInputString,
+    formatIntegerInputString,
+    inputDrafts,
+    pm2_5DraftKey,
+    pm10DraftKey,
+    outdoorPm2_5AnnualAverageConcentration,
+    outdoorPm10AnnualAverageConcentration,
+    handleOutdoorPm2_5Change,
+    handleOutdoorPm10Change,
+    handleDraftInputBlur,
+    outdoorPmHierarchyValidationMessage,
+    form,
+    handleChange,
+    handleBlur,
+    indoorLimitPmHierarchyValidationMessage,
+    indoorGenerationPmHierarchyValidationMessage,
+    selectedCountryCurrency,
+    electricityDraftKey,
+    currentElectricityPrice,
+    handleElectricityPriceChange,
+    annualOperatingHoursValidationMessage,
+    ownershipYearsValidationMessage,
+    maxFilterUsageHoursGlobal,
+    handleMaxFilterUsageGlobalChange,
+    maxFilterUsageHoursGlobalValidationMessage,
+  };
+
+  const requiredCadrPanelProps = {
+    copy,
+    requiredPm2_5CADR,
+    requiredPm10CADR,
+    minimumRequiredCADR,
+    formatNumber,
+  };
+
+  const purifierPricesTableProps = {
+    copy,
+    selectedCountryDisplayName,
+    selectedCountryCurrency,
+    renderHeaderWithHelp,
+    getFilterUsageLimitValidationMessage,
+    maxFilterUsageHoursByPurifier,
+    inputDrafts,
+    selectedCountry,
+    airPurifierPricesByCountry,
+    filterPricesByCountry,
+    formatDecimalInputString,
+    handleAirPurifierPriceChange,
+    handleFilterPriceChange,
+    handleMaxFilterUsageByPurifierChange,
+    handleDraftInputBlur,
+  };
+
+  const purifierGroupsTableProps = {
+    copy,
+    bestValueGroup,
+    selectedCountryCurrency,
+    formatNumber,
+    isCostPeriodValid,
+    form,
+    sortedAirPurifierGroupsWithCosts,
+    getSortButtonClassName,
+    handleSort,
+    getSortIndicator,
+    renderSortableHeaderWithHelp,
+    currentElectricityPrice,
+    showTooltip,
+    hideTooltip,
+  };
+
   return (
     <main className="app-shell">
-      <AppHeader
-        copy={copy}
-        language={language}
-        theme={theme}
-        onResetAllInputs={handleResetAllInputs}
-        onToggleLanguage={() => setLanguage((prev) => (prev === 'en' ? 'ru' : 'en'))}
-        onToggleTheme={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
-      />
+      <AppHeader {...appHeaderProps} />
 
-      <InputsPanel
-        copy={copy}
-        selectedCountry={selectedCountry}
-        selectedCityId={selectedCityId}
-        setSelectedCountry={setSelectedCountry}
-        setSelectedCityId={setSelectedCityId}
-        getLocalizedCountryName={getLocalizedCountryName}
-        availableCities={availableCities}
-        getLocalizedCityName={getLocalizedCityName}
-        renderHelpLabel={renderHelpLabel}
-        formatDecimalInputString={formatDecimalInputString}
-        formatIntegerInputString={formatIntegerInputString}
-        inputDrafts={inputDrafts}
-        pm2_5DraftKey={pm2_5DraftKey}
-        pm10DraftKey={pm10DraftKey}
-        outdoorPm2_5AnnualAverageConcentration={outdoorPm2_5AnnualAverageConcentration}
-        outdoorPm10AnnualAverageConcentration={outdoorPm10AnnualAverageConcentration}
-        handleOutdoorPm2_5Change={handleOutdoorPm2_5Change}
-        handleOutdoorPm10Change={handleOutdoorPm10Change}
-        handleDraftInputBlur={handleDraftInputBlur}
-        outdoorPmHierarchyValidationMessage={outdoorPmHierarchyValidationMessage}
-        form={form}
-        handleChange={handleChange}
-        handleBlur={handleBlur}
-        indoorLimitPmHierarchyValidationMessage={indoorLimitPmHierarchyValidationMessage}
-        indoorGenerationPmHierarchyValidationMessage={indoorGenerationPmHierarchyValidationMessage}
-        selectedCountryCurrency={selectedCountryCurrency}
-        electricityDraftKey={electricityDraftKey}
-        currentElectricityPrice={currentElectricityPrice}
-        handleElectricityPriceChange={handleElectricityPriceChange}
-        annualOperatingHoursValidationMessage={annualOperatingHoursValidationMessage}
-        ownershipYearsValidationMessage={ownershipYearsValidationMessage}
-        maxFilterUsageHoursGlobal={maxFilterUsageHoursGlobal}
-        handleMaxFilterUsageGlobalChange={handleMaxFilterUsageGlobalChange}
-        maxFilterUsageHoursGlobalValidationMessage={maxFilterUsageHoursGlobalValidationMessage}
-      />
+      <InputsPanel {...inputsPanelProps} />
 
-      <RequiredCadrPanel
-        copy={copy}
-        requiredPm2_5CADR={requiredPm2_5CADR}
-        requiredPm10CADR={requiredPm10CADR}
-        minimumRequiredCADR={minimumRequiredCADR}
-        formatNumber={formatNumber}
-      />
+      <RequiredCadrPanel {...requiredCadrPanelProps} />
 
-      <PurifierPricesTable
-        copy={copy}
-        selectedCountryDisplayName={selectedCountryDisplayName}
-        selectedCountryCurrency={selectedCountryCurrency}
-        renderHeaderWithHelp={renderHeaderWithHelp}
-        getFilterUsageLimitValidationMessage={getFilterUsageLimitValidationMessage}
-        maxFilterUsageHoursByPurifier={maxFilterUsageHoursByPurifier}
-        inputDrafts={inputDrafts}
-        selectedCountry={selectedCountry}
-        airPurifierPricesByCountry={airPurifierPricesByCountry}
-        filterPricesByCountry={filterPricesByCountry}
-        formatDecimalInputString={formatDecimalInputString}
-        handleAirPurifierPriceChange={handleAirPurifierPriceChange}
-        handleFilterPriceChange={handleFilterPriceChange}
-        handleMaxFilterUsageByPurifierChange={handleMaxFilterUsageByPurifierChange}
-        handleDraftInputBlur={handleDraftInputBlur}
-      />
+      <PurifierPricesTable {...purifierPricesTableProps} />
 
-      <PurifierGroupsTable
-        copy={copy}
-        bestValueGroup={bestValueGroup}
-        selectedCountryCurrency={selectedCountryCurrency}
-        formatNumber={formatNumber}
-        isCostPeriodValid={isCostPeriodValid}
-        form={form}
-        sortedAirPurifierGroupsWithCosts={sortedAirPurifierGroupsWithCosts}
-        getSortButtonClassName={getSortButtonClassName}
-        handleSort={handleSort}
-        getSortIndicator={getSortIndicator}
-        renderSortableHeaderWithHelp={renderSortableHeaderWithHelp}
-        currentElectricityPrice={currentElectricityPrice}
-        showTooltip={showTooltip}
-        hideTooltip={hideTooltip}
-      />
+      <PurifierGroupsTable {...purifierGroupsTableProps} />
       {activeTooltip && (
         <div
           className={`floating-tooltip floating-tooltip--${activeTooltip.vertical}`}
