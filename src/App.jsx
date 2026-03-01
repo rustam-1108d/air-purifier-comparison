@@ -58,7 +58,7 @@ const FILTER_USAGE_LIMIT_DECIMAL_PLACES = 2;
 const FILTER_USAGE_LIMIT_INTEGER_DIGITS = 7;
 const GROUPING_SEPARATOR = ' ';
 
-const normalizeDecimalInput = (value) => value.replace(/,/g, '.');
+const normalizeDecimalInput = (value) => value.replace(/\s/g, '').replace(/,/g, '.');
 
 const isValidDecimalInput = (
   value,
@@ -72,6 +72,77 @@ const isValidDecimalInput = (
 const parseDecimalForForm = (value) => (value === '' || value === '.' ? '' : Number(value));
 
 const parseDecimalForNullable = (value) => (value === '' || value === '.' ? null : Number(value));
+
+const formatIntegerInputString = (value) => {
+  if (value === '' || value === null || value === undefined) {
+    return '';
+  }
+
+  return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, GROUPING_SEPARATOR);
+};
+
+const formatDecimalInputString = (value) => {
+  if (value === '' || value === null || value === undefined) {
+    return '';
+  }
+
+  const rawValue = String(value);
+  if (rawValue === '.') {
+    return '.';
+  }
+
+  const hasDot = rawValue.includes('.');
+  const [integerPart, fractionalPart = ''] = rawValue.split('.');
+  const formattedIntegerPart = formatIntegerInputString(integerPart);
+
+  return hasDot ? `${formattedIntegerPart}.${fractionalPart}` : formattedIntegerPart;
+};
+
+const countMatchingCharacters = (value, matcher) => (
+  Array.from(value).reduce((count, character) => (matcher(character) ? count + 1 : count), 0)
+);
+
+const getCaretPositionForRawIndex = (formattedValue, rawIndex, matcher) => {
+  if (rawIndex <= 0) {
+    return 0;
+  }
+
+  let matchedCharacterCount = 0;
+  for (let index = 0; index < formattedValue.length; index += 1) {
+    if (matcher(formattedValue[index])) {
+      matchedCharacterCount += 1;
+    }
+
+    if (matchedCharacterCount >= rawIndex) {
+      return index + 1;
+    }
+  }
+
+  return formattedValue.length;
+};
+
+const scheduleCaretPosition = ({
+  input,
+  nextDisplayValue,
+  rawIndex,
+  matcher,
+}) => {
+  if (!input) {
+    return;
+  }
+
+  window.requestAnimationFrame(() => {
+    if (document.activeElement !== input) {
+      return;
+    }
+
+    const caretPosition = getCaretPositionForRawIndex(nextDisplayValue, rawIndex, matcher);
+    input.setSelectionRange(caretPosition, caretPosition);
+  });
+};
+
+const isDigitCharacter = (character) => /\d/.test(character);
+const isDecimalCharacter = (character) => /[\d.]/.test(character);
 
 const formatGroupedNumber = (
   value,
@@ -422,10 +493,13 @@ function App() {
   const decimalFormFieldNames = new Set(Object.keys(FORM_DECIMAL_PLACES_BY_FIELD));
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const inputElement = e.target;
+    const { name, value } = inputElement;
+    const cursorPosition = inputElement.selectionStart ?? value.length;
 
     if (decimalFormFieldNames.has(name)) {
       const normalizedValue = normalizeDecimalInput(value);
+      const normalizedValueBeforeCursor = normalizeDecimalInput(value.slice(0, cursorPosition));
       const maxDecimalPlaces = FORM_DECIMAL_PLACES_BY_FIELD[name] ?? DEFAULT_DECIMAL_PLACES;
       const maxIntegerDigits = FORM_INTEGER_DIGITS_BY_FIELD[name] ?? DEFAULT_INTEGER_DIGITS;
 
@@ -444,10 +518,18 @@ function App() {
         ...prev,
         [name]: parsedValue,
       }));
+
+      scheduleCaretPosition({
+        input: inputElement,
+        nextDisplayValue: formatDecimalInputString(normalizedValue),
+        rawIndex: countMatchingCharacters(normalizedValueBeforeCursor, isDecimalCharacter),
+        matcher: isDecimalCharacter,
+      });
       return;
     }
 
     const numericValue = value.replace(/\D/g, '');
+    const digitsBeforeCursor = countMatchingCharacters(value.slice(0, cursorPosition), isDigitCharacter);
 
     if (name === 'annualOperatingHours' && numericValue !== '') {
       const parsedHours = Number(numericValue);
@@ -467,6 +549,13 @@ function App() {
       ...prev,
       [name]: numericValue === "" ? "" : Number(numericValue),
     }));
+
+    scheduleCaretPosition({
+      input: inputElement,
+      nextDisplayValue: formatIntegerInputString(numericValue),
+      rawIndex: digitsBeforeCursor,
+      matcher: isDigitCharacter,
+    });
   };
 
   const handleBlur = (e) => {
@@ -500,6 +589,8 @@ function App() {
 
   const handleLocationDecimalInputChange = ({
     value,
+    cursorPosition,
+    inputElement,
     draftKey,
     onCountryUpdate,
     onCityUpdate,
@@ -507,6 +598,7 @@ function App() {
     maxIntegerDigits = DEFAULT_INTEGER_DIGITS,
   }) => {
     const normalizedValue = normalizeDecimalInput(value);
+    const normalizedValueBeforeCursor = normalizeDecimalInput(value.slice(0, cursorPosition ?? value.length));
 
     if (!isValidDecimalInput(normalizedValue, maxDecimalPlaces, maxIntegerDigits)) {
       return;
@@ -521,15 +613,30 @@ function App() {
 
     if (selectedCityId && onCityUpdate) {
       onCityUpdate(parsedValue);
+      scheduleCaretPosition({
+        input: inputElement,
+        nextDisplayValue: formatDecimalInputString(normalizedValue),
+        rawIndex: countMatchingCharacters(normalizedValueBeforeCursor, isDecimalCharacter),
+        matcher: isDecimalCharacter,
+      });
       return;
     }
 
     onCountryUpdate(parsedValue);
+
+    scheduleCaretPosition({
+      input: inputElement,
+      nextDisplayValue: formatDecimalInputString(normalizedValue),
+      rawIndex: countMatchingCharacters(normalizedValueBeforeCursor, isDecimalCharacter),
+      matcher: isDecimalCharacter,
+    });
   };
 
   const handleElectricityPriceChange = (e) => {
     handleLocationDecimalInputChange({
       value: e.target.value,
+      cursorPosition: e.target.selectionStart,
+      inputElement: e.target,
       draftKey: electricityDraftKey,
       maxDecimalPlaces: LOCATION_DECIMAL_PLACES.electricityPrice,
       maxIntegerDigits: LOCATION_INTEGER_DIGITS.electricityPrice,
@@ -551,6 +658,8 @@ function App() {
   const handleOutdoorPm2_5Change = (e) => {
     handleLocationDecimalInputChange({
       value: e.target.value,
+      cursorPosition: e.target.selectionStart,
+      inputElement: e.target,
       draftKey: pm2_5DraftKey,
       maxDecimalPlaces: LOCATION_DECIMAL_PLACES.outdoorPm2_5,
       maxIntegerDigits: LOCATION_INTEGER_DIGITS.outdoorPm2_5,
@@ -578,6 +687,8 @@ function App() {
   const handleOutdoorPm10Change = (e) => {
     handleLocationDecimalInputChange({
       value: e.target.value,
+      cursorPosition: e.target.selectionStart,
+      inputElement: e.target,
       draftKey: pm10DraftKey,
       maxDecimalPlaces: LOCATION_DECIMAL_PLACES.outdoorPm10,
       maxIntegerDigits: LOCATION_INTEGER_DIGITS.outdoorPm10,
@@ -602,11 +713,13 @@ function App() {
     });
   };
 
-  const handleAirPurifierPriceChange = (purifierId, value) => {
+  const handleAirPurifierPriceChange = (purifierId, event) => {
     const draftKey = `purifier-${purifierId}-${selectedCountry}`;
 
     handleLocationDecimalInputChange({
-      value,
+      value: event.target.value,
+      cursorPosition: event.target.selectionStart,
+      inputElement: event.target,
       draftKey,
       maxDecimalPlaces: LOCATION_DECIMAL_PLACES.purifierPrice,
       maxIntegerDigits: LOCATION_INTEGER_DIGITS.purifierPrice,
@@ -622,11 +735,13 @@ function App() {
     });
   };
 
-  const handleFilterPriceChange = (purifierId, value) => {
+  const handleFilterPriceChange = (purifierId, event) => {
     const draftKey = `filter-${purifierId}-${selectedCountry}`;
 
     handleLocationDecimalInputChange({
-      value,
+      value: event.target.value,
+      cursorPosition: event.target.selectionStart,
+      inputElement: event.target,
       draftKey,
       maxDecimalPlaces: LOCATION_DECIMAL_PLACES.filterPrice,
       maxIntegerDigits: LOCATION_INTEGER_DIGITS.filterPrice,
@@ -645,6 +760,9 @@ function App() {
   const handleMaxFilterUsageGlobalChange = (e) => {
     const draftKey = 'max-filter-usage-global';
     const normalizedValue = normalizeDecimalInput(e.target.value);
+    const normalizedValueBeforeCursor = normalizeDecimalInput(
+      e.target.value.slice(0, e.target.selectionStart ?? e.target.value.length)
+    );
 
     if (!isValidDecimalInput(normalizedValue, FILTER_USAGE_LIMIT_DECIMAL_PLACES, FILTER_USAGE_LIMIT_INTEGER_DIGITS)) {
       return;
@@ -656,11 +774,21 @@ function App() {
     }));
 
     setMaxFilterUsageHoursGlobal(parseDecimalForNullable(normalizedValue));
+
+    scheduleCaretPosition({
+      input: e.target,
+      nextDisplayValue: formatDecimalInputString(normalizedValue),
+      rawIndex: countMatchingCharacters(normalizedValueBeforeCursor, isDecimalCharacter),
+      matcher: isDecimalCharacter,
+    });
   };
 
-  const handleMaxFilterUsageByPurifierChange = (purifierId, value) => {
+  const handleMaxFilterUsageByPurifierChange = (purifierId, event) => {
     const draftKey = `max-filter-usage-${purifierId}`;
-    const normalizedValue = normalizeDecimalInput(value);
+    const normalizedValue = normalizeDecimalInput(event.target.value);
+    const normalizedValueBeforeCursor = normalizeDecimalInput(
+      event.target.value.slice(0, event.target.selectionStart ?? event.target.value.length)
+    );
 
     if (!isValidDecimalInput(normalizedValue, FILTER_USAGE_LIMIT_DECIMAL_PLACES, FILTER_USAGE_LIMIT_INTEGER_DIGITS)) {
       return;
@@ -675,6 +803,13 @@ function App() {
       ...prev,
       [purifierId]: parseDecimalForNullable(normalizedValue),
     }));
+
+    scheduleCaretPosition({
+      input: event.target,
+      nextDisplayValue: formatDecimalInputString(normalizedValue),
+      rawIndex: countMatchingCharacters(normalizedValueBeforeCursor, isDecimalCharacter),
+      matcher: isDecimalCharacter,
+    });
   };
 
   const handleDraftInputBlur = (draftKey) => {
@@ -926,7 +1061,7 @@ function App() {
                   type="text"
                   id="outdoorPm2_5AnnualAverageConcentration"
                   inputMode="decimal"
-                  value={inputDrafts[pm2_5DraftKey] ?? (outdoorPm2_5AnnualAverageConcentration ?? '')}
+                  value={formatDecimalInputString(inputDrafts[pm2_5DraftKey] ?? (outdoorPm2_5AnnualAverageConcentration ?? ''))}
                   onChange={handleOutdoorPm2_5Change}
                   onBlur={() => handleDraftInputBlur(pm2_5DraftKey)}
                   placeholder="0.0000"
@@ -941,7 +1076,7 @@ function App() {
                   type="text"
                   id="outdoorPm10AnnualAverageConcentration"
                   inputMode="decimal"
-                  value={inputDrafts[pm10DraftKey] ?? (outdoorPm10AnnualAverageConcentration ?? '')}
+                  value={formatDecimalInputString(inputDrafts[pm10DraftKey] ?? (outdoorPm10AnnualAverageConcentration ?? ''))}
                   onChange={handleOutdoorPm10Change}
                   onBlur={() => handleDraftInputBlur(pm10DraftKey)}
                   placeholder="0.0000"
@@ -957,28 +1092,28 @@ function App() {
                 <label htmlFor="indoorPm2_5AnnualAverageConcentrationLimit">
                   {renderHelpLabel('Indoor PM2.5 Concentration Limit (annual average, µg/m³)', 'Set the indoor PM2.5 level you want to maintain over the year (µg/m³). Lower targets mean cleaner air but usually require more CADR; use WHO or local indoor air guidance as your reference.')}
                 </label>
-                <input type="text" id="indoorPm2_5AnnualAverageConcentrationLimit" name="indoorPm2_5AnnualAverageConcentrationLimit" inputMode="decimal" value={inputDrafts.indoorPm2_5AnnualAverageConcentrationLimit ?? form.indoorPm2_5AnnualAverageConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
+                <input type="text" id="indoorPm2_5AnnualAverageConcentrationLimit" name="indoorPm2_5AnnualAverageConcentrationLimit" inputMode="decimal" value={formatDecimalInputString(inputDrafts.indoorPm2_5AnnualAverageConcentrationLimit ?? form.indoorPm2_5AnnualAverageConcentrationLimit)} onChange={handleChange} onBlur={handleBlur} />
               </div>
 
               <div className="field">
                 <label htmlFor="indoorPm10AnnualAverageConcentrationLimit">
                   {renderHelpLabel('Indoor PM10 Concentration Limit (annual average, µg/m³)', 'Set the indoor PM10 target for annual average conditions (µg/m³). Use WHO or local indoor-air recommendations, then choose the level you want the model to satisfy.')}
                 </label>
-                <input type="text" id="indoorPm10AnnualAverageConcentrationLimit" name="indoorPm10AnnualAverageConcentrationLimit" inputMode="decimal" value={inputDrafts.indoorPm10AnnualAverageConcentrationLimit ?? form.indoorPm10AnnualAverageConcentrationLimit} onChange={handleChange} onBlur={handleBlur} />
+                <input type="text" id="indoorPm10AnnualAverageConcentrationLimit" name="indoorPm10AnnualAverageConcentrationLimit" inputMode="decimal" value={formatDecimalInputString(inputDrafts.indoorPm10AnnualAverageConcentrationLimit ?? form.indoorPm10AnnualAverageConcentrationLimit)} onChange={handleChange} onBlur={handleBlur} />
               </div>
 
               <div className="field">
                 <label htmlFor="indoorPm2_5GenerationRate">
                   {renderHelpLabel('Indoor PM2.5 Generation Rate (µg/h)', 'Estimate how much PM2.5 your room generates each hour (µg/h), for example from cooking, smoking, or candles. Use sensor-based approximations if available, or enter 0 when unknown.')}
                 </label>
-                <input type="text" id="indoorPm2_5GenerationRate" name="indoorPm2_5GenerationRate" inputMode="decimal" value={inputDrafts.indoorPm2_5GenerationRate ?? form.indoorPm2_5GenerationRate} onChange={handleChange} onBlur={handleBlur} />
+                <input type="text" id="indoorPm2_5GenerationRate" name="indoorPm2_5GenerationRate" inputMode="decimal" value={formatDecimalInputString(inputDrafts.indoorPm2_5GenerationRate ?? form.indoorPm2_5GenerationRate)} onChange={handleChange} onBlur={handleBlur} />
               </div>
 
               <div className="field">
                 <label htmlFor="indoorPm10GenerationRate">
                   {renderHelpLabel('Indoor PM10 Generation Rate (µg/h)', 'Estimate hourly indoor PM10 generation (µg/h), from sources like resuspended dust, tracked-in dirt, and indoor materials. You can infer this from sensor trends, and use 0 if you do not have a reliable estimate.')}
                 </label>
-                <input type="text" id="indoorPm10GenerationRate" name="indoorPm10GenerationRate" inputMode="decimal" value={inputDrafts.indoorPm10GenerationRate ?? form.indoorPm10GenerationRate} onChange={handleChange} onBlur={handleBlur} />
+                <input type="text" id="indoorPm10GenerationRate" name="indoorPm10GenerationRate" inputMode="decimal" value={formatDecimalInputString(inputDrafts.indoorPm10GenerationRate ?? form.indoorPm10GenerationRate)} onChange={handleChange} onBlur={handleBlur} />
               </div>
             </div>
           </div>
@@ -990,28 +1125,28 @@ function App() {
                 <label htmlFor="roomVolume">
                   {renderHelpLabel('Room Volume (m³)', 'Enter the room air volume in cubic meters, usually calculated as length × width × height. Use your room measurements or floor-plan dimensions.')}
                 </label>
-                <input type="text" id="roomVolume" name="roomVolume" inputMode="decimal" value={inputDrafts.roomVolume ?? form.roomVolume} onChange={handleChange} onBlur={handleBlur} />
+                <input type="text" id="roomVolume" name="roomVolume" inputMode="decimal" value={formatDecimalInputString(inputDrafts.roomVolume ?? form.roomVolume)} onChange={handleChange} onBlur={handleBlur} />
               </div>
 
               <div className="field">
                 <label htmlFor="ventilationRate">
                   {renderHelpLabel('Ventilation Rate (m³/h)', 'Enter the outside-air flow into the room per hour (m³/h). If you don’t have measurements, use target rates from ventilation standards/guidelines for this room type.')}
                 </label>
-                <input type="text" id="ventilationRate" name="ventilationRate" inputMode="decimal" value={inputDrafts.ventilationRate ?? form.ventilationRate} onChange={handleChange} onBlur={handleBlur} />
+                <input type="text" id="ventilationRate" name="ventilationRate" inputMode="decimal" value={formatDecimalInputString(inputDrafts.ventilationRate ?? form.ventilationRate)} onChange={handleChange} onBlur={handleBlur} />
               </div>
 
               <div className="field">
                 <label htmlFor="maxAirPurifierCount">
                   {renderHelpLabel('Max Air Purifier Count', 'Set the maximum number of air purifiers that can be placed in the room. Choose this based on room space, power-outlet availability, and personal preferences.')}
                 </label>
-                <input type="text" id="maxAirPurifierCount" name="maxAirPurifierCount" maxLength={2} inputMode="numeric" pattern="\d*" value={form.maxAirPurifierCount} onChange={handleChange} onBlur={handleBlur} />
+                <input type="text" id="maxAirPurifierCount" name="maxAirPurifierCount" maxLength={2} inputMode="numeric" pattern="\d*" value={formatIntegerInputString(form.maxAirPurifierCount)} onChange={handleChange} onBlur={handleBlur} />
               </div>
 
               <div className="field">
                 <label htmlFor="maxCombinedNoiseDbA">
                   {renderHelpLabel('Max Combined Noise (dBA)', 'Set the total noise limit for all selected air purifiers running together (not per unit). Base this on comfort needs, or office/building noise policies.')}
                 </label>
-                <input type="text" id="maxCombinedNoiseDbA" name="maxCombinedNoiseDbA" inputMode="decimal" value={inputDrafts.maxCombinedNoiseDbA ?? form.maxCombinedNoiseDbA} onChange={handleChange} onBlur={handleBlur} />
+                <input type="text" id="maxCombinedNoiseDbA" name="maxCombinedNoiseDbA" inputMode="decimal" value={formatDecimalInputString(inputDrafts.maxCombinedNoiseDbA ?? form.maxCombinedNoiseDbA)} onChange={handleChange} onBlur={handleBlur} />
               </div>
             </div>
           </div>
@@ -1027,7 +1162,7 @@ function App() {
                   type="text"
                   id="electricityPrice"
                   inputMode="decimal"
-                  value={inputDrafts[electricityDraftKey] ?? (currentElectricityPrice ?? '')}
+                  value={formatDecimalInputString(inputDrafts[electricityDraftKey] ?? (currentElectricityPrice ?? ''))}
                   onChange={handleElectricityPriceChange}
                   onBlur={() => handleDraftInputBlur(electricityDraftKey)}
                   placeholder="0.0000"
@@ -1038,7 +1173,7 @@ function App() {
                 <label htmlFor="annualOperatingHours">
                   {renderHelpLabel('Annual Operating Hours', 'Enter expected runtime per year. Continuous operation is about 8760 hours.')}
                 </label>
-                <input type="text" id="annualOperatingHours" name="annualOperatingHours" maxLength={4} inputMode="numeric" pattern="\d*" value={form.annualOperatingHours} onChange={handleChange} onBlur={handleBlur} placeholder="8760" />
+                <input type="text" id="annualOperatingHours" name="annualOperatingHours" maxLength={4} inputMode="numeric" pattern="\d*" value={formatIntegerInputString(form.annualOperatingHours)} onChange={handleChange} onBlur={handleBlur} placeholder="8760" />
                 {annualOperatingHoursValidationMessage && (
                   <p className="message error">{annualOperatingHoursValidationMessage}</p>
                 )}
@@ -1048,7 +1183,7 @@ function App() {
                 <label htmlFor="ownershipYears">
                   {renderHelpLabel('Ownership Years', 'Set the number of years for total cost of ownership analysis, typically aligned with your replacement cycle, warranty horizon, or budget plan.')}
                 </label>
-                <input type="text" id="ownershipYears" name="ownershipYears" maxLength={2} inputMode="numeric" pattern="\d*" value={form.ownershipYears} onChange={handleChange} onBlur={handleBlur} />
+                <input type="text" id="ownershipYears" name="ownershipYears" maxLength={2} inputMode="numeric" pattern="\d*" value={formatIntegerInputString(form.ownershipYears)} onChange={handleChange} onBlur={handleBlur} />
                 {ownershipYearsValidationMessage && (
                   <p className="message error">{ownershipYearsValidationMessage}</p>
                 )}
@@ -1062,7 +1197,7 @@ function App() {
                   type="text"
                   id="maxFilterUsageHoursGlobal"
                   inputMode="decimal"
-                  value={inputDrafts['max-filter-usage-global'] ?? (maxFilterUsageHoursGlobal ?? '')}
+                  value={formatDecimalInputString(inputDrafts['max-filter-usage-global'] ?? (maxFilterUsageHoursGlobal ?? ''))}
                   onChange={handleMaxFilterUsageGlobalChange}
                   onBlur={() => handleDraftInputBlur('max-filter-usage-global')}
                   placeholder="Optional"
@@ -1112,10 +1247,12 @@ function App() {
                         id={`purifier-price-${purifier.id}`}
                         inputMode="decimal"
                         value={
-                          inputDrafts[`purifier-${purifier.id}-${selectedCountry}`]
-                          ?? (airPurifierPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
+                          formatDecimalInputString(
+                            inputDrafts[`purifier-${purifier.id}-${selectedCountry}`]
+                            ?? (airPurifierPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
+                          )
                         }
-                        onChange={(e) => handleAirPurifierPriceChange(purifier.id, e.target.value)}
+                        onChange={(e) => handleAirPurifierPriceChange(purifier.id, e)}
                         onBlur={() => handleDraftInputBlur(`purifier-${purifier.id}-${selectedCountry}`)}
                         placeholder="0.0000"
                         aria-label={`${purifier.brand} ${purifier.model} purifier price (${selectedCountryCurrency})`}
@@ -1127,10 +1264,12 @@ function App() {
                         id={`filter-price-${purifier.id}`}
                         inputMode="decimal"
                         value={
-                          inputDrafts[`filter-${purifier.id}-${selectedCountry}`]
-                          ?? (filterPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
+                          formatDecimalInputString(
+                            inputDrafts[`filter-${purifier.id}-${selectedCountry}`]
+                            ?? (filterPricesByCountry[purifier.id]?.[selectedCountry] ?? '')
+                          )
                         }
-                        onChange={(e) => handleFilterPriceChange(purifier.id, e.target.value)}
+                        onChange={(e) => handleFilterPriceChange(purifier.id, e)}
                         onBlur={() => handleDraftInputBlur(`filter-${purifier.id}-${selectedCountry}`)}
                         placeholder="0.0000"
                         aria-label={`${purifier.brand} ${purifier.model} filter price (${selectedCountryCurrency})`}
@@ -1142,10 +1281,12 @@ function App() {
                         id={`max-filter-usage-${purifier.id}`}
                         inputMode="decimal"
                         value={
-                          inputDrafts[`max-filter-usage-${purifier.id}`]
-                          ?? (maxFilterUsageHoursByPurifier[purifier.id] ?? '')
+                          formatDecimalInputString(
+                            inputDrafts[`max-filter-usage-${purifier.id}`]
+                            ?? (maxFilterUsageHoursByPurifier[purifier.id] ?? '')
+                          )
                         }
-                        onChange={(e) => handleMaxFilterUsageByPurifierChange(purifier.id, e.target.value)}
+                        onChange={(e) => handleMaxFilterUsageByPurifierChange(purifier.id, e)}
                         onBlur={() => handleDraftInputBlur(`max-filter-usage-${purifier.id}`)}
                         placeholder="Optional override"
                         aria-label={`${purifier.brand} ${purifier.model} max filter usage override`}
