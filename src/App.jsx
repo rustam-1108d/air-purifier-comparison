@@ -1369,7 +1369,7 @@ function App() {
           <p className="message info">No matching groups for the current constraints.</p>
         ) : (
           <div className="table-wrap">
-            <table>
+            <table className="air-purifier-groups-table">
               <thead>
                 <tr>
                   <th><button type="button" className={getSortButtonClassName('brand')} onClick={() => handleSort('brand')}>Brand {getSortIndicator('brand')}</button></th>

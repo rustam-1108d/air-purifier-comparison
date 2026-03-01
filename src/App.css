@@ -456,6 +456,21 @@ tbody tr:hover {
 	font-weight: 800;
 }
 
+.air-purifier-groups-table th:nth-child(1),
+.air-purifier-groups-table td:nth-child(1) {
+	min-width: 5.5rem;
+}
+
+.air-purifier-groups-table th:nth-child(2),
+.air-purifier-groups-table td:nth-child(2) {
+	min-width: 11rem;
+}
+
+.air-purifier-groups-table th:nth-child(3),
+.air-purifier-groups-table td:nth-child(3) {
+	min-width: 8.5rem;
+}
+
 @media (max-width: 760px) {
 	.app-shell {
 		padding: 1rem 0.65rem 2rem;
