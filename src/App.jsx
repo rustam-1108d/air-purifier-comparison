@@ -2,6 +2,39 @@ import { useEffect, useMemo, useState } from 'react'
 
 import calculateRequiredParticulateCADR from './utils/calculateRequiredParticulateCADR';
 import buildAirPurifierGroups from './utils/buildAirPurifierGroups';
+import useFloatingTooltip from './hooks/useFloatingTooltip';
+
+import {
+  DEFAULT_DECIMAL_PLACES,
+  DEFAULT_INTEGER_DIGITS,
+  MIN_ANNUAL_OPERATING_HOURS,
+  MAX_ANNUAL_OPERATING_HOURS,
+  MIN_OWNERSHIP_YEARS,
+  MAX_OWNERSHIP_YEARS,
+  FORM_DECIMAL_PLACES_BY_FIELD,
+  FORM_INTEGER_DIGITS_BY_FIELD,
+  LOCATION_DECIMAL_PLACES,
+  LOCATION_INTEGER_DIGITS,
+  FILTER_USAGE_LIMIT_DECIMAL_PLACES,
+  FILTER_USAGE_LIMIT_INTEGER_DIGITS,
+  THEME_STORAGE_KEY,
+  LANGUAGE_STORAGE_KEY,
+  INITIAL_FORM,
+  DEFAULT_SORT_CONFIG,
+} from './constants/appConfig.js';
+import {
+  normalizeDecimalInput,
+  isValidDecimalInput,
+  parseDecimalForForm,
+  parseDecimalForNullable,
+  formatIntegerInputString,
+  formatDecimalInputString,
+  countMatchingCharacters,
+  scheduleCaretPosition,
+  isDigitCharacter,
+  isDecimalCharacter,
+  formatGroupedNumber,
+} from './utils/numberInput.js';
 
 import countries from './data/countries.js';
 import cities from './data/cities.js';
@@ -11,163 +44,6 @@ import { airPurifiers } from './data/airPurifiers.js';
 import { translations } from './i18n/translations.js';
 
 import './App.css'
-
-const DEFAULT_DECIMAL_PLACES = 4;
-const DEFAULT_INTEGER_DIGITS = 9;
-const MIN_ANNUAL_OPERATING_HOURS = 0;
-const MAX_ANNUAL_OPERATING_HOURS = 8784;
-const MIN_OWNERSHIP_YEARS = 1;
-const MAX_OWNERSHIP_YEARS = 99;
-
-const FORM_DECIMAL_PLACES_BY_FIELD = {
-  indoorPm2_5AnnualAverageConcentrationLimit: 4,
-  indoorPm10AnnualAverageConcentrationLimit: 4,
-  ventilationRate: 4,
-  indoorPm2_5GenerationRate: 4,
-  indoorPm10GenerationRate: 4,
-  roomVolume: 4,
-  maxCombinedNoiseDbA: 4,
-};
-
-const FORM_INTEGER_DIGITS_BY_FIELD = {
-  indoorPm2_5AnnualAverageConcentrationLimit: 4,
-  indoorPm10AnnualAverageConcentrationLimit: 4,
-  ventilationRate: 5,
-  indoorPm2_5GenerationRate: 7,
-  indoorPm10GenerationRate: 7,
-  roomVolume: 5,
-  maxCombinedNoiseDbA: 3,
-};
-
-const LOCATION_DECIMAL_PLACES = {
-  electricityPrice: 4,
-  outdoorPm2_5: 4,
-  outdoorPm10: 4,
-  purifierPrice: 4,
-  filterPrice: 4,
-};
-
-const LOCATION_INTEGER_DIGITS = {
-  electricityPrice: 6,
-  outdoorPm2_5: 4,
-  outdoorPm10: 4,
-  purifierPrice: 7,
-  filterPrice: 7,
-};
-
-const FILTER_USAGE_LIMIT_DECIMAL_PLACES = 2;
-const FILTER_USAGE_LIMIT_INTEGER_DIGITS = 7;
-const GROUPING_SEPARATOR = '\u202F';
-
-const normalizeDecimalInput = (value) => value.replace(/[\s\u202F]/g, '').replace(/,/g, '.');
-
-const isValidDecimalInput = (
-  value,
-  maxDecimalPlaces = DEFAULT_DECIMAL_PLACES,
-  maxIntegerDigits = DEFAULT_INTEGER_DIGITS,
-) => {
-  const pattern = new RegExp(`^\\d{0,${maxIntegerDigits}}(\\.\\d{0,${maxDecimalPlaces}})?$`);
-  return pattern.test(value);
-};
-
-const parseDecimalForForm = (value) => (value === '' || value === '.' ? '' : Number(value));
-
-const parseDecimalForNullable = (value) => (value === '' || value === '.' ? null : Number(value));
-
-const formatIntegerInputString = (value) => {
-  if (value === '' || value === null || value === undefined) {
-    return '';
-  }
-
-  return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, GROUPING_SEPARATOR);
-};
-
-const formatDecimalInputString = (value) => {
-  if (value === '' || value === null || value === undefined) {
-    return '';
-  }
-
-  const rawValue = String(value);
-  if (rawValue === '.') {
-    return '.';
-  }
-
-  const hasDot = rawValue.includes('.');
-  const [integerPart, fractionalPart = ''] = rawValue.split('.');
-  const formattedIntegerPart = formatIntegerInputString(integerPart);
-
-  return hasDot ? `${formattedIntegerPart}.${fractionalPart}` : formattedIntegerPart;
-};
-
-const countMatchingCharacters = (value, matcher) => (
-  Array.from(value).reduce((count, character) => (matcher(character) ? count + 1 : count), 0)
-);
-
-const getCaretPositionForRawIndex = (formattedValue, rawIndex, matcher) => {
-  if (rawIndex <= 0) {
-    return 0;
-  }
-
-  let matchedCharacterCount = 0;
-  for (let index = 0; index < formattedValue.length; index += 1) {
-    if (matcher(formattedValue[index])) {
-      matchedCharacterCount += 1;
-    }
-
-    if (matchedCharacterCount >= rawIndex) {
-      return index + 1;
-    }
-  }
-
-  return formattedValue.length;
-};
-
-const scheduleCaretPosition = ({
-  input,
-  nextDisplayValue,
-  rawIndex,
-  matcher,
-}) => {
-  if (!input) {
-    return;
-  }
-
-  window.requestAnimationFrame(() => {
-    if (document.activeElement !== input) {
-      return;
-    }
-
-    const caretPosition = getCaretPositionForRawIndex(nextDisplayValue, rawIndex, matcher);
-    input.setSelectionRange(caretPosition, caretPosition);
-  });
-};
-
-const isDigitCharacter = (character) => /\d/.test(character);
-const isDecimalCharacter = (character) => /[\d.]/.test(character);
-
-const formatGroupedNumber = (
-  value,
-  {
-    minimumFractionDigits = 0,
-    maximumFractionDigits = 2,
-  } = {},
-  locale = 'en-US',
-) => {
-  if (!Number.isFinite(value)) {
-    return 'N/A';
-  }
-
-  const formatter = new Intl.NumberFormat(locale, {
-      minimumFractionDigits,
-      maximumFractionDigits,
-      useGrouping: true,
-    });
-
-  return formatter
-    .formatToParts(value)
-    .map((part) => (part.type === 'group' ? GROUPING_SEPARATOR : part.value))
-    .join('');
-};
 
 const getFilterUsageLimitValidationMessage = (value, filterUsageLimitPositiveMessage) => {
   if (!Number.isFinite(value)) {
@@ -183,22 +59,6 @@ const getPm10IncludesPm2_5ValidationMessage = (pm2_5Value, pm10Value, pm10MustIn
   }
 
   return pm10Value < pm2_5Value ? pm10MustIncludePm25Message : null;
-};
-
-const THEME_STORAGE_KEY = 'app-theme';
-const LANGUAGE_STORAGE_KEY = 'app-language';
-
-const INITIAL_FORM = {
-  indoorPm2_5AnnualAverageConcentrationLimit: 5,
-  indoorPm10AnnualAverageConcentrationLimit: 15,
-  ventilationRate: 30,
-  indoorPm2_5GenerationRate: 0,
-  indoorPm10GenerationRate: 0,
-  roomVolume: 50,
-  maxAirPurifierCount: 2,
-  maxCombinedNoiseDbA: 40,
-  annualOperatingHours: 8760,
-  ownershipYears: 5,
 };
 
 const buildInitialElectricityPricesByCountry = () => {
@@ -246,8 +106,6 @@ const buildInitialFilterPricesByCountry = () => Object.fromEntries(
 const buildInitialMaxFilterUsageHoursByPurifier = () => (
   Object.fromEntries(airPurifiers.map((purifier) => [purifier.id, null]))
 );
-
-const DEFAULT_SORT_CONFIG = { key: 'totalCostOfOwnership', direction: 'asc' };
 
 const getInitialTheme = () => {
   if (typeof window === 'undefined') {
@@ -304,7 +162,7 @@ function App() {
   );
   const [inputDrafts, setInputDrafts] = useState({});
   const [sortConfig, setSortConfig] = useState(DEFAULT_SORT_CONFIG);
-  const [activeTooltip, setActiveTooltip] = useState(null);
+  const { activeTooltip, showTooltip, hideTooltip } = useFloatingTooltip();
 
   const [form, setForm] = useState(INITIAL_FORM);
   const copy = translations[language];
@@ -905,67 +763,6 @@ function App() {
     document.documentElement.setAttribute('lang', language);
     window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
   }, [language]);
-
-  useEffect(() => {
-    if (!activeTooltip) {
-      return undefined;
-    }
-
-    const hideTooltip = () => setActiveTooltip(null);
-
-    window.addEventListener('scroll', hideTooltip, true);
-    window.addEventListener('resize', hideTooltip);
-
-    return () => {
-      window.removeEventListener('scroll', hideTooltip, true);
-      window.removeEventListener('resize', hideTooltip);
-    };
-  }, [activeTooltip]);
-
-  const showTooltip = (event) => {
-    const element = event.currentTarget;
-    const tooltipText = element.dataset.tooltip;
-
-    if (!tooltipText) {
-      setActiveTooltip(null);
-      return;
-    }
-
-    const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-    const anchorElement = element.classList.contains('cell-tooltip')
-      ? (element.querySelector('.cell-tooltip-value') ?? element)
-      : element;
-    const rect = anchorElement.getBoundingClientRect();
-    const edgePadding = 16;
-    const maxWidth = Number(element.dataset.tooltipMaxWidth ?? 320);
-    const estimatedHeight = Number(element.dataset.tooltipEstimatedHeight ?? 96);
-    const tooltipWidth = Math.min(maxWidth, viewportWidth - (edgePadding * 2));
-    const targetCenterX = rect.left + (rect.width / 2);
-    const left = Math.min(
-      Math.max(targetCenterX - (tooltipWidth / 2), edgePadding),
-      viewportWidth - edgePadding - tooltipWidth,
-    );
-    const arrowOffset = Math.min(Math.max(targetCenterX - left, 10), tooltipWidth - 10);
-
-    const spaceAbove = rect.top - edgePadding;
-    const spaceBelow = viewportHeight - rect.bottom - edgePadding;
-    const vertical = spaceAbove < estimatedHeight && spaceBelow > spaceAbove ? 'bottom' : 'top';
-    const anchorY = vertical === 'top' ? rect.top : rect.bottom;
-
-    setActiveTooltip({
-      text: tooltipText,
-      vertical,
-      left,
-      anchorY,
-      width: tooltipWidth,
-      arrowOffset,
-    });
-  };
-
-  const hideTooltip = () => {
-    setActiveTooltip(null);
-  };
 
   const handleResetAllInputs = () => {
     setSelectedCountry(countries[0].code);
