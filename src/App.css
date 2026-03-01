@@ -253,7 +253,8 @@ label {
 	padding-right: 1.35rem;
 	line-height: 1.2;
 	white-space: normal;
-	overflow-wrap: anywhere;
+	overflow-wrap: normal;
+	word-break: normal;
 }
 
 .table-header-with-help .help-dot {
@@ -374,8 +375,8 @@ th button {
 
 th button {
 	white-space: normal;
-	overflow-wrap: anywhere;
-	word-break: break-word;
+	overflow-wrap: normal;
+	word-break: normal;
 	line-height: 1.2;
 }
 
@@ -553,7 +554,8 @@ tbody tr:hover {
 	.table-header-with-help > span:first-child {
 		grid-row: 2;
 		white-space: normal;
-		overflow-wrap: anywhere;
+		overflow-wrap: normal;
+		word-break: normal;
 	}
 }
 
