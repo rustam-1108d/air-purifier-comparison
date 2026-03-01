@@ -56,9 +56,9 @@ const LOCATION_INTEGER_DIGITS = {
 
 const FILTER_USAGE_LIMIT_DECIMAL_PLACES = 2;
 const FILTER_USAGE_LIMIT_INTEGER_DIGITS = 7;
-const GROUPING_SEPARATOR = ' ';
+const GROUPING_SEPARATOR = '\u202F';
 
-const normalizeDecimalInput = (value) => value.replace(/\s/g, '').replace(/,/g, '.');
+const normalizeDecimalInput = (value) => value.replace(/[\s\u202F]/g, '').replace(/,/g, '.');
 
 const isValidDecimalInput = (
   value,
