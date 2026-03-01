@@ -56,6 +56,7 @@ const LOCATION_INTEGER_DIGITS = {
 
 const FILTER_USAGE_LIMIT_DECIMAL_PLACES = 2;
 const FILTER_USAGE_LIMIT_INTEGER_DIGITS = 7;
+const GROUPING_SEPARATOR = ' ';
 
 const normalizeDecimalInput = (value) => value.replace(/,/g, '.');
 
@@ -71,6 +72,26 @@ const isValidDecimalInput = (
 const parseDecimalForForm = (value) => (value === '' || value === '.' ? '' : Number(value));
 
 const parseDecimalForNullable = (value) => (value === '' || value === '.' ? null : Number(value));
+
+const formatGroupedNumber = (
+  value,
+  {
+    minimumFractionDigits = 0,
+    maximumFractionDigits = 2,
+  } = {},
+) => {
+  if (!Number.isFinite(value)) {
+    return 'N/A';
+  }
+
+  return value
+    .toLocaleString('en-US', {
+      minimumFractionDigits,
+      maximumFractionDigits,
+      useGrouping: true,
+    })
+    .replace(/,/g, GROUPING_SEPARATOR);
+};
 
 const getFilterUsageLimitValidationMessage = (value) => {
   if (!Number.isFinite(value)) {
@@ -1058,9 +1079,9 @@ function App() {
       <section className="card metric-panel">
         <h2>Required CADR</h2>
         <div className="metrics-grid">
-          {requiredPm2_5CADR === null ? <p className="metric-item">Indoor PM2.5 Concentration Limit must be greater than zero</p> : <p className="metric-item">Required CADR for PM2.5: <strong>{requiredPm2_5CADR.toFixed(2)} m³/h</strong></p>}
-          {requiredPm10CADR === null ? <p className="metric-item">Indoor PM10 Concentration Limit must be greater than zero</p> : <p className="metric-item">Required CADR for PM10: <strong>{requiredPm10CADR.toFixed(2)} m³/h</strong></p>}
-          {minimumRequiredCADR === 0 ? <p className="metric-item">At least one of the required CADR values must be greater than zero</p> : <p className="metric-item">Minimum Required CADR: <strong>{minimumRequiredCADR.toFixed(2)} m³/h</strong></p>}
+          {requiredPm2_5CADR === null ? <p className="metric-item">Indoor PM2.5 Concentration Limit must be greater than zero</p> : <p className="metric-item">Required CADR for PM2.5: <strong>{formatGroupedNumber(requiredPm2_5CADR, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³/h</strong></p>}
+          {requiredPm10CADR === null ? <p className="metric-item">Indoor PM10 Concentration Limit must be greater than zero</p> : <p className="metric-item">Required CADR for PM10: <strong>{formatGroupedNumber(requiredPm10CADR, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³/h</strong></p>}
+          {minimumRequiredCADR === 0 ? <p className="metric-item">At least one of the required CADR values must be greater than zero</p> : <p className="metric-item">Minimum Required CADR: <strong>{formatGroupedNumber(minimumRequiredCADR, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³/h</strong></p>}
         </div>
       </section>
 
@@ -1149,13 +1170,13 @@ function App() {
               Best Value Option: <strong>{bestValueGroup.brand} {bestValueGroup.model}</strong> ({bestValueGroup.quantity} unit{bestValueGroup.quantity > 1 ? 's' : ''}, {bestValueGroup.speedName})
             </p>
             <p className="summary-metrics">
-              TCO: <strong>{bestValueGroup.totalCostOfOwnership?.toFixed(2)} {selectedCountryCurrency}</strong> · Starting CADR: <strong>{bestValueGroup.totalCadrM3PerHour.toFixed(2)} m³/h</strong> · Noise: <strong>{bestValueGroup.combinedNoiseDbA.toFixed(1)} dBA</strong>
+              TCO: <strong>{formatGroupedNumber(bestValueGroup.totalCostOfOwnership, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {selectedCountryCurrency}</strong> · Starting CADR: <strong>{formatGroupedNumber(bestValueGroup.totalCadrM3PerHour, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³/h</strong> · Noise: <strong>{formatGroupedNumber(bestValueGroup.combinedNoiseDbA, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} dBA</strong>
             </p>
           </div>
         )}
         {isCostPeriodValid ? (
           <p className="message info">
-            Cost of ownership period: {form.ownershipYears} years × {form.annualOperatingHours} hours/year = {form.ownershipYears * form.annualOperatingHours} hours
+            Cost of ownership period: {formatGroupedNumber(form.ownershipYears)} years × {formatGroupedNumber(form.annualOperatingHours)} hours/year = {formatGroupedNumber(form.ownershipYears * form.annualOperatingHours)} hours
           </p>
         ) : (
           <p className="message error">Cost of ownership period unavailable until Annual Operating Hours and Ownership Years are valid.</p>
@@ -1188,41 +1209,41 @@ function App() {
                     <td>{group.model}</td>
                     <td>{group.speedName}</td>
                     <td>{group.quantity}</td>
-                    <td className="cell-tooltip" data-tooltip={`Total CADR = ${group.totalCadrM3PerHour.toFixed(2)} m³/h (single unit ${(group.totalCadrM3PerHour / group.quantity).toFixed(2)} × quantity ${group.quantity})`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{group.totalCadrM3PerHour.toFixed(2)}</span>
+                    <td className="cell-tooltip" data-tooltip={`Total CADR = ${formatGroupedNumber(group.totalCadrM3PerHour, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³/h (single unit ${formatGroupedNumber(group.totalCadrM3PerHour / group.quantity, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} × quantity ${group.quantity})`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
+                      <span className="cell-tooltip-value">{formatGroupedNumber(group.totalCadrM3PerHour, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </td>
-                    <td className="cell-tooltip" data-tooltip={`Total power = ${group.totalPowerWatts.toFixed(2)} W (single unit ${(group.totalPowerWatts / group.quantity).toFixed(2)} × quantity ${group.quantity})`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{group.totalPowerWatts.toFixed(2)}</span>
+                    <td className="cell-tooltip" data-tooltip={`Total power = ${formatGroupedNumber(group.totalPowerWatts, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} W (single unit ${formatGroupedNumber(group.totalPowerWatts / group.quantity, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} × quantity ${group.quantity})`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
+                      <span className="cell-tooltip-value">{formatGroupedNumber(group.totalPowerWatts, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </td>
-                    <td className="cell-tooltip" data-tooltip={`Combined noise from ${group.quantity} units: ${group.combinedNoiseDbA.toFixed(1)} dBA`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{group.combinedNoiseDbA.toFixed(1)}</span>
+                    <td className="cell-tooltip" data-tooltip={`Combined noise from ${group.quantity} units: ${formatGroupedNumber(group.combinedNoiseDbA, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} dBA`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
+                      <span className="cell-tooltip-value">{formatGroupedNumber(group.combinedNoiseDbA, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span>
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.effectiveFilterLifeHours === null
                       ? 'Filter life unavailable for this configuration'
                       : Number.isFinite(group.appliedMaxFilterUsageHours)
-                        ? `Capped at ${group.appliedMaxFilterUsageHours.toFixed(2)} h by usage limit. Estimated stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`
+                        ? `Capped at ${formatGroupedNumber(group.appliedMaxFilterUsageHours, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} h by usage limit. Estimated stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`
                         : `Estimated from CADR decay model. Stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{group.effectiveFilterLifeHours === null ? 'N/A' : group.effectiveFilterLifeHours.toFixed(0)}</span>
+                      <span className="cell-tooltip-value">{group.effectiveFilterLifeHours === null ? 'N/A' : formatGroupedNumber(group.effectiveFilterLifeHours)}</span>
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.purchaseCost === null
                       ? 'Purchase cost unavailable: purifier price missing'
-                      : `Purchase = unit price × quantity = ${(group.purchaseCost / group.quantity).toFixed(2)} × ${group.quantity}`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{group.purchaseCost === null ? 'N/A' : group.purchaseCost.toFixed(2)}</span>
+                      : `Purchase = unit price × quantity = ${formatGroupedNumber(group.purchaseCost / group.quantity, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} × ${group.quantity}`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
+                      <span className="cell-tooltip-value">{group.purchaseCost === null ? 'N/A' : formatGroupedNumber(group.purchaseCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.electricityCost === null
                       ? 'Electricity cost unavailable: electricity price missing'
-                      : `Electricity = (power W / 1000) × ${group.ownershipPeriodHours} h × ${(currentElectricityPrice ?? 0).toFixed(4)} ${selectedCountryCurrency}/kWh`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{group.electricityCost === null ? 'N/A' : group.electricityCost.toFixed(2)}</span>
+                      : `Electricity = (power W / 1000) × ${formatGroupedNumber(group.ownershipPeriodHours)} h × ${formatGroupedNumber(currentElectricityPrice ?? 0, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} ${selectedCountryCurrency}/kWh`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
+                      <span className="cell-tooltip-value">{group.electricityCost === null ? 'N/A' : formatGroupedNumber(group.electricityCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.filterCost === null
                       ? 'Filter cost unavailable: filter price or filter life missing'
-                      : `Filters = unit filter price × quantity × replacements = ${(group.filterCost / (group.quantity * (group.filterReplacements || 1))).toFixed(2)} × ${group.quantity} × ${group.filterReplacements}`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{group.filterCost === null ? 'N/A' : group.filterCost.toFixed(2)}</span>
+                      : `Filters = unit filter price × quantity × replacements = ${formatGroupedNumber(group.filterCost / (group.quantity * (group.filterReplacements || 1)), { minimumFractionDigits: 2, maximumFractionDigits: 2 })} × ${group.quantity} × ${group.filterReplacements}`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
+                      <span className="cell-tooltip-value">{group.filterCost === null ? 'N/A' : formatGroupedNumber(group.filterCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.totalCostOfOwnership === null
                       ? 'TCO unavailable: one or more cost components missing'
-                      : `TCO = Purchase + Electricity + Filters = ${group.purchaseCost?.toFixed(2)} + ${group.electricityCost?.toFixed(2)} + ${group.filterCost?.toFixed(2)}`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{group.totalCostOfOwnership === null ? 'N/A' : group.totalCostOfOwnership.toFixed(2)}</span>
+                      : `TCO = Purchase + Electricity + Filters = ${formatGroupedNumber(group.purchaseCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} + ${formatGroupedNumber(group.electricityCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} + ${formatGroupedNumber(group.filterCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
+                      <span className="cell-tooltip-value">{group.totalCostOfOwnership === null ? 'N/A' : formatGroupedNumber(group.totalCostOfOwnership, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </td>
                   </tr>
                 ))}
