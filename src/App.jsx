@@ -872,6 +872,10 @@ function App() {
     return sortConfig.direction === 'asc' ? '▲' : '▼';
   };
 
+  const getSortButtonClassName = (key) => (
+    sortConfig.key === key ? 'sort-button is-active' : 'sort-button'
+  );
+
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     window.localStorage.setItem(THEME_STORAGE_KEY, theme);
@@ -1368,18 +1372,18 @@ function App() {
             <table>
               <thead>
                 <tr>
-                  <th><button type="button" onClick={() => handleSort('brand')}>Brand {getSortIndicator('brand')}</button></th>
-                  <th><button type="button" onClick={() => handleSort('model')}>Model {getSortIndicator('model')}</button></th>
-                  <th><button type="button" onClick={() => handleSort('speedName')}>Speed Setting {getSortIndicator('speedName')}</button></th>
-                  <th><button type="button" onClick={() => handleSort('quantity')}>Quantity of Air Purifiers {getSortIndicator('quantity')}</button></th>
-                  <th><button type="button" onClick={() => handleSort('totalCadrM3PerHour')}>{renderSortableHeaderWithHelp('totalCadrM3PerHour', 'Total Starting CADR (m³/h)', 'Total clean-air delivery from all units in the group at the selected speed.')}</button></th>
-                  <th><button type="button" onClick={() => handleSort('totalPowerWatts')}>Total Power (W) {getSortIndicator('totalPowerWatts')}</button></th>
-                  <th><button type="button" onClick={() => handleSort('combinedNoiseDbA')}>Combined Noise (dBA) {getSortIndicator('combinedNoiseDbA')}</button></th>
-                  <th><button type="button" onClick={() => handleSort('filterLifeHours')}>{renderSortableHeaderWithHelp('filterLifeHours', 'Estimated Filter Life (h)', 'Projected runtime before replacement threshold after applying global or model-specific caps.')}</button></th>
-                  <th><button type="button" onClick={() => handleSort('purchaseCost')}>Initial Purchase Cost ({selectedCountryCurrency}) {getSortIndicator('purchaseCost')}</button></th>
-                  <th><button type="button" onClick={() => handleSort('electricityCost')}>{renderSortableHeaderWithHelp('electricityCost', `Total Electricity Cost (${selectedCountryCurrency})`, 'Energy cost for the selected ownership period based on power draw and electricity price.')}</button></th>
-                  <th><button type="button" onClick={() => handleSort('filterCost')}>{renderSortableHeaderWithHelp('filterCost', `Total Filter Replacement Cost (${selectedCountryCurrency})`, 'Replacement filter cost for the selected ownership period.')}</button></th>
-                  <th><button type="button" onClick={() => handleSort('totalCostOfOwnership')}>{renderSortableHeaderWithHelp('totalCostOfOwnership', `Total Cost of Ownership (${selectedCountryCurrency})`, 'Combined purchase, electricity, and filter replacement cost for the selected period.')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('brand')} onClick={() => handleSort('brand')}>Brand {getSortIndicator('brand')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('model')} onClick={() => handleSort('model')}>Model {getSortIndicator('model')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('speedName')} onClick={() => handleSort('speedName')}>Speed Setting {getSortIndicator('speedName')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('quantity')} onClick={() => handleSort('quantity')}>Quantity of Air Purifiers {getSortIndicator('quantity')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('totalCadrM3PerHour')} onClick={() => handleSort('totalCadrM3PerHour')}>{renderSortableHeaderWithHelp('totalCadrM3PerHour', 'Total Starting CADR (m³/h)', 'Total clean-air delivery from all units in the group at the selected speed.')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('totalPowerWatts')} onClick={() => handleSort('totalPowerWatts')}>Total Power (W) {getSortIndicator('totalPowerWatts')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('combinedNoiseDbA')} onClick={() => handleSort('combinedNoiseDbA')}>Combined Noise (dBA) {getSortIndicator('combinedNoiseDbA')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('filterLifeHours')} onClick={() => handleSort('filterLifeHours')}>{renderSortableHeaderWithHelp('filterLifeHours', 'Estimated Filter Life (h)', 'Projected runtime before replacement threshold after applying global or model-specific caps.')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('purchaseCost')} onClick={() => handleSort('purchaseCost')}>Initial Purchase Cost ({selectedCountryCurrency}) {getSortIndicator('purchaseCost')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('electricityCost')} onClick={() => handleSort('electricityCost')}>{renderSortableHeaderWithHelp('electricityCost', `Total Electricity Cost (${selectedCountryCurrency})`, 'Energy cost for the selected ownership period based on power draw and electricity price.')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('filterCost')} onClick={() => handleSort('filterCost')}>{renderSortableHeaderWithHelp('filterCost', `Total Filter Replacement Cost (${selectedCountryCurrency})`, 'Replacement filter cost for the selected ownership period.')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('totalCostOfOwnership')} onClick={() => handleSort('totalCostOfOwnership')}>{renderSortableHeaderWithHelp('totalCostOfOwnership', `Total Cost of Ownership (${selectedCountryCurrency})`, 'Combined purchase, electricity, and filter replacement cost for the selected period.')}</button></th>
                 </tr>
               </thead>
               <tbody>

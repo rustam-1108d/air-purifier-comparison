@@ -435,7 +435,7 @@ tbody tr:hover {
 	background: var(--row-hover);
 }
 
-th button {
+.sort-button {
 	border: 0;
 	height: auto;
 	padding: 0;
@@ -443,10 +443,17 @@ th button {
 	text-align: left;
 	font-weight: 700;
 	border-radius: 0;
+	color: inherit;
+	transition: color 0.15s ease, text-decoration-color 0.15s ease;
 }
 
-th button:hover {
+.sort-button:hover {
 	color: var(--sort-hover);
+}
+
+.sort-button.is-active {
+	color: var(--sort-hover);
+	font-weight: 800;
 }
 
 @media (max-width: 760px) {
