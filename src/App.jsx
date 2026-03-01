@@ -8,6 +8,7 @@ import cities from './data/cities.js';
 import { getInitialElectricityPriceByCountry, getInitialElectricityPriceByCity } from './data/electricityPrices.js';
 import { getInitialAirQualityByCountry, getInitialAirQualityByCity } from './data/airQuality.js';
 import { airPurifiers } from './data/airPurifiers.js';
+import { translations } from './i18n/translations.js';
 
 import './App.css'
 
@@ -150,39 +151,42 @@ const formatGroupedNumber = (
     minimumFractionDigits = 0,
     maximumFractionDigits = 2,
   } = {},
+  locale = 'en-US',
 ) => {
   if (!Number.isFinite(value)) {
     return 'N/A';
   }
 
-  return value
-    .toLocaleString('en-US', {
+  const formatter = new Intl.NumberFormat(locale, {
       minimumFractionDigits,
       maximumFractionDigits,
       useGrouping: true,
-    })
-    .replace(/,/g, GROUPING_SEPARATOR);
+    });
+
+  return formatter
+    .formatToParts(value)
+    .map((part) => (part.type === 'group' ? GROUPING_SEPARATOR : part.value))
+    .join('');
 };
 
-const getFilterUsageLimitValidationMessage = (value) => {
+const getFilterUsageLimitValidationMessage = (value, filterUsageLimitPositiveMessage) => {
   if (!Number.isFinite(value)) {
     return null;
   }
 
-  return value <= 0 ? 'Max filter usage period must be greater than 0 hours.' : null;
+  return value <= 0 ? filterUsageLimitPositiveMessage : null;
 };
 
-const getPm10IncludesPm2_5ValidationMessage = (pm2_5Value, pm10Value, contextLabel) => {
+const getPm10IncludesPm2_5ValidationMessage = (pm2_5Value, pm10Value, pm10MustIncludePm25Message) => {
   if (!Number.isFinite(pm2_5Value) || !Number.isFinite(pm10Value)) {
     return null;
   }
 
-  return pm10Value < pm2_5Value
-    ? `${contextLabel}: PM10 must be greater than or equal to PM2.5.`
-    : null;
+  return pm10Value < pm2_5Value ? pm10MustIncludePm25Message : null;
 };
 
 const THEME_STORAGE_KEY = 'app-theme';
+const LANGUAGE_STORAGE_KEY = 'app-language';
 
 const INITIAL_FORM = {
   indoorPm2_5AnnualAverageConcentrationLimit: 5,
@@ -258,8 +262,22 @@ const getInitialTheme = () => {
   return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 };
 
+const getInitialLanguage = () => {
+  if (typeof window === 'undefined') {
+    return 'en';
+  }
+
+  const savedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+  if (savedLanguage === 'en' || savedLanguage === 'ru') {
+    return savedLanguage;
+  }
+
+  return navigator.language?.toLowerCase().startsWith('ru') ? 'ru' : 'en';
+};
+
 function App() {
   const [theme, setTheme] = useState(getInitialTheme);
+  const [language, setLanguage] = useState(getInitialLanguage);
   const [selectedCountry, setSelectedCountry] = useState(countries[0].code);
   const [selectedCityId, setSelectedCityId] = useState('');
   const [electricityPricesByCountry, setElectricityPricesByCountry] = useState(
@@ -293,6 +311,11 @@ function App() {
   // console.log('Filter Prices by Country:', filterPricesByCountry);
 
   const [form, setForm] = useState(INITIAL_FORM);
+  const copy = translations[language];
+  const numberLocale = language === 'ru' ? 'ru-RU' : 'en-US';
+  const formatNumber = (value, options) => (
+    Number.isFinite(value) ? formatGroupedNumber(value, options, numberLocale) : copy.notAvailable
+  );
 
   const currentAirQuality = selectedCityId
     ? (airQualityByCity[selectedCityId] ?? null)
@@ -328,33 +351,33 @@ function App() {
     : (electricityPricesByCountry[selectedCountry] ?? null);
 
   const annualOperatingHoursValidationMessage = form.annualOperatingHours === ''
-    ? 'Annual Operating Hours is required.'
+    ? copy.annualOperatingHoursRequired
     : form.annualOperatingHours < MIN_ANNUAL_OPERATING_HOURS || form.annualOperatingHours > MAX_ANNUAL_OPERATING_HOURS
-      ? `Annual Operating Hours must be between ${MIN_ANNUAL_OPERATING_HOURS} and ${MAX_ANNUAL_OPERATING_HOURS}.`
+      ? copy.annualOperatingHoursBetween(MIN_ANNUAL_OPERATING_HOURS, MAX_ANNUAL_OPERATING_HOURS)
       : null;
   const isAnnualOperatingHoursValid = annualOperatingHoursValidationMessage === null;
 
   const ownershipYearsValidationMessage = form.ownershipYears === ''
-    ? 'Ownership Years is required.'
+    ? copy.ownershipYearsRequired
     : form.ownershipYears < MIN_OWNERSHIP_YEARS || form.ownershipYears > MAX_OWNERSHIP_YEARS
-      ? `Ownership Years must be between ${MIN_OWNERSHIP_YEARS} and ${MAX_OWNERSHIP_YEARS}.`
+      ? copy.ownershipYearsBetween(MIN_OWNERSHIP_YEARS, MAX_OWNERSHIP_YEARS)
       : null;
   const outdoorPmHierarchyValidationMessage = getPm10IncludesPm2_5ValidationMessage(
     outdoorPm2_5AnnualAverageConcentration,
     outdoorPm10AnnualAverageConcentration,
-    'Outdoor annual concentration'
+    copy.pm10MustIncludePm25(copy.outdoorAnnualConcentration)
   );
   const indoorLimitPmHierarchyValidationMessage = getPm10IncludesPm2_5ValidationMessage(
     form.indoorPm2_5AnnualAverageConcentrationLimit,
     form.indoorPm10AnnualAverageConcentrationLimit,
-    'Indoor concentration limit'
+    copy.pm10MustIncludePm25(copy.indoorConcentrationLimit)
   );
   const indoorGenerationPmHierarchyValidationMessage = getPm10IncludesPm2_5ValidationMessage(
     form.indoorPm2_5GenerationRate,
     form.indoorPm10GenerationRate,
-    'Indoor generation rate'
+    copy.pm10MustIncludePm25(copy.indoorGenerationRate)
   );
-  const maxFilterUsageHoursGlobalValidationMessage = getFilterUsageLimitValidationMessage(maxFilterUsageHoursGlobal);
+  const maxFilterUsageHoursGlobalValidationMessage = getFilterUsageLimitValidationMessage(maxFilterUsageHoursGlobal, copy.filterUsageLimitPositive);
   const isOwnershipYearsValid = ownershipYearsValidationMessage === null;
   const isCostPeriodValid = isAnnualOperatingHoursValid && isOwnershipYearsValid;
 
@@ -882,6 +905,11 @@ function App() {
   }, [theme]);
 
   useEffect(() => {
+    document.documentElement.setAttribute('lang', language);
+    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+  }, [language]);
+
+  useEffect(() => {
     if (!activeTooltip) {
       return undefined;
     }
@@ -964,7 +992,7 @@ function App() {
       {helpText && (
         <span
           className="help-dot"
-          aria-label={`${label} help`}
+          aria-label={copy.helpAria(label)}
           tabIndex={0}
           data-tooltip={helpText}
           data-tooltip-max-width="320"
@@ -986,7 +1014,7 @@ function App() {
       {helpText && (
         <span
           className="help-dot"
-          aria-label={`${label} help`}
+          aria-label={copy.helpAria(label)}
           tabIndex={0}
           data-tooltip={helpText}
           data-tooltip-max-width="320"
@@ -1008,7 +1036,7 @@ function App() {
       {helpText && (
         <span
           className="help-dot"
-          aria-label={`${label} help`}
+          aria-label={copy.helpAria(label)}
           tabIndex={0}
           data-tooltip={helpText}
           data-tooltip-max-width="320"
@@ -1028,45 +1056,51 @@ function App() {
     <main className="app-shell">
       <header className="app-header card">
         <div className="header-row">
-          <h1>Air Purifier Comparison</h1>
+          <h1>{copy.appTitle}</h1>
           <div className="header-actions">
             <button type="button" className="theme-toggle" onClick={handleResetAllInputs}>
-              Reset All Inputs
+              {copy.resetAllInputs}
+            </button>
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={() => setLanguage((prev) => (prev === 'en' ? 'ru' : 'en'))}
+            >
+              {language === 'en' ? copy.switchToRussian : copy.switchToEnglish}
             </button>
             <button
               type="button"
               className="theme-toggle"
               onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
             >
-              {theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+              {theme === 'dark' ? copy.switchToLight : copy.switchToDark}
             </button>
           </div>
         </div>
-        <p>Compare air purifier setups by air quality targets, noise constraints, and long-term ownership cost.</p>
-        <section className="app-instructions" aria-label="App description and usage instructions">
+        <p>{copy.appSubtitle}</p>
+        <section className="app-instructions" aria-label={copy.instructionsAria}>
           <p className="app-instructions-description">
-            This app estimates required air cleaning performance and ranks air purifier combinations by total ownership cost while following your air quality targets and noise limits.
+            {copy.instructionsDescription}
           </p>
-          <h2>How to use</h2>
+          <h2>{copy.howToUse}</h2>
           <ol>
-            <li>Set your country/city and confirm outdoor PM2.5 and PM10 values.</li>
-            <li>Enter indoor targets, room details, and operating assumptions.</li>
-            <li>Adjust air purifier and filter prices if your local prices differ from defaults.</li>
-            <li>Review the results table and choose the best setup for your constraints.</li>
+            {copy.howToUseSteps.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
           </ol>
         </section>
       </header>
 
       <section className="card">
-        <h2>Inputs</h2>
-        <p className="section-intro">Start with location and air quality values, then set room and cost assumptions.</p>
+        <h2>{copy.inputsTitle}</h2>
+        <p className="section-intro">{copy.inputsIntro}</p>
         <div className="input-groups">
           <div className="input-group">
-            <h3>1. Location & Outdoor Air</h3>
+            <h3>{copy.section1Title}</h3>
             <div className="form-grid">
               <div className="field">
                 <label htmlFor="country">
-                  {renderHelpLabel('Country', 'Choose the country where the room is located so defaults use the right pricing and air-quality context.')}
+                  {renderHelpLabel(copy.country, copy.countryHelp)}
                 </label>
                 <select
                   id="country"
@@ -1087,10 +1121,10 @@ function App() {
 
               <div className="field">
                 <label htmlFor="city">
-                  {renderHelpLabel('City (optional)', 'Use a city to override country averages with local values. Pick your nearest city from this list, or keep Country average if you are unsure.')}
+                  {renderHelpLabel(copy.cityOptional, copy.cityOptionalHelp)}
                 </label>
                 <select id="city" name="city" value={selectedCityId} onChange={(e) => setSelectedCityId(e.target.value)}>
-                  <option value="">Country average</option>
+                  <option value="">{copy.countryAverage}</option>
                   {availableCities.map((city) => (
                     <option key={city.id} value={city.id}>
                       {city.name}
@@ -1101,7 +1135,7 @@ function App() {
 
               <div className="field">
                 <label htmlFor="outdoorPm2_5AnnualAverageConcentration">
-                  {renderHelpLabel('Outdoor PM2.5 Concentration (annual average, µg/m³)', 'Enter your local annual average PM2.5 (fine particles ≤2.5 µm, µg/m³). PM2.5 mainly comes from vehicle exhaust, industry, and smoke. Find your local value from city/state air dashboards, national air-quality agencies, WHO, IQAir, or OpenAQ.')}
+                  {renderHelpLabel(copy.outdoorPm25Label, copy.outdoorPm25Help)}
                 </label>
                 <input
                   type="text"
@@ -1116,7 +1150,7 @@ function App() {
 
               <div className="field">
                 <label htmlFor="outdoorPm10AnnualAverageConcentration">
-                  {renderHelpLabel('Outdoor PM10 Concentration (annual average, µg/m³)', 'Enter your local annual average PM10 (includes PM2.5 + coarser particles, µg/m³). PM10 mainly comes from dust, pollen, and other coarse particles. Find your local value from city/state air dashboards, national air-quality agencies, WHO, IQAir, or OpenAQ.')}
+                  {renderHelpLabel(copy.outdoorPm10Label, copy.outdoorPm10Help)}
                 </label>
                 <input
                   type="text"
@@ -1135,18 +1169,18 @@ function App() {
           </div>
 
           <div className="input-group">
-            <h3>2. Indoor Air Targets</h3>
+            <h3>{copy.section2Title}</h3>
             <div className="form-grid">
               <div className="field">
                 <label htmlFor="indoorPm2_5AnnualAverageConcentrationLimit">
-                  {renderHelpLabel('Indoor PM2.5 Concentration Limit (annual average, µg/m³)', 'Set the indoor PM2.5 level you want to maintain over the year (µg/m³). Lower targets mean cleaner air but usually require more CADR; use WHO or local indoor air guidance as your reference.')}
+                  {renderHelpLabel(copy.indoorPm25LimitLabel, copy.indoorPm25LimitHelp)}
                 </label>
                 <input type="text" id="indoorPm2_5AnnualAverageConcentrationLimit" name="indoorPm2_5AnnualAverageConcentrationLimit" inputMode="decimal" value={formatDecimalInputString(inputDrafts.indoorPm2_5AnnualAverageConcentrationLimit ?? form.indoorPm2_5AnnualAverageConcentrationLimit)} onChange={handleChange} onBlur={handleBlur} />
               </div>
 
               <div className="field">
                 <label htmlFor="indoorPm10AnnualAverageConcentrationLimit">
-                  {renderHelpLabel('Indoor PM10 Concentration Limit (annual average, µg/m³)', 'Set the indoor PM10 target for annual average conditions (µg/m³). Use WHO or local indoor-air recommendations, then choose the level you want the model to satisfy.')}
+                  {renderHelpLabel(copy.indoorPm10LimitLabel, copy.indoorPm10LimitHelp)}
                 </label>
                 <input type="text" id="indoorPm10AnnualAverageConcentrationLimit" name="indoorPm10AnnualAverageConcentrationLimit" inputMode="decimal" value={formatDecimalInputString(inputDrafts.indoorPm10AnnualAverageConcentrationLimit ?? form.indoorPm10AnnualAverageConcentrationLimit)} onChange={handleChange} onBlur={handleBlur} />
                 {indoorLimitPmHierarchyValidationMessage && (
@@ -1156,14 +1190,14 @@ function App() {
 
               <div className="field">
                 <label htmlFor="indoorPm2_5GenerationRate">
-                  {renderHelpLabel('PM2.5 Generation by Indoor Sources (µg/h)', 'Estimate how much PM2.5 is produced in your room on average each hour (µg/h), for example from cooking, smoking, or candles. Use sensor-based approximations if available, or enter 0 when unknown. Approximate ranges: Low 10-200 µg/h, Moderate 200-1200 µg/h, High 1200-5000 µg/h.')}
+                  {renderHelpLabel(copy.indoorPm25GenerationLabel, copy.indoorPm25GenerationHelp)}
                 </label>
                 <input type="text" id="indoorPm2_5GenerationRate" name="indoorPm2_5GenerationRate" inputMode="decimal" value={formatDecimalInputString(inputDrafts.indoorPm2_5GenerationRate ?? form.indoorPm2_5GenerationRate)} onChange={handleChange} onBlur={handleBlur} />
               </div>
 
               <div className="field">
                 <label htmlFor="indoorPm10GenerationRate">
-                  {renderHelpLabel('PM10 Generation by Indoor Sources (µg/h)', 'Estimate how much PM10 is produced in your room on average each hour (µg/h), from sources like resuspended dust, tracked-in dirt, and indoor materials. You can infer this from sensor trends, or use 0 if you do not have a reliable estimate. Approximate ranges: Low 20-300 µg/h, Moderate 300-2000 µg/h, High 2000-7000 µg/h.')}
+                  {renderHelpLabel(copy.indoorPm10GenerationLabel, copy.indoorPm10GenerationHelp)}
                 </label>
                 <input type="text" id="indoorPm10GenerationRate" name="indoorPm10GenerationRate" inputMode="decimal" value={formatDecimalInputString(inputDrafts.indoorPm10GenerationRate ?? form.indoorPm10GenerationRate)} onChange={handleChange} onBlur={handleBlur} />
                 {indoorGenerationPmHierarchyValidationMessage && (
@@ -1174,32 +1208,32 @@ function App() {
           </div>
 
           <div className="input-group">
-            <h3>3. Room & Operating Constraints</h3>
+            <h3>{copy.section3Title}</h3>
             <div className="form-grid">
               <div className="field">
                 <label htmlFor="roomVolume">
-                  {renderHelpLabel('Room Volume (m³)', 'Enter the room air volume in cubic meters, usually calculated as length × width × height. Use your room measurements or floor-plan dimensions.')}
+                  {renderHelpLabel(copy.roomVolumeLabel, copy.roomVolumeHelp)}
                 </label>
                 <input type="text" id="roomVolume" name="roomVolume" inputMode="decimal" value={formatDecimalInputString(inputDrafts.roomVolume ?? form.roomVolume)} onChange={handleChange} onBlur={handleBlur} />
               </div>
 
               <div className="field">
                 <label htmlFor="ventilationRate">
-                  {renderHelpLabel('Ventilation Rate (m³/h)', 'Enter the outside-air flow into the room per hour (m³/h). If you don’t have measurements, use target rates from ventilation standards/guidelines for this room type.')}
+                  {renderHelpLabel(copy.ventilationRateLabel, copy.ventilationRateHelp)}
                 </label>
                 <input type="text" id="ventilationRate" name="ventilationRate" inputMode="decimal" value={formatDecimalInputString(inputDrafts.ventilationRate ?? form.ventilationRate)} onChange={handleChange} onBlur={handleBlur} />
               </div>
 
               <div className="field">
                 <label htmlFor="maxAirPurifierCount">
-                  {renderHelpLabel('Max Air Purifier Count', 'Set the maximum number of air purifiers that can be placed in the room. Choose this based on room space, power-outlet availability, and personal preferences. Using several air purifiers can help meet air-quality targets with lower noise and cost, but may not be practical in all spaces.')}
+                  {renderHelpLabel(copy.maxPurifierCountLabel, copy.maxPurifierCountHelp)}
                 </label>
                 <input type="text" id="maxAirPurifierCount" name="maxAirPurifierCount" maxLength={2} inputMode="numeric" pattern="\d*" value={formatIntegerInputString(form.maxAirPurifierCount)} onChange={handleChange} onBlur={handleBlur} />
               </div>
 
               <div className="field">
                 <label htmlFor="maxCombinedNoiseDbA">
-                  {renderHelpLabel('Max Combined Noise (dBA)', 'Set the total noise limit for all selected air purifiers running together (not per unit). Base this on comfort needs, or office/building noise policies.')}
+                  {renderHelpLabel(copy.maxNoiseLabel, copy.maxNoiseHelp)}
                 </label>
                 <input type="text" id="maxCombinedNoiseDbA" name="maxCombinedNoiseDbA" inputMode="decimal" value={formatDecimalInputString(inputDrafts.maxCombinedNoiseDbA ?? form.maxCombinedNoiseDbA)} onChange={handleChange} onBlur={handleBlur} />
               </div>
@@ -1207,11 +1241,11 @@ function App() {
           </div>
 
           <div className="input-group">
-            <h3>4. Cost & Filter Lifetime</h3>
+            <h3>{copy.section4Title}</h3>
             <div className="form-grid">
               <div className="field">
                 <label htmlFor="electricityPrice">
-                  {renderHelpLabel(`Electricity Price (${selectedCountryCurrency}/kWh)`, 'Enter your effective electricity tariff per kWh in local currency so operating cost is realistic. Use your utility bill, tariff schedule, or energy-regulator portal.')}
+                  {renderHelpLabel(copy.electricityPriceLabel(selectedCountryCurrency), copy.electricityPriceHelp)}
                 </label>
                 <input
                   type="text"
@@ -1226,7 +1260,7 @@ function App() {
 
               <div className="field">
                 <label htmlFor="annualOperatingHours">
-                  {renderHelpLabel('Annual Operating Hours', 'Enter expected runtime per year. Multiply hours of operation per day by days of operation per year. Continuous operation (24 hours/day × 365 days/year) is 8760 hours.')}
+                  {renderHelpLabel(copy.annualOperatingHoursLabel, copy.annualOperatingHoursHelp)}
                 </label>
                 <input type="text" id="annualOperatingHours" name="annualOperatingHours" maxLength={4} inputMode="numeric" pattern="\d*" value={formatIntegerInputString(form.annualOperatingHours)} onChange={handleChange} onBlur={handleBlur} placeholder="8760" />
                 {annualOperatingHoursValidationMessage && (
@@ -1236,7 +1270,7 @@ function App() {
 
               <div className="field">
                 <label htmlFor="ownershipYears">
-                  {renderHelpLabel('Ownership Years', 'Set the number of years for total cost of ownership analysis. This is how many years you expect to use the air purifier before replacing it.')}
+                  {renderHelpLabel(copy.ownershipYearsLabel, copy.ownershipYearsHelp)}
                 </label>
                 <input type="text" id="ownershipYears" name="ownershipYears" maxLength={2} inputMode="numeric" pattern="\d*" value={formatIntegerInputString(form.ownershipYears)} onChange={handleChange} onBlur={handleBlur} />
                 {ownershipYearsValidationMessage && (
@@ -1246,7 +1280,7 @@ function App() {
 
               <div className="field">
                 <label htmlFor="maxFilterUsageHoursGlobal">
-                  {renderHelpLabel('Max Filter Usage Period (hours, optional, applies to all models)', 'Optionally cap filter runtime before replacement across all models. Leave blank to rely on filter life estimates calculated by this app, or use manufacturer guidance and maintenance policy to set a fixed limit. You can also set per-model limits in the table below. A common reason to replace a filter sooner is appearance of odors, especially for combined/bonded HEPA + carbon filters, where the carbon component often expires before the HEPA part.')}
+                  {renderHelpLabel(copy.maxFilterUsageGlobalLabel, copy.maxFilterUsageGlobalHelp)}
                 </label>
                 <input
                   type="text"
@@ -1255,7 +1289,7 @@ function App() {
                   value={formatDecimalInputString(inputDrafts['max-filter-usage-global'] ?? (maxFilterUsageHoursGlobal ?? ''))}
                   onChange={handleMaxFilterUsageGlobalChange}
                   onBlur={() => handleDraftInputBlur('max-filter-usage-global')}
-                  placeholder="Optional"
+                  placeholder={copy.optional}
                 />
                 {maxFilterUsageHoursGlobalValidationMessage && (
                   <p className="message error">{maxFilterUsageHoursGlobalValidationMessage}</p>
@@ -1267,30 +1301,30 @@ function App() {
       </section>
 
       <section className="card metric-panel">
-        <h2>Required CADR</h2>
+        <h2>{copy.requiredCadrTitle}</h2>
         <div className="metrics-grid">
-          {requiredPm2_5CADR === null ? <p className="metric-item">Indoor PM2.5 Concentration Limit must be greater than zero</p> : <p className="metric-item">Required CADR for PM2.5: <strong>{formatGroupedNumber(requiredPm2_5CADR, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³/h</strong></p>}
-          {requiredPm10CADR === null ? <p className="metric-item">Indoor PM10 Concentration Limit must be greater than zero</p> : <p className="metric-item">Required CADR for PM10: <strong>{formatGroupedNumber(requiredPm10CADR, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³/h</strong></p>}
-          {minimumRequiredCADR === 0 ? <p className="metric-item">At least one of the required CADR values must be greater than zero</p> : <p className="metric-item">Minimum Required CADR: <strong>{formatGroupedNumber(minimumRequiredCADR, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³/h</strong></p>}
+          {requiredPm2_5CADR === null ? <p className="metric-item">{copy.pm25LimitPositive}</p> : <p className="metric-item">{copy.requiredCadrPm25} <strong>{formatNumber(requiredPm2_5CADR, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³/h</strong></p>}
+          {requiredPm10CADR === null ? <p className="metric-item">{copy.pm10LimitPositive}</p> : <p className="metric-item">{copy.requiredCadrPm10} <strong>{formatNumber(requiredPm10CADR, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³/h</strong></p>}
+          {minimumRequiredCADR === 0 ? <p className="metric-item">{copy.oneCadrPositive}</p> : <p className="metric-item">{copy.minimumRequiredCadr} <strong>{formatNumber(minimumRequiredCADR, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³/h</strong></p>}
         </div>
       </section>
 
       <section className="card table-card">
-        <h2>Air Purifier Prices ({selectedCountry})</h2>
+        <h2>{copy.purifierPricesTitle(selectedCountry)}</h2>
         <div className="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Brand</th>
-                <th>Model</th>
-                <th>{renderHeaderWithHelp(`Purifier Price (${selectedCountryCurrency})`, 'Purchase price per air purifier unit in the selected country.')}</th>
-                <th>{renderHeaderWithHelp(`Filter Price (${selectedCountryCurrency})`, 'Replacement filter price per unit.')}</th>
-                <th>{renderHeaderWithHelp('Max Filter Usage Period (hours, optional override)', 'Optional per-model runtime cap that overrides the global filter usage cap.')}</th>
+                <th>{copy.brand}</th>
+                <th>{copy.model}</th>
+                <th>{renderHeaderWithHelp(copy.purifierPriceHeader(selectedCountryCurrency), copy.purifierPriceHelpHeader)}</th>
+                <th>{renderHeaderWithHelp(copy.filterPriceHeader(selectedCountryCurrency), copy.filterPriceHelpHeader)}</th>
+                <th>{renderHeaderWithHelp(copy.maxFilterUsageHeader, copy.maxFilterUsageHelpHeader)}</th>
               </tr>
             </thead>
             <tbody>
               {airPurifiers.map((purifier) => {
-                const purifierMaxFilterUsageValidationMessage = getFilterUsageLimitValidationMessage(maxFilterUsageHoursByPurifier[purifier.id]);
+                const purifierMaxFilterUsageValidationMessage = getFilterUsageLimitValidationMessage(maxFilterUsageHoursByPurifier[purifier.id], copy.filterUsageLimitPositive);
 
                 return (
                   <tr key={purifier.id}>
@@ -1310,7 +1344,7 @@ function App() {
                         onChange={(e) => handleAirPurifierPriceChange(purifier.id, e)}
                         onBlur={() => handleDraftInputBlur(`purifier-${purifier.id}-${selectedCountry}`)}
                         placeholder="0.0000"
-                        aria-label={`${purifier.brand} ${purifier.model} purifier price (${selectedCountryCurrency})`}
+                        aria-label={copy.purifierPriceAria(purifier.brand, purifier.model, selectedCountryCurrency)}
                       />
                     </td>
                     <td>
@@ -1327,7 +1361,7 @@ function App() {
                         onChange={(e) => handleFilterPriceChange(purifier.id, e)}
                         onBlur={() => handleDraftInputBlur(`filter-${purifier.id}-${selectedCountry}`)}
                         placeholder="0.0000"
-                        aria-label={`${purifier.brand} ${purifier.model} filter price (${selectedCountryCurrency})`}
+                        aria-label={copy.filterPriceAria(purifier.brand, purifier.model, selectedCountryCurrency)}
                       />
                     </td>
                     <td>
@@ -1343,8 +1377,8 @@ function App() {
                         }
                         onChange={(e) => handleMaxFilterUsageByPurifierChange(purifier.id, e)}
                         onBlur={() => handleDraftInputBlur(`max-filter-usage-${purifier.id}`)}
-                        placeholder="Optional override"
-                        aria-label={`${purifier.brand} ${purifier.model} max filter usage override`}
+                        placeholder={copy.optionalOverride}
+                        aria-label={copy.maxFilterUsageOverrideAria(purifier.brand, purifier.model)}
                       />
                       {purifierMaxFilterUsageValidationMessage && (
                         <p className="message error">{purifierMaxFilterUsageValidationMessage}</p>
@@ -1359,43 +1393,47 @@ function App() {
       </section>
 
       <section className="card table-card">
-        <h2>Air Purifier Groups</h2>
+        <h2>{copy.purifierGroupsTitle}</h2>
         {bestValueGroup && (
           <div className="summary-card" role="status" aria-live="polite">
             <p className="summary-title">
-              Best Value Option: <strong>{bestValueGroup.brand} {bestValueGroup.model}</strong> ({bestValueGroup.quantity} unit{bestValueGroup.quantity > 1 ? 's' : ''}, {bestValueGroup.speedName})
+              {copy.bestValueOption} <strong>{bestValueGroup.brand} {bestValueGroup.model}</strong> ({bestValueGroup.quantity} {bestValueGroup.quantity > 1 ? copy.units : copy.unit}, {bestValueGroup.speedName})
             </p>
             <p className="summary-metrics">
-              TCO: <strong>{formatGroupedNumber(bestValueGroup.totalCostOfOwnership, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {selectedCountryCurrency}</strong> · Starting CADR: <strong>{formatGroupedNumber(bestValueGroup.totalCadrM3PerHour, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³/h</strong> · Noise: <strong>{formatGroupedNumber(bestValueGroup.combinedNoiseDbA, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} dBA</strong>
+              {copy.tcoLabel} <strong>{formatNumber(bestValueGroup.totalCostOfOwnership, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {selectedCountryCurrency}</strong> · {copy.startingCadrLabel} <strong>{formatNumber(bestValueGroup.totalCadrM3PerHour, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³/h</strong> · {copy.noiseLabel} <strong>{formatNumber(bestValueGroup.combinedNoiseDbA, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} dBA</strong>
             </p>
           </div>
         )}
         {isCostPeriodValid ? (
           <p className="message info">
-            Cost of ownership period: {formatGroupedNumber(form.ownershipYears)} years × {formatGroupedNumber(form.annualOperatingHours)} hours/year = {formatGroupedNumber(form.ownershipYears * form.annualOperatingHours)} hours
+            {copy.ownershipPeriodMessage(
+              formatNumber(form.ownershipYears),
+              formatNumber(form.annualOperatingHours),
+              formatNumber(form.ownershipYears * form.annualOperatingHours),
+            )}
           </p>
         ) : (
-          <p className="message error">Cost of ownership period unavailable until Annual Operating Hours and Ownership Years are valid.</p>
+          <p className="message error">{copy.ownershipPeriodUnavailable}</p>
         )}
         {sortedAirPurifierGroupsWithCosts.length === 0 ? (
-          <p className="message info">No matching groups for the current constraints.</p>
+          <p className="message info">{copy.noMatchingGroups}</p>
         ) : (
           <div className="table-wrap">
             <table className="air-purifier-groups-table">
               <thead>
                 <tr>
-                  <th><button type="button" className={getSortButtonClassName('brand')} onClick={() => handleSort('brand')}>Brand {getSortIndicator('brand')}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('model')} onClick={() => handleSort('model')}>Model {getSortIndicator('model')}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('speedName')} onClick={() => handleSort('speedName')}>Speed Setting {getSortIndicator('speedName')}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('quantity')} onClick={() => handleSort('quantity')}>{renderSortableHeaderWithHelp('quantity', 'Quantity', 'Number of air purifiers running simultaneously in the room.')}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('totalCadrM3PerHour')} onClick={() => handleSort('totalCadrM3PerHour')}>{renderSortableHeaderWithHelp('totalCadrM3PerHour', 'Total Starting CADR (m³/h)', 'Total clean-air delivery from all units in the group at the selected speed.')}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('totalPowerWatts')} onClick={() => handleSort('totalPowerWatts')}>Total Power (W) {getSortIndicator('totalPowerWatts')}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('combinedNoiseDbA')} onClick={() => handleSort('combinedNoiseDbA')}>Combined Noise (dBA) {getSortIndicator('combinedNoiseDbA')}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('filterLifeHours')} onClick={() => handleSort('filterLifeHours')}>{renderSortableHeaderWithHelp('filterLifeHours', 'Estimated Filter Life (h)', 'Projected runtime before replacement threshold after applying global or model-specific caps.')}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('purchaseCost')} onClick={() => handleSort('purchaseCost')}>Initial Purchase Cost ({selectedCountryCurrency}) {getSortIndicator('purchaseCost')}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('electricityCost')} onClick={() => handleSort('electricityCost')}>{renderSortableHeaderWithHelp('electricityCost', `Total Electricity Cost (${selectedCountryCurrency})`, 'Energy cost for the selected ownership period based on power draw and electricity price.')}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('filterCost')} onClick={() => handleSort('filterCost')}>{renderSortableHeaderWithHelp('filterCost', `Total Filter Replacement Cost (${selectedCountryCurrency})`, 'Replacement filter cost for the selected ownership period.')}</button></th>
-                  <th><button type="button" className={getSortButtonClassName('totalCostOfOwnership')} onClick={() => handleSort('totalCostOfOwnership')}>{renderSortableHeaderWithHelp('totalCostOfOwnership', `Total Cost of Ownership (${selectedCountryCurrency})`, 'Combined purchase, electricity, and filter replacement cost for the selected period.')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('brand')} onClick={() => handleSort('brand')}>{copy.brand} {getSortIndicator('brand')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('model')} onClick={() => handleSort('model')}>{copy.model} {getSortIndicator('model')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('speedName')} onClick={() => handleSort('speedName')}>{copy.speedSetting} {getSortIndicator('speedName')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('quantity')} onClick={() => handleSort('quantity')}>{renderSortableHeaderWithHelp('quantity', copy.quantity, copy.quantityHelp)}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('totalCadrM3PerHour')} onClick={() => handleSort('totalCadrM3PerHour')}>{renderSortableHeaderWithHelp('totalCadrM3PerHour', copy.totalStartingCadr, copy.totalStartingCadrHelp)}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('totalPowerWatts')} onClick={() => handleSort('totalPowerWatts')}>{copy.totalPower} {getSortIndicator('totalPowerWatts')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('combinedNoiseDbA')} onClick={() => handleSort('combinedNoiseDbA')}>{copy.combinedNoise} {getSortIndicator('combinedNoiseDbA')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('filterLifeHours')} onClick={() => handleSort('filterLifeHours')}>{renderSortableHeaderWithHelp('filterLifeHours', copy.estimatedFilterLife, copy.estimatedFilterLifeHelp)}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('purchaseCost')} onClick={() => handleSort('purchaseCost')}>{copy.initialPurchaseCost(selectedCountryCurrency)} {getSortIndicator('purchaseCost')}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('electricityCost')} onClick={() => handleSort('electricityCost')}>{renderSortableHeaderWithHelp('electricityCost', copy.totalElectricityCost(selectedCountryCurrency), copy.totalElectricityCostHelp)}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('filterCost')} onClick={() => handleSort('filterCost')}>{renderSortableHeaderWithHelp('filterCost', copy.totalFilterReplacementCost(selectedCountryCurrency), copy.totalFilterReplacementCostHelp)}</button></th>
+                  <th><button type="button" className={getSortButtonClassName('totalCostOfOwnership')} onClick={() => handleSort('totalCostOfOwnership')}>{renderSortableHeaderWithHelp('totalCostOfOwnership', copy.totalCostOfOwnership(selectedCountryCurrency), copy.totalCostOfOwnershipHelp)}</button></th>
                 </tr>
               </thead>
               <tbody>
@@ -1405,41 +1443,70 @@ function App() {
                     <td>{group.model}</td>
                     <td>{group.speedName}</td>
                     <td>{group.quantity}</td>
-                    <td className="cell-tooltip" data-tooltip={`Total CADR = ${formatGroupedNumber(group.totalCadrM3PerHour, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³/h (single unit ${formatGroupedNumber(group.totalCadrM3PerHour / group.quantity, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} × quantity ${group.quantity})`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{formatGroupedNumber(group.totalCadrM3PerHour, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <td className="cell-tooltip" data-tooltip={copy.totalCadrTooltip(
+                      `${formatNumber(group.totalCadrM3PerHour, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                      `${formatNumber(group.totalCadrM3PerHour / group.quantity, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                      group.quantity,
+                    )} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
+                      <span className="cell-tooltip-value">{formatNumber(group.totalCadrM3PerHour, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </td>
-                    <td className="cell-tooltip" data-tooltip={`Total power = ${formatGroupedNumber(group.totalPowerWatts, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} W (single unit ${formatGroupedNumber(group.totalPowerWatts / group.quantity, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} × quantity ${group.quantity})`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{formatGroupedNumber(group.totalPowerWatts, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <td className="cell-tooltip" data-tooltip={copy.totalPowerTooltip(
+                      `${formatNumber(group.totalPowerWatts, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                      `${formatNumber(group.totalPowerWatts / group.quantity, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                      group.quantity,
+                    )} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
+                      <span className="cell-tooltip-value">{formatNumber(group.totalPowerWatts, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </td>
-                    <td className="cell-tooltip" data-tooltip={`Combined noise from ${group.quantity} units: ${formatGroupedNumber(group.combinedNoiseDbA, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} dBA`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{formatGroupedNumber(group.combinedNoiseDbA, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span>
+                    <td className="cell-tooltip" data-tooltip={copy.noiseTooltip(
+                      group.quantity,
+                      `${formatNumber(group.combinedNoiseDbA, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`,
+                    )} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
+                      <span className="cell-tooltip-value">{formatNumber(group.combinedNoiseDbA, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span>
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.effectiveFilterLifeHours === null
-                      ? 'Filter life unavailable for this configuration'
+                      ? copy.filterLifeUnavailable
                       : Number.isFinite(group.appliedMaxFilterUsageHours)
-                        ? `Capped at ${formatGroupedNumber(group.appliedMaxFilterUsageHours, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} h by usage limit. Estimated stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`
-                        : `Estimated from CADR decay model. Stop reason: ${group.filterLifeEstimate?.stopReason ?? 'n/a'}`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{group.effectiveFilterLifeHours === null ? 'N/A' : formatGroupedNumber(group.effectiveFilterLifeHours)}</span>
+                        ? copy.cappedByUsageLimit(
+                          formatNumber(group.appliedMaxFilterUsageHours, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                          group.filterLifeEstimate?.stopReason ?? copy.stopReasonFallback,
+                        )
+                        : copy.estimatedFromModel(group.filterLifeEstimate?.stopReason ?? copy.stopReasonFallback)} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
+                      <span className="cell-tooltip-value">{group.effectiveFilterLifeHours === null ? copy.notAvailable : formatNumber(group.effectiveFilterLifeHours)}</span>
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.purchaseCost === null
-                      ? 'Purchase cost unavailable: purifier price missing'
-                      : `Purchase = unit price × quantity = ${formatGroupedNumber(group.purchaseCost / group.quantity, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} × ${group.quantity}`} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{group.purchaseCost === null ? 'N/A' : formatGroupedNumber(group.purchaseCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      ? copy.purchaseUnavailable
+                      : copy.purchaseTooltip(
+                        formatNumber(group.purchaseCost / group.quantity, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                        group.quantity,
+                      )} data-tooltip-max-width="360" data-tooltip-estimated-height="108" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
+                      <span className="cell-tooltip-value">{group.purchaseCost === null ? copy.notAvailable : formatNumber(group.purchaseCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.electricityCost === null
-                      ? 'Electricity cost unavailable: electricity price missing'
-                      : `Electricity = (power W / 1000) × ${formatGroupedNumber(group.ownershipPeriodHours)} h × ${formatGroupedNumber(currentElectricityPrice ?? 0, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} ${selectedCountryCurrency}/kWh`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{group.electricityCost === null ? 'N/A' : formatGroupedNumber(group.electricityCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      ? copy.electricityUnavailable
+                      : copy.electricityTooltip(
+                        formatNumber(group.ownershipPeriodHours),
+                        formatNumber(currentElectricityPrice ?? 0, { minimumFractionDigits: 4, maximumFractionDigits: 4 }),
+                        selectedCountryCurrency,
+                      )} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
+                      <span className="cell-tooltip-value">{group.electricityCost === null ? copy.notAvailable : formatNumber(group.electricityCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.filterCost === null
-                      ? 'Filter cost unavailable: filter price or filter life missing'
-                      : `Filters = unit filter price × quantity × replacements = ${formatGroupedNumber(group.filterCost / (group.quantity * (group.filterReplacements || 1)), { minimumFractionDigits: 2, maximumFractionDigits: 2 })} × ${group.quantity} × ${group.filterReplacements}`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{group.filterCost === null ? 'N/A' : formatGroupedNumber(group.filterCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      ? copy.filterCostUnavailable
+                      : copy.filterTooltip(
+                        formatNumber(group.filterCost / (group.quantity * (group.filterReplacements || 1)), { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                        group.quantity,
+                        group.filterReplacements,
+                      )} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
+                      <span className="cell-tooltip-value">{group.filterCost === null ? copy.notAvailable : formatNumber(group.filterCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </td>
                     <td className="cell-tooltip" data-tooltip={group.totalCostOfOwnership === null
-                      ? 'TCO unavailable: one or more cost components missing'
-                      : `TCO = Purchase + Electricity + Filters = ${formatGroupedNumber(group.purchaseCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} + ${formatGroupedNumber(group.electricityCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} + ${formatGroupedNumber(group.filterCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                      <span className="cell-tooltip-value">{group.totalCostOfOwnership === null ? 'N/A' : formatGroupedNumber(group.totalCostOfOwnership, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      ? copy.tcoUnavailable
+                      : copy.tcoTooltip(
+                        formatNumber(group.purchaseCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                        formatNumber(group.electricityCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                        formatNumber(group.filterCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                      )} data-tooltip-max-width="360" data-tooltip-estimated-height="124" onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
+                      <span className="cell-tooltip-value">{group.totalCostOfOwnership === null ? copy.notAvailable : formatNumber(group.totalCostOfOwnership, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </td>
                   </tr>
                 ))}
