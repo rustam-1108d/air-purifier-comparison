@@ -1156,14 +1156,14 @@ function App() {
 
               <div className="field">
                 <label htmlFor="indoorPm2_5GenerationRate">
-                  {renderHelpLabel('Indoor PM2.5 Generation Rate (µg/h)', 'Estimate how much PM2.5 your room generates each hour (µg/h), for example from cooking, smoking, or candles. Use sensor-based approximations if available, or enter 0 when unknown.')}
+                  {renderHelpLabel('PM2.5 Generation by Indoor Sources (µg/h)', 'Estimate how much PM2.5 is produced in your room on average each hour (µg/h), for example from cooking, smoking, or candles. Use sensor-based approximations if available, or enter 0 when unknown. Approximate ranges: Low 10-200 µg/h, Moderate 200-1200 µg/h, High 1200-5000 µg/h.')}
                 </label>
                 <input type="text" id="indoorPm2_5GenerationRate" name="indoorPm2_5GenerationRate" inputMode="decimal" value={formatDecimalInputString(inputDrafts.indoorPm2_5GenerationRate ?? form.indoorPm2_5GenerationRate)} onChange={handleChange} onBlur={handleBlur} />
               </div>
 
               <div className="field">
                 <label htmlFor="indoorPm10GenerationRate">
-                  {renderHelpLabel('Indoor PM10 Generation Rate (µg/h)', 'Estimate hourly indoor PM10 generation (µg/h), from sources like resuspended dust, tracked-in dirt, and indoor materials. You can infer this from sensor trends, and use 0 if you do not have a reliable estimate.')}
+                  {renderHelpLabel('PM10 Generation by Indoor Sources (µg/h)', 'Estimate how much PM10 is produced in your room on average each hour (µg/h), from sources like resuspended dust, tracked-in dirt, and indoor materials. You can infer this from sensor trends, or use 0 if you do not have a reliable estimate. Approximate ranges: Low 20-300 µg/h, Moderate 300-2000 µg/h, High 2000-7000 µg/h.')}
                 </label>
                 <input type="text" id="indoorPm10GenerationRate" name="indoorPm10GenerationRate" inputMode="decimal" value={formatDecimalInputString(inputDrafts.indoorPm10GenerationRate ?? form.indoorPm10GenerationRate)} onChange={handleChange} onBlur={handleBlur} />
                 {indoorGenerationPmHierarchyValidationMessage && (
@@ -1192,7 +1192,7 @@ function App() {
 
               <div className="field">
                 <label htmlFor="maxAirPurifierCount">
-                  {renderHelpLabel('Max Air Purifier Count', 'Set the maximum number of air purifiers that can be placed in the room. Choose this based on room space, power-outlet availability, and personal preferences.')}
+                  {renderHelpLabel('Max Air Purifier Count', 'Set the maximum number of air purifiers that can be placed in the room. Choose this based on room space, power-outlet availability, and personal preferences. Using several air purifiers can help meet air-quality targets with lower noise and cost, but may not be practical in all spaces.')}
                 </label>
                 <input type="text" id="maxAirPurifierCount" name="maxAirPurifierCount" maxLength={2} inputMode="numeric" pattern="\d*" value={formatIntegerInputString(form.maxAirPurifierCount)} onChange={handleChange} onBlur={handleBlur} />
               </div>
@@ -1226,7 +1226,7 @@ function App() {
 
               <div className="field">
                 <label htmlFor="annualOperatingHours">
-                  {renderHelpLabel('Annual Operating Hours', 'Enter expected runtime per year. Continuous operation is about 8760 hours.')}
+                  {renderHelpLabel('Annual Operating Hours', 'Enter expected runtime per year. Multiply hours of operation per day by days of operation per year. Continuous operation (24 hours/day × 365 days/year) is 8760 hours.')}
                 </label>
                 <input type="text" id="annualOperatingHours" name="annualOperatingHours" maxLength={4} inputMode="numeric" pattern="\d*" value={formatIntegerInputString(form.annualOperatingHours)} onChange={handleChange} onBlur={handleBlur} placeholder="8760" />
                 {annualOperatingHoursValidationMessage && (
@@ -1236,7 +1236,7 @@ function App() {
 
               <div className="field">
                 <label htmlFor="ownershipYears">
-                  {renderHelpLabel('Ownership Years', 'Set the number of years for total cost of ownership analysis, typically aligned with your replacement cycle, warranty horizon, or budget plan.')}
+                  {renderHelpLabel('Ownership Years', 'Set the number of years for total cost of ownership analysis. This is how many years you expect to use the air purifier before replacing it.')}
                 </label>
                 <input type="text" id="ownershipYears" name="ownershipYears" maxLength={2} inputMode="numeric" pattern="\d*" value={formatIntegerInputString(form.ownershipYears)} onChange={handleChange} onBlur={handleBlur} />
                 {ownershipYearsValidationMessage && (
@@ -1246,7 +1246,7 @@ function App() {
 
               <div className="field">
                 <label htmlFor="maxFilterUsageHoursGlobal">
-                  {renderHelpLabel('Max Filter Usage Period (hours, global, optional)', 'Optionally cap filter runtime before replacement across all models. Leave blank to rely on model estimates, or use manufacturer guidance and maintenance policy to set a fixed limit.')}
+                  {renderHelpLabel('Max Filter Usage Period (hours, optional, applies to all models)', 'Optionally cap filter runtime before replacement across all models. Leave blank to rely on filter life estimates calculated by this app, or use manufacturer guidance and maintenance policy to set a fixed limit. You can also set per-model limits in the table below. A common reason to replace a filter sooner is appearance of odors, especially for combined/bonded HEPA + carbon filters, where the carbon component often expires before the HEPA part.')}
                 </label>
                 <input
                   type="text"
@@ -1283,7 +1283,7 @@ function App() {
               <tr>
                 <th>Brand</th>
                 <th>Model</th>
-                <th>{renderHeaderWithHelp(`Purifier Price (${selectedCountryCurrency})`, 'Purchase price per purifier unit in the selected country.')}</th>
+                <th>{renderHeaderWithHelp(`Purifier Price (${selectedCountryCurrency})`, 'Purchase price per air purifier unit in the selected country.')}</th>
                 <th>{renderHeaderWithHelp(`Filter Price (${selectedCountryCurrency})`, 'Replacement filter price per unit.')}</th>
                 <th>{renderHeaderWithHelp('Max Filter Usage Period (hours, optional override)', 'Optional per-model runtime cap that overrides the global filter usage cap.')}</th>
               </tr>
