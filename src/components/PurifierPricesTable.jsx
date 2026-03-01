@@ -1,10 +1,12 @@
 import { airPurifiers } from '../data/airPurifiers.js';
+import HelpTextWithTooltip from './HelpTextWithTooltip';
 
 const PurifierPricesTable = ({
   copy,
   selectedCountryDisplayName,
   selectedCountryCurrency,
-  renderHeaderWithHelp,
+  showTooltip,
+  hideTooltip,
   getFilterUsageLimitValidationMessage,
   maxFilterUsageHoursByPurifier,
   inputDrafts,
@@ -25,9 +27,36 @@ const PurifierPricesTable = ({
           <tr>
             <th>{copy.brand}</th>
             <th>{copy.model}</th>
-            <th>{renderHeaderWithHelp(copy.purifierPriceHeader(selectedCountryCurrency), copy.purifierPriceHelpHeader)}</th>
-            <th>{renderHeaderWithHelp(copy.filterPriceHeader(selectedCountryCurrency), copy.filterPriceHelpHeader)}</th>
-            <th>{renderHeaderWithHelp(copy.maxFilterUsageHeader, copy.maxFilterUsageHelpHeader)}</th>
+            <th>
+              <HelpTextWithTooltip
+                label={copy.purifierPriceHeader(selectedCountryCurrency)}
+                helpText={copy.purifierPriceHelpHeader}
+                ariaLabel={copy.helpAria(copy.purifierPriceHeader(selectedCountryCurrency))}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+                className="table-header-with-help"
+              />
+            </th>
+            <th>
+              <HelpTextWithTooltip
+                label={copy.filterPriceHeader(selectedCountryCurrency)}
+                helpText={copy.filterPriceHelpHeader}
+                ariaLabel={copy.helpAria(copy.filterPriceHeader(selectedCountryCurrency))}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+                className="table-header-with-help"
+              />
+            </th>
+            <th>
+              <HelpTextWithTooltip
+                label={copy.maxFilterUsageHeader}
+                helpText={copy.maxFilterUsageHelpHeader}
+                ariaLabel={copy.helpAria(copy.maxFilterUsageHeader)}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+                className="table-header-with-help"
+              />
+            </th>
           </tr>
         </thead>
         <tbody>

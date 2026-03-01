@@ -1,3 +1,5 @@
+import HelpTextWithTooltip from './HelpTextWithTooltip';
+
 const PurifierGroupsTable = ({
   copy,
   bestValueGroup,
@@ -9,7 +11,6 @@ const PurifierGroupsTable = ({
   getSortButtonClassName,
   handleSort,
   getSortIndicator,
-  renderSortableHeaderWithHelp,
   currentElectricityPrice,
   showTooltip,
   hideTooltip,
@@ -55,15 +56,81 @@ const PurifierGroupsTable = ({
               <th><button type="button" className={getSortButtonClassName('brand')} onClick={() => handleSort('brand')}>{copy.brand} {getSortIndicator('brand')}</button></th>
               <th><button type="button" className={getSortButtonClassName('model')} onClick={() => handleSort('model')}>{copy.model} {getSortIndicator('model')}</button></th>
               <th><button type="button" className={getSortButtonClassName('speedName')} onClick={() => handleSort('speedName')}>{copy.speedSetting} {getSortIndicator('speedName')}</button></th>
-              <th><button type="button" className={getSortButtonClassName('quantity')} onClick={() => handleSort('quantity')}>{renderSortableHeaderWithHelp('quantity', copy.quantity, copy.quantityHelp)}</button></th>
-              <th><button type="button" className={getSortButtonClassName('totalCadrM3PerHour')} onClick={() => handleSort('totalCadrM3PerHour')}>{renderSortableHeaderWithHelp('totalCadrM3PerHour', copy.totalStartingCadr, copy.totalStartingCadrHelp)}</button></th>
+              <th>
+                <button type="button" className={getSortButtonClassName('quantity')} onClick={() => handleSort('quantity')}>
+                  <HelpTextWithTooltip
+                    label={`${copy.quantity} ${getSortIndicator('quantity')}`}
+                    helpText={copy.quantityHelp}
+                    ariaLabel={copy.helpAria(copy.quantity)}
+                    showTooltip={showTooltip}
+                    hideTooltip={hideTooltip}
+                    className="table-header-with-help"
+                  />
+                </button>
+              </th>
+              <th>
+                <button type="button" className={getSortButtonClassName('totalCadrM3PerHour')} onClick={() => handleSort('totalCadrM3PerHour')}>
+                  <HelpTextWithTooltip
+                    label={`${copy.totalStartingCadr} ${getSortIndicator('totalCadrM3PerHour')}`}
+                    helpText={copy.totalStartingCadrHelp}
+                    ariaLabel={copy.helpAria(copy.totalStartingCadr)}
+                    showTooltip={showTooltip}
+                    hideTooltip={hideTooltip}
+                    className="table-header-with-help"
+                  />
+                </button>
+              </th>
               <th><button type="button" className={getSortButtonClassName('totalPowerWatts')} onClick={() => handleSort('totalPowerWatts')}>{copy.totalPower} {getSortIndicator('totalPowerWatts')}</button></th>
               <th><button type="button" className={getSortButtonClassName('combinedNoiseDbA')} onClick={() => handleSort('combinedNoiseDbA')}>{copy.combinedNoise} {getSortIndicator('combinedNoiseDbA')}</button></th>
-              <th><button type="button" className={getSortButtonClassName('filterLifeHours')} onClick={() => handleSort('filterLifeHours')}>{renderSortableHeaderWithHelp('filterLifeHours', copy.estimatedFilterLife, copy.estimatedFilterLifeHelp)}</button></th>
+              <th>
+                <button type="button" className={getSortButtonClassName('filterLifeHours')} onClick={() => handleSort('filterLifeHours')}>
+                  <HelpTextWithTooltip
+                    label={`${copy.estimatedFilterLife} ${getSortIndicator('filterLifeHours')}`}
+                    helpText={copy.estimatedFilterLifeHelp}
+                    ariaLabel={copy.helpAria(copy.estimatedFilterLife)}
+                    showTooltip={showTooltip}
+                    hideTooltip={hideTooltip}
+                    className="table-header-with-help"
+                  />
+                </button>
+              </th>
               <th><button type="button" className={getSortButtonClassName('purchaseCost')} onClick={() => handleSort('purchaseCost')}>{copy.initialPurchaseCost(selectedCountryCurrency)} {getSortIndicator('purchaseCost')}</button></th>
-              <th><button type="button" className={getSortButtonClassName('electricityCost')} onClick={() => handleSort('electricityCost')}>{renderSortableHeaderWithHelp('electricityCost', copy.totalElectricityCost(selectedCountryCurrency), copy.totalElectricityCostHelp)}</button></th>
-              <th><button type="button" className={getSortButtonClassName('filterCost')} onClick={() => handleSort('filterCost')}>{renderSortableHeaderWithHelp('filterCost', copy.totalFilterReplacementCost(selectedCountryCurrency), copy.totalFilterReplacementCostHelp)}</button></th>
-              <th><button type="button" className={getSortButtonClassName('totalCostOfOwnership')} onClick={() => handleSort('totalCostOfOwnership')}>{renderSortableHeaderWithHelp('totalCostOfOwnership', copy.totalCostOfOwnership(selectedCountryCurrency), copy.totalCostOfOwnershipHelp)}</button></th>
+              <th>
+                <button type="button" className={getSortButtonClassName('electricityCost')} onClick={() => handleSort('electricityCost')}>
+                  <HelpTextWithTooltip
+                    label={`${copy.totalElectricityCost(selectedCountryCurrency)} ${getSortIndicator('electricityCost')}`}
+                    helpText={copy.totalElectricityCostHelp}
+                    ariaLabel={copy.helpAria(copy.totalElectricityCost(selectedCountryCurrency))}
+                    showTooltip={showTooltip}
+                    hideTooltip={hideTooltip}
+                    className="table-header-with-help"
+                  />
+                </button>
+              </th>
+              <th>
+                <button type="button" className={getSortButtonClassName('filterCost')} onClick={() => handleSort('filterCost')}>
+                  <HelpTextWithTooltip
+                    label={`${copy.totalFilterReplacementCost(selectedCountryCurrency)} ${getSortIndicator('filterCost')}`}
+                    helpText={copy.totalFilterReplacementCostHelp}
+                    ariaLabel={copy.helpAria(copy.totalFilterReplacementCost(selectedCountryCurrency))}
+                    showTooltip={showTooltip}
+                    hideTooltip={hideTooltip}
+                    className="table-header-with-help"
+                  />
+                </button>
+              </th>
+              <th>
+                <button type="button" className={getSortButtonClassName('totalCostOfOwnership')} onClick={() => handleSort('totalCostOfOwnership')}>
+                  <HelpTextWithTooltip
+                    label={`${copy.totalCostOfOwnership(selectedCountryCurrency)} ${getSortIndicator('totalCostOfOwnership')}`}
+                    helpText={copy.totalCostOfOwnershipHelp}
+                    ariaLabel={copy.helpAria(copy.totalCostOfOwnership(selectedCountryCurrency))}
+                    showTooltip={showTooltip}
+                    hideTooltip={hideTooltip}
+                    className="table-header-with-help"
+                  />
+                </button>
+              </th>
             </tr>
           </thead>
           <tbody>

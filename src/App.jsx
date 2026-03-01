@@ -263,72 +263,6 @@ function App() {
     setForm(INITIAL_FORM);
   };
 
-  const renderHelpLabel = (label, helpText) => (
-    <span className="label-with-help">
-      <span>{label}</span>
-      {helpText && (
-        <span
-          className="help-dot"
-          aria-label={copy.helpAria(label)}
-          tabIndex={0}
-          data-tooltip={helpText}
-          data-tooltip-max-width="320"
-          data-tooltip-estimated-height="96"
-          onMouseEnter={showTooltip}
-          onMouseLeave={hideTooltip}
-          onFocus={showTooltip}
-          onBlur={hideTooltip}
-        >
-          ?
-        </span>
-      )}
-    </span>
-  );
-
-  const renderHeaderWithHelp = (label, helpText) => (
-    <span className="table-header-with-help">
-      <span>{label}</span>
-      {helpText && (
-        <span
-          className="help-dot"
-          aria-label={copy.helpAria(label)}
-          tabIndex={0}
-          data-tooltip={helpText}
-          data-tooltip-max-width="320"
-          data-tooltip-estimated-height="96"
-          onMouseEnter={showTooltip}
-          onMouseLeave={hideTooltip}
-          onFocus={showTooltip}
-          onBlur={hideTooltip}
-        >
-          ?
-        </span>
-      )}
-    </span>
-  );
-
-  const renderSortableHeaderWithHelp = (key, label, helpText) => (
-    <span className="table-header-with-help">
-      <span>{label} {getSortIndicator(key)}</span>
-      {helpText && (
-        <span
-          className="help-dot"
-          aria-label={copy.helpAria(label)}
-          tabIndex={0}
-          data-tooltip={helpText}
-          data-tooltip-max-width="320"
-          data-tooltip-estimated-height="96"
-          onMouseEnter={showTooltip}
-          onMouseLeave={hideTooltip}
-          onFocus={showTooltip}
-          onBlur={hideTooltip}
-        >
-          ?
-        </span>
-      )}
-    </span>
-  );
-
   const appHeaderProps = {
     copy,
     language,
@@ -347,7 +281,8 @@ function App() {
     getLocalizedCountryName,
     availableCities,
     getLocalizedCityName,
-    renderHelpLabel,
+    showTooltip,
+    hideTooltip,
     formatDecimalInputString,
     formatIntegerInputString,
     inputDrafts,
@@ -387,7 +322,8 @@ function App() {
     copy,
     selectedCountryDisplayName,
     selectedCountryCurrency,
-    renderHeaderWithHelp,
+    showTooltip,
+    hideTooltip,
     getFilterUsageLimitValidationMessage,
     maxFilterUsageHoursByPurifier,
     inputDrafts,
@@ -412,7 +348,6 @@ function App() {
     getSortButtonClassName,
     handleSort,
     getSortIndicator,
-    renderSortableHeaderWithHelp,
     currentElectricityPrice,
     showTooltip,
     hideTooltip,

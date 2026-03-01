@@ -1,4 +1,5 @@
 import countries from '../data/countries.js';
+import HelpTextWithTooltip from './HelpTextWithTooltip';
 
 const InputsPanel = ({
   copy,
@@ -9,7 +10,8 @@ const InputsPanel = ({
   getLocalizedCountryName,
   availableCities,
   getLocalizedCityName,
-  renderHelpLabel,
+  showTooltip,
+  hideTooltip,
   formatDecimalInputString,
   formatIntegerInputString,
   inputDrafts,
@@ -44,7 +46,15 @@ const InputsPanel = ({
         <h3>{copy.section1Title}</h3>
         <div className="form-grid">
           <div className="field">
-            <label htmlFor="country">{renderHelpLabel(copy.country, copy.countryHelp)}</label>
+            <label htmlFor="country">
+              <HelpTextWithTooltip
+                label={copy.country}
+                helpText={copy.countryHelp}
+                ariaLabel={copy.helpAria(copy.country)}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+              />
+            </label>
             <select
               id="country"
               name="country"
@@ -63,7 +73,15 @@ const InputsPanel = ({
           </div>
 
           <div className="field">
-            <label htmlFor="city">{renderHelpLabel(copy.cityOptional, copy.cityOptionalHelp)}</label>
+            <label htmlFor="city">
+              <HelpTextWithTooltip
+                label={copy.cityOptional}
+                helpText={copy.cityOptionalHelp}
+                ariaLabel={copy.helpAria(copy.cityOptional)}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+              />
+            </label>
             <select id="city" name="city" value={selectedCityId} onChange={(e) => setSelectedCityId(e.target.value)}>
               <option value="">{copy.countryAverage}</option>
               {availableCities.map((city) => (
@@ -75,7 +93,15 @@ const InputsPanel = ({
           </div>
 
           <div className="field">
-            <label htmlFor="outdoorPm2_5AnnualAverageConcentration">{renderHelpLabel(copy.outdoorPm25Label, copy.outdoorPm25Help)}</label>
+            <label htmlFor="outdoorPm2_5AnnualAverageConcentration">
+              <HelpTextWithTooltip
+                label={copy.outdoorPm25Label}
+                helpText={copy.outdoorPm25Help}
+                ariaLabel={copy.helpAria(copy.outdoorPm25Label)}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+              />
+            </label>
             <input
               type="text"
               id="outdoorPm2_5AnnualAverageConcentration"
@@ -88,7 +114,15 @@ const InputsPanel = ({
           </div>
 
           <div className="field">
-            <label htmlFor="outdoorPm10AnnualAverageConcentration">{renderHelpLabel(copy.outdoorPm10Label, copy.outdoorPm10Help)}</label>
+            <label htmlFor="outdoorPm10AnnualAverageConcentration">
+              <HelpTextWithTooltip
+                label={copy.outdoorPm10Label}
+                helpText={copy.outdoorPm10Help}
+                ariaLabel={copy.helpAria(copy.outdoorPm10Label)}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+              />
+            </label>
             <input
               type="text"
               id="outdoorPm10AnnualAverageConcentration"
@@ -109,7 +143,15 @@ const InputsPanel = ({
         <h3>{copy.section2Title}</h3>
         <div className="form-grid">
           <div className="field">
-            <label htmlFor="indoorPm2_5AnnualAverageConcentrationLimit">{renderHelpLabel(copy.indoorPm25LimitLabel, copy.indoorPm25LimitHelp)}</label>
+            <label htmlFor="indoorPm2_5AnnualAverageConcentrationLimit">
+              <HelpTextWithTooltip
+                label={copy.indoorPm25LimitLabel}
+                helpText={copy.indoorPm25LimitHelp}
+                ariaLabel={copy.helpAria(copy.indoorPm25LimitLabel)}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+              />
+            </label>
             <input
               type="text"
               id="indoorPm2_5AnnualAverageConcentrationLimit"
@@ -122,7 +164,15 @@ const InputsPanel = ({
           </div>
 
           <div className="field">
-            <label htmlFor="indoorPm10AnnualAverageConcentrationLimit">{renderHelpLabel(copy.indoorPm10LimitLabel, copy.indoorPm10LimitHelp)}</label>
+            <label htmlFor="indoorPm10AnnualAverageConcentrationLimit">
+              <HelpTextWithTooltip
+                label={copy.indoorPm10LimitLabel}
+                helpText={copy.indoorPm10LimitHelp}
+                ariaLabel={copy.helpAria(copy.indoorPm10LimitLabel)}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+              />
+            </label>
             <input
               type="text"
               id="indoorPm10AnnualAverageConcentrationLimit"
@@ -138,7 +188,15 @@ const InputsPanel = ({
           </div>
 
           <div className="field">
-            <label htmlFor="indoorPm2_5GenerationRate">{renderHelpLabel(copy.indoorPm25GenerationLabel, copy.indoorPm25GenerationHelp)}</label>
+            <label htmlFor="indoorPm2_5GenerationRate">
+              <HelpTextWithTooltip
+                label={copy.indoorPm25GenerationLabel}
+                helpText={copy.indoorPm25GenerationHelp}
+                ariaLabel={copy.helpAria(copy.indoorPm25GenerationLabel)}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+              />
+            </label>
             <input
               type="text"
               id="indoorPm2_5GenerationRate"
@@ -151,7 +209,15 @@ const InputsPanel = ({
           </div>
 
           <div className="field">
-            <label htmlFor="indoorPm10GenerationRate">{renderHelpLabel(copy.indoorPm10GenerationLabel, copy.indoorPm10GenerationHelp)}</label>
+            <label htmlFor="indoorPm10GenerationRate">
+              <HelpTextWithTooltip
+                label={copy.indoorPm10GenerationLabel}
+                helpText={copy.indoorPm10GenerationHelp}
+                ariaLabel={copy.helpAria(copy.indoorPm10GenerationLabel)}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+              />
+            </label>
             <input
               type="text"
               id="indoorPm10GenerationRate"
@@ -172,7 +238,15 @@ const InputsPanel = ({
         <h3>{copy.section3Title}</h3>
         <div className="form-grid">
           <div className="field">
-            <label htmlFor="roomVolume">{renderHelpLabel(copy.roomVolumeLabel, copy.roomVolumeHelp)}</label>
+            <label htmlFor="roomVolume">
+              <HelpTextWithTooltip
+                label={copy.roomVolumeLabel}
+                helpText={copy.roomVolumeHelp}
+                ariaLabel={copy.helpAria(copy.roomVolumeLabel)}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+              />
+            </label>
             <input
               type="text"
               id="roomVolume"
@@ -185,7 +259,15 @@ const InputsPanel = ({
           </div>
 
           <div className="field">
-            <label htmlFor="ventilationRate">{renderHelpLabel(copy.ventilationRateLabel, copy.ventilationRateHelp)}</label>
+            <label htmlFor="ventilationRate">
+              <HelpTextWithTooltip
+                label={copy.ventilationRateLabel}
+                helpText={copy.ventilationRateHelp}
+                ariaLabel={copy.helpAria(copy.ventilationRateLabel)}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+              />
+            </label>
             <input
               type="text"
               id="ventilationRate"
@@ -198,7 +280,15 @@ const InputsPanel = ({
           </div>
 
           <div className="field">
-            <label htmlFor="maxAirPurifierCount">{renderHelpLabel(copy.maxPurifierCountLabel, copy.maxPurifierCountHelp)}</label>
+            <label htmlFor="maxAirPurifierCount">
+              <HelpTextWithTooltip
+                label={copy.maxPurifierCountLabel}
+                helpText={copy.maxPurifierCountHelp}
+                ariaLabel={copy.helpAria(copy.maxPurifierCountLabel)}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+              />
+            </label>
             <input
               type="text"
               id="maxAirPurifierCount"
@@ -213,7 +303,15 @@ const InputsPanel = ({
           </div>
 
           <div className="field">
-            <label htmlFor="maxCombinedNoiseDbA">{renderHelpLabel(copy.maxNoiseLabel, copy.maxNoiseHelp)}</label>
+            <label htmlFor="maxCombinedNoiseDbA">
+              <HelpTextWithTooltip
+                label={copy.maxNoiseLabel}
+                helpText={copy.maxNoiseHelp}
+                ariaLabel={copy.helpAria(copy.maxNoiseLabel)}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+              />
+            </label>
             <input
               type="text"
               id="maxCombinedNoiseDbA"
@@ -231,7 +329,15 @@ const InputsPanel = ({
         <h3>{copy.section4Title}</h3>
         <div className="form-grid">
           <div className="field">
-            <label htmlFor="electricityPrice">{renderHelpLabel(copy.electricityPriceLabel(selectedCountryCurrency), copy.electricityPriceHelp)}</label>
+            <label htmlFor="electricityPrice">
+              <HelpTextWithTooltip
+                label={copy.electricityPriceLabel(selectedCountryCurrency)}
+                helpText={copy.electricityPriceHelp}
+                ariaLabel={copy.helpAria(copy.electricityPriceLabel(selectedCountryCurrency))}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+              />
+            </label>
             <input
               type="text"
               id="electricityPrice"
@@ -244,7 +350,15 @@ const InputsPanel = ({
           </div>
 
           <div className="field">
-            <label htmlFor="annualOperatingHours">{renderHelpLabel(copy.annualOperatingHoursLabel, copy.annualOperatingHoursHelp)}</label>
+            <label htmlFor="annualOperatingHours">
+              <HelpTextWithTooltip
+                label={copy.annualOperatingHoursLabel}
+                helpText={copy.annualOperatingHoursHelp}
+                ariaLabel={copy.helpAria(copy.annualOperatingHoursLabel)}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+              />
+            </label>
             <input
               type="text"
               id="annualOperatingHours"
@@ -263,7 +377,15 @@ const InputsPanel = ({
           </div>
 
           <div className="field">
-            <label htmlFor="ownershipYears">{renderHelpLabel(copy.ownershipYearsLabel, copy.ownershipYearsHelp)}</label>
+            <label htmlFor="ownershipYears">
+              <HelpTextWithTooltip
+                label={copy.ownershipYearsLabel}
+                helpText={copy.ownershipYearsHelp}
+                ariaLabel={copy.helpAria(copy.ownershipYearsLabel)}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+              />
+            </label>
             <input
               type="text"
               id="ownershipYears"
@@ -281,7 +403,15 @@ const InputsPanel = ({
           </div>
 
           <div className="field">
-            <label htmlFor="maxFilterUsageHoursGlobal">{renderHelpLabel(copy.maxFilterUsageGlobalLabel, copy.maxFilterUsageGlobalHelp)}</label>
+            <label htmlFor="maxFilterUsageHoursGlobal">
+              <HelpTextWithTooltip
+                label={copy.maxFilterUsageGlobalLabel}
+                helpText={copy.maxFilterUsageGlobalHelp}
+                ariaLabel={copy.helpAria(copy.maxFilterUsageGlobalLabel)}
+                showTooltip={showTooltip}
+                hideTooltip={hideTooltip}
+              />
+            </label>
             <input
               type="text"
               id="maxFilterUsageHoursGlobal"
