@@ -8,6 +8,7 @@ import InputsPanel from './components/InputsPanel';
 import RequiredCadrPanel from './components/RequiredCadrPanel';
 import PurifierPricesTable from './components/PurifierPricesTable';
 import PurifierGroupsTable from './components/PurifierGroupsTable';
+import FloatingTooltip from './components/FloatingTooltip';
 import {
   buildInitialElectricityPricesByCountry,
   buildInitialAirQualityByCountry,
@@ -284,20 +285,8 @@ function App() {
       <PurifierPricesTable {...purifierPricesTableProps} />
 
       <PurifierGroupsTable {...purifierGroupsTableProps} />
-      {activeTooltip && (
-        <div
-          className={`floating-tooltip floating-tooltip--${activeTooltip.vertical}`}
-          style={{
-            left: `${activeTooltip.left}px`,
-            top: `${activeTooltip.anchorY}px`,
-            width: `${activeTooltip.width}px`,
-            '--tooltip-arrow-left': `${activeTooltip.arrowOffset}px`,
-          }}
-          role="tooltip"
-        >
-          {activeTooltip.text}
-        </div>
-      )}
+
+      <FloatingTooltip activeTooltip={activeTooltip} />
     </main>
   )
 }
